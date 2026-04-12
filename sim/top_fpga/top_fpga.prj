@@ -9,8 +9,8 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 
-sv work ../../rtl/vga_pkg.sv \
-        ../../rtl/vga_timing.sv \
+sv work ../../rtl/vga/vga_pkg.sv \
+        ../../rtl/vga/vga_timing.sv \
         ../../rtl/draw_bg.sv \
         ../../rtl/top_vga.sv \
         ../../fpga/rtl/top_vga_basys3.sv \

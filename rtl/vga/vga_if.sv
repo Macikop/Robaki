@@ -1,3 +1,7 @@
+/* VGA interface
+ */
+
+
 interface vga_if ();
     logic [10:0] vcount;
     logic        vsync;

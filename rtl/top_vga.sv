@@ -25,7 +25,7 @@ module top_vga (
     timeunit 1ns;
     timeprecision 1ps;
 
-    /**
+    /*
      * Local variables and signals
      */
 

@@ -5,6 +5,8 @@
  *
  * Description:
  * Vga timing controller.
+ * 
+ * Modified on lab classes
  */
 
 module vga_timing (
