@@ -1,4 +1,4 @@
-/**
+/*
  * San Jose State University
  * EE178 Lab #4
  * Author: prof. Eric Crabilla
@@ -44,7 +44,7 @@ module top_vga (
     vga_if vga_rect();
 
 
-    /**
+    /*
      * Signals assignments
      */
 
@@ -53,7 +53,7 @@ module top_vga (
     assign {r,g,b} = vga_rect.rgb;
 
 
-    /**
+    /*
      * Submodules instances
      */
 
