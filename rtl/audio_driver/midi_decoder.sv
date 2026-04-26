@@ -19,8 +19,14 @@ module midi_decoder (
 
     wire [31:0] phase_increment;
     wire [7:0] sine_addr;
+    wire sync_from_counter;
+    
+    logic sync_d;
 
     phase_increment_lut u_phase_increment_lut(
+        .clk,
+        .rst_n,
+
         .addr(note),
         .value(phase_increment)
     );
@@ -33,12 +39,25 @@ module midi_decoder (
         .sync_in(sync_in),
 
         .sine_addr(sine_addr),
-        .sync_out(sync_out)
+        .sync_out(sync_from_counter)
     );
 
     sine_lut u_sine_lut(
+        .clk,
+        .rst_n,
+
         .addr(sine_addr),
         .value(width)
     );
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sync_d <= '0;
+        end else begin
+            sync_d <= sync_from_counter;
+        end
+    end
+    
+    assign sync_out = sync_d;
 
 endmodule

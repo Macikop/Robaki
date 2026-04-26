@@ -1,49 +1,27 @@
+/*
+ * Designed by MP 
+ */
+
 module phase_increment_lut (
-    input  [5:0] addr,
-    output [31:0] value
+    input logic clk,
+    input logic rst_n,
+
+    input logic [5:0] addr,
+    output logic [31:0] value
 );
 
-    logic [31:0] rom [0:36] = '{
-        32'd1106388,
-        32'd1172172,
-        32'd1241873,
-        32'd1315718,
-        32'd1393961,
-        32'd1476847,
-        32'd1564664,
-        32'd1657708,
-        32'd1756275,
-        32'd1860712,
-        32'd1971357,
-        32'd2088582,
-        32'd2212776,
-        32'd2344353,
-        32'd2483754,
-        32'd2631444,
-        32'd2787922,
-        32'd2953694,
-        32'd3129329,
-        32'd3315408,
-        32'd3512559,
-        32'd3721424,
-        32'd3942713,
-        32'd4177155,
-        32'd4425543,
-        32'd4688698,
-        32'd4967509,
-        32'd5262889,
-        32'd5575835,
-        32'd5907388,
-        32'd6258665,
-        32'd6630825,
-        32'd7025110,
-        32'd7442848,
-        32'd7885427,
-        32'd8354318,
-        32'd8851069
+    logic [31:0] rom [0:37];
 
-    };
+    initial begin
+        $readmemh("../../rtl/audio_driver/luts/phase.dat", rom);
+    end
 
-    assign value = rom[addr];
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            value <= '0;
+        end else begin
+            value <= rom[addr];
+        end
+    end
 
 endmodule
