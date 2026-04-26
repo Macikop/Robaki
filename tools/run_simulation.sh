@@ -44,7 +44,6 @@ function execute_test {
     test_name=$(basename "$test_path")
     PRJ_FILE=${ROOT_DIR}/sim/${test_path}/${test_name}.prj
 
-    # Elaboration and simulation options
     if [[ $(grep 'glbl.v' -oc  ${PRJ_FILE}) -gt 0 ]]; then
         COMPILE_GLBL='work.glbl'
     else
@@ -70,7 +69,6 @@ function execute_test {
     cd ..
 }
 
-# Run all available simulations
 function run_all {
     for test in $(find . -type f -name "*.prj" | sed 's|^\./||' | sed 's|/[^/]*$||'); do
         err_ctr=0
@@ -85,14 +83,11 @@ function run_all {
     exit 0
 }
 
-# ------------------------------------------------------------------------------
-# Arguments parsing and checking
-# ------------------------------------------------------------------------------
-
 if [[ $# -eq 0 ]]; then
     usage
 fi
 
+ROOT_DIR=$(pwd)
 cd sim
 
 while getopts aglrs:t: option; do
