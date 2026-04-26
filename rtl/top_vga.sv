@@ -34,23 +34,23 @@ module top_vga (
     wire vsync_tim, hsync_tim;
     wire vblnk_tim, hblnk_tim;
 
-    // VGA signals from background
-    // wire [10:0] vcount_bg, hcount_bg;
-    // wire vsync_bg, hsync_bg;
-    // wire vblnk_bg, hblnk_bg;
-    // wire [11:0] rgb_bg;
+
+    wire [12:0] rgb_sprite;
+    wire [11:0] address_sprite;
 
     vga_if vga_bg();
-    vga_if vga_rect();
+    vga_if vga_output();
+    vga_if vga_circle();
+
 
 
     /*
      * Signals assignments
      */
 
-    assign vs = vga_rect.vsync;
-    assign hs = vga_rect.hsync;
-    assign {r,g,b} = vga_rect.rgb;
+    assign vs = vga_output.vsync;
+    assign hs = vga_output.hsync;
+    assign {r,g,b} = vga_output.rgb;
 
 
     /*
@@ -68,7 +68,9 @@ module top_vga (
         .hblnk  (hblnk_tim)
     );
 
-    draw_bg u_draw_bg (
+    draw_bg #(
+        .COLOR(12'h8_8_8)
+    ) u_draw_bg (
         .clk,
         .rst_n,
 
@@ -83,11 +85,39 @@ module top_vga (
 
     );
 
-    draw_rect u_draw_rect(
+    sprite_rom u_sprite_rom(
+        .clk,
+
+        .address(address_sprite),
+        .rgb(rgb_sprite)
+
+    );
+
+    draw_sprite u_draw_sprite(
         .clk,
         .rst_n,
+        .xpos(12'd100),
+        .ypos(12'd100),
         .vga_in(vga_bg),
-        .vga_out(vga_rect)
+
+        .rgb_pixel(rgb_sprite),
+        .pixel_addres(address_sprite),
+
+        .vga_out(vga_circle)
+    );
+
+    draw_circle u_draw_circle(
+        .clk,
+        .rst_n,
+        
+        .x_pos(12'd30),
+        .y_pos(12'd30),
+
+        .radius(12'd25),
+        .color(12'h0_a_0),
+
+        .vga_in(vga_circle),
+        .vga_out(vga_output)
     );
 
 endmodule
