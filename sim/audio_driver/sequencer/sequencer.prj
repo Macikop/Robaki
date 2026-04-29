@@ -6,8 +6,5 @@
 
 
 sv work ../../../rtl/audio_driver/note_pkg.sv \
-        ../../../rtl/audio_driver/address_counter.sv \
-        ../../../rtl/audio_driver/phase_increment_lut.sv \
-        ../../../rtl/audio_driver/sine_lut.sv \
-        ../../../rtl/audio_driver/midi_decoder.sv \
-        midi_decoder_tb.sv
+        ../../../rtl/audio_driver/sequencer.sv \
+        sequencer_tb.sv

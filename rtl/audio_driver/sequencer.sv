@@ -4,8 +4,10 @@
  * How it works
  */
 
+import note_pkg::*;
+
 module sequencer #(
-    localparam FILE_SIZE = 2
+    parameter FILE_SIZE = 14
 )(
     input  logic clk,
     input  logic rst_n,
@@ -14,43 +16,44 @@ module sequencer #(
     input  logic [31:0] word,
 
     output logic sync_out,
-    output logic [FILE_SIZE-1:0] addres,
-    output logic [5:0] width
+    output logic [$clog2(FILE_SIZE):0] address,
+    output note_t note_out
 );
 
-    logic [25:0] counter;
-    logic width_nxt;
+    logic [25:0] counter, counter_nxt;
+    note_t note_nxt;
 
-    logic [FILE_SIZE-1:0] addres_nxt;
+    logic [$clog2(FILE_SIZE):0] addres_nxt;
 
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             sync_out <= '0;
-            width <= '0;
             counter <= '0;
-            addres <= '0;
+            address <= '0;
         end else begin
             sync_out <= sync_in;
-            width <= width_nxt
+            note_out <= note_nxt;
             counter <= counter_nxt;
-            addres <= addres_nxt;
+            address <= addres_nxt;
         end
     end
 
     always_comb begin
         if (sync_in) begin
             if (counter == 0) begin
-                counter_nxt = (word >> 6);      //note lenght
-                width_nxt = (width && 31b'0000_0000_0000_0000_0000_0000_0001_1111);
-                addres_nxt = addres + 1;
+                counter_nxt = word[32:6];      //note lenght
+                note_nxt = note_t'(word[5:0]);
+                addres_nxt = address + 1;
             end else begin
                 counter_nxt = counter - 1;
+                note_nxt = note_out;
+                addres_nxt = address;
             end
         end else begin
-            width_nxt = width;
+            note_nxt = note_out;
             counter_nxt = counter;
-            addres_nxt = addres;
+            addres_nxt = address;
         end
     end
 

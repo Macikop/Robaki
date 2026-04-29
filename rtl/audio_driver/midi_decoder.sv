@@ -5,13 +5,14 @@
  * Generates pulse width according to the note
  * 
  */
-
+import note_pkg::*;
 
 module midi_decoder (
     input  logic clk,
     input  logic rst_n,
 
-    input  logic [5:0] note,
+    input  note_t note_in,
+    //input  logic [5:0] note_in,
     input  logic sync_in,
     output logic [7:0] width,
     output logic sync_out
@@ -27,7 +28,7 @@ module midi_decoder (
         .clk,
         .rst_n,
 
-        .addr(note),
+        .note_in(note_in),
         .value(phase_increment)
     );
 
