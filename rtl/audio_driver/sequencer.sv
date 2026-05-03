@@ -42,7 +42,7 @@ module sequencer #(
     always_comb begin
         if (sync_in) begin
             if (counter == 0) begin
-                counter_nxt = word[32:6];      //note lenght
+                counter_nxt = word[31:6];      //note lenght
                 note_nxt = note_t'(word[5:0]);
                 addres_nxt = address + 1;
             end else begin

@@ -20,6 +20,8 @@ module sequencer_tb;
     localparam RST_START_TIME  = 1.25*CLK_PERIOD;
     localparam RST_ACTIVE_TIME = 2.00*CLK_PERIOD;
 
+    localparam FILE_SIZE = 38;
+
 
     /**
      * Local variables and signals
@@ -29,9 +31,10 @@ module sequencer_tb;
     logic rst_n;
 
     logic sync, sync_out;
-    logic [7:0] width;
-    wire wave_out;
 
+    wire [$clog2(FILE_SIZE):0] address;
+    note_t note_out;
+    logic [31:0] word;
 
     int counter;
 
@@ -84,28 +87,64 @@ module sequencer_tb;
      */
 
     sequencer #(
-        .FILE_SIZE(16)
+        .FILE_SIZE(FILE_SIZE)
     )dut(
         .clk,
         .rst_n,
         .sync_in(sync),
-        .word(),
+        .word(word),
         .sync_out(sync_out),
-        .address(),
-        .note_out()
+        .address(address),
+        .note_out(note_out)
     );
 
     /**
      * Tasks and functions
      */
 
-    task automatic random_note();
+    task automatic check_note_length();
         logic [25:0] note_length;
         note_t current_note;
 
-        note_length = $urandom_range(33_554_432, 1);
-        current_note = note_t'($urandom_range(37, 0));
-        
+        int note_cycle_count;
+
+        logic [$clog2(FILE_SIZE):0] prev_address;
+
+        prev_address = address;
+
+        for (int i=0; i<38; i++) begin
+            note_length = $urandom_range(1000, 1);
+            current_note = note_t'(i);
+
+            word = {note_length, current_note};
+
+            @(posedge clk);
+            while (address == prev_address) begin
+                @(posedge clk);
+            end
+
+            prev_address = address;
+
+            note_cycle_count = 0;
+
+            while (note_cycle_count < note_length) begin
+                @(posedge clk);
+
+                if(sync) begin
+                    if (note_out !== current_note) begin
+                        $error("ERROR: Expected note %0d got %0d at cycle %0d", current_note, note_out, note_cycle_count);
+                    end 
+                    note_cycle_count ++;
+                end
+            end
+            @(posedge clk);
+            if (sync && (note_out == current_note)) begin
+                $error("ERROR: Note %0d lasted too long (>%0d cycles)", current_note, note_length);
+            end
+            
+            $display("PASS: Note %0d played correctly for %0d cycles", current_note, note_length);
+        end
+        $display("All notes verified successfully.");
     endtask
     
 
@@ -121,8 +160,6 @@ module sequencer_tb;
         $error("Sync is not delayed by 1 clk");
     end
 
-    // assign sync_out = sync;
-
     /**
      * Main test
      */
@@ -131,10 +168,7 @@ module sequencer_tb;
         @(negedge rst_n);
         @(posedge rst_n);
 
-        repeat(1000) begin
-            @(posedge clk);
-        end
-        
+        check_note_length();
 
         $finish;
     end
