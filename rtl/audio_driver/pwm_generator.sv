@@ -2,7 +2,7 @@
  * Designed by MP
  * 
  * How it works:
- * Generates pwm pulse at every sync signal, pulse is 64 clk long and specified width
+ * Generates pwm pulse at every sync signal, pulse is 256 clk long and specified width
  */
 
 
@@ -10,10 +10,10 @@ module pwm_generator (
     input  logic clk,
     input  logic rst_n,
 
-    output logic wave_out,
-
     input  logic sync,          /* every 256 clk cycles */
-    input  logic [7:0] width    
+    input  logic [7:0] width,
+    
+    output logic wave_out
 );
 
     logic [7:0] timer;
@@ -21,13 +21,14 @@ module pwm_generator (
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             timer <= '0;
+            wave_out <= '0;
         end else  if (sync) begin
             timer <= '0;
+            wave_out <= (0 < width);
         end else begin
             timer <= timer + 1;
+            wave_out <= ((timer + 1) < width);
         end
     end
-
-    assign wave_out = rst_n ? (timer < width) : 1'b0;
 
 endmodule
