@@ -22,7 +22,7 @@ module pwm_generator (
         if(!rst_n) begin
             timer <= '0;
             wave_out <= '0;
-        end else  if (sync) begin
+        end else if (sync) begin
             timer <= '0;
             wave_out <= (0 < width);
         end else begin

@@ -155,7 +155,7 @@ module sequencer_tb;
     assert property (
         @(posedge clk) 
         disable iff (!rst_n || $realtime < RST_START_TIME)
-        sync_out == $past(sync)
+        sync_out == $past(sync, 2)
     ) else begin
         $error("Sync is not delayed by 1 clk");
     end

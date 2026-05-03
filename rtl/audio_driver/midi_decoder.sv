@@ -12,7 +12,6 @@ module midi_decoder (
     input  logic rst_n,
 
     input  note_t note_in,
-    //input  logic [5:0] note_in,
     input  logic sync_in,
     output logic [7:0] width,
     output logic sync_out
