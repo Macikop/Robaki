@@ -1,6 +1,0 @@
-
-
-sv work ../../rtl/vga_driver/vga_pkg.sv \
-        ../../rtl/vga_driver/vga_timing.sv \
-        ../../rtl/vga_driver/core_buffer_controller.sv \
-        core_buffer_controller_tb.sv

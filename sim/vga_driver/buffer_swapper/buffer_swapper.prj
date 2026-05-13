@@ -1,6 +1,0 @@
-
-
-sv work ../../rtl/vga_driver/vga_pkg.sv \
-        ../../rtl/vga_driver/vga_timing.sv \
-        ../../rtl/vga_driver/buffer_swapper.sv \
-        buffer_swapper_tb.sv
