@@ -15,19 +15,28 @@
  */
 
 module sprite_rom #(
-    parameter SPRITE_PATH = "../../rtl/vga_driver/sprite_bank/agh_logo.dat"
+    parameter int WIDTH  = 32,
+    parameter int HEIGHT = 32,
+    parameter string SPRITE_PATH = "../../rtl/vga_driver/sprite_bank/arrow.dat"
 )(
-    input  logic clk ,
-    input  logic [11:0] address,  // address = {addry[5:0], addrx[5:0]}
+    input  logic clk,
+    input  logic [$clog2(WIDTH*HEIGHT)-1:0] address,
     output logic [12:0] rgb
 );
 
+    function automatic int next_pow2(input int x);
+        int v;
+        begin
+            v = 1;
+            while (v < x)
+                v = v << 1;
+            return v;
+        end
+    endfunction
 
-    /**
-     * Local variables and signals
-     */
+    localparam int SIZE = next_pow2(WIDTH) * next_pow2(HEIGHT);
 
-    reg [12:0] rom [0:4095];
+    logic [12:0] rom [0:SIZE-1];
 
 
     /**

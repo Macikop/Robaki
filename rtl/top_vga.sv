@@ -36,7 +36,7 @@ module top_vga (
 
 
     wire [12:0] rgb_sprite;
-    wire [11:0] address_sprite;
+    wire [$clog2(48*64)-1:0] address_sprite;
 
     vga_if vga_bg();
     vga_if vga_output();
@@ -85,7 +85,11 @@ module top_vga (
 
     );
 
-    sprite_rom u_sprite_rom(
+    sprite_rom #(
+        .SPRITE_PATH("../../rtl/vga_driver/sprite_bank/agh_logo.dat"),
+        .WIDTH(48),
+        .HEIGHT(64)
+    ) u_sprite_rom (
         .clk,
 
         .address(address_sprite),
@@ -93,12 +97,18 @@ module top_vga (
 
     );
 
-    draw_sprite u_draw_sprite(
+    draw_sprite #(
+        .WIDTH(48),
+        .HEIGHT(64)
+    ) u_draw_sprite (
         .clk,
         .rst_n,
+        
         .xpos(12'd100),
         .ypos(12'd100),
         .vga_in(vga_bg),
+
+        //.modifier(3'b010),
 
         .rgb_pixel(rgb_sprite),
         .pixel_addres(address_sprite),

@@ -68,7 +68,7 @@ module draw_circle (
 
         if (vga_in.vblnk || vga_in.hblnk) begin             // Blanking region:
             rgb_nxt = 12'h0_0_0;                    // - make it it black.
-        end else if (approx_r > radius) begin
+        end else if (approx_r < radius) begin
             rgb_nxt = color;
         end        else begin
             rgb_nxt = vga_in.rgb;

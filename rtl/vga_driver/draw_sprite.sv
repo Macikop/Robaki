@@ -1,40 +1,47 @@
 /*
  * Designed by MP
  *
- * Draws sprite rectangle
+ * How it works:
+ * Draws sprite, modifies it according to flags
  */
+
 module draw_sprite #(
-    parameter WIDTH  = 48,
-    parameter HEIGHT = 64
+    parameter WIDTH = 32,
+    parameter HEIGHT = 32
 )(
-    input logic clk,
+    input logic clk,    
     input logic rst_n,
 
     input logic [11:0] xpos,
     input logic [11:0] ypos,
 
-    vga_if.in vga_in,
-
     input  logic [12:0] rgb_pixel,
-    output logic [11:0] pixel_addres,
+    output logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres,
 
+    vga_if.in vga_in,
     vga_if.out vga_out
 );
 
     timeunit 1ns;
     timeprecision 1ps;
 
-    logic [11:0] rgb_nxt, rgb_d;
-    logic [11:0] pixel_addres_nxt;
+    /**
+     * Local variables and signals
+     */
 
-    // pipeline registers
-    logic [11:0] hcount_d, vcount_d;
+    localparam X_BITS = $clog2(WIDTH);
+    localparam Y_BITS = $clog2(HEIGHT);
+
+    logic [11:0] rgb_nxt, rgb_d;
+    logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres_nxt;
+
+    logic [10:0] hcount_d, vcount_d;
     logic        hsync_d, vsync_d;
     logic        hblnk_d, vblnk_d;
 
     logic [11:0] dx, dy;
 
-    /*
+    /**
      * Internal logic
      */
 
@@ -46,6 +53,7 @@ module draw_sprite #(
             vsync_d         <= '0;
             hblnk_d         <= '0;
             vblnk_d         <= '0;
+            rgb_d           <= '0;
 
             pixel_addres    <= '0;
 
@@ -65,6 +73,7 @@ module draw_sprite #(
             vsync_d         <= vga_in.vsync;
             hblnk_d         <= vga_in.hblnk;
             vblnk_d         <= vga_in.vblnk;
+            rgb_d           <= vga_in.rgb;
 
             pixel_addres  <= pixel_addres_nxt;
 
@@ -79,40 +88,27 @@ module draw_sprite #(
         end
     end
 
-    /*
-     * Combinational draw logic
-     */
     always_comb begin
 
         if (hblnk_d || vblnk_d) begin
-            rgb_d = 12'h000;
+            rgb_nxt = 12'h000;
             pixel_addres_nxt = '0;
         end else if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + WIDTH) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + HEIGHT)) begin
 
-            dx = vga_in.hcount - xpos + 1;
+            dx = vga_in.hcount - xpos + 12'd1;
             dy = vga_in.vcount - ypos;
 
-            pixel_addres_nxt = {dy[5:0], dx[5:0]};
-            
-            rgb_d = vga_in.rgb;
+            pixel_addres_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
 
         end else begin
             pixel_addres_nxt = '0;
-            rgb_d = vga_in.rgb;
         end
 
         if ((hcount_d >= xpos) && (hcount_d < xpos + WIDTH) && (vcount_d >= ypos) && (vcount_d < ypos + HEIGHT))begin
-            if (rgb_pixel[12] == 1'b0) begin
-                rgb_nxt = rgb_pixel [11:0];
-            end else begin
-                rgb_nxt = rgb_d;
-            end
+            rgb_nxt = (rgb_pixel[12] == 1'b1) ? rgb_d : rgb_pixel[11:0];
         end else begin
             rgb_nxt = rgb_d;
         end
-        
-        
-
     end
 
 endmodule
