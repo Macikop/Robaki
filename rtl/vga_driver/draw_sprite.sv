@@ -122,10 +122,7 @@ module draw_sprite #(
         active_width  = (modifier[0]) ? HEIGHT[11:0] : WIDTH[11:0];
         active_height = (modifier[0]) ? WIDTH[11:0]  : HEIGHT[11:0];
 
-        if (hblnk_d || vblnk_d) begin
-            rgb_nxt = 12'h000;
-            pixel_addres_nxt = '0;
-        end else if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + active_width) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + active_height)) begin
+        if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + active_width) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + active_height)) begin
 
             dx = vga_in.hcount - xpos;
             dy = vga_in.vcount - ypos;

@@ -31,6 +31,9 @@ module top_vga (
 
     localparam SPRITE_WIDTH = 32;
     localparam SPRITE_HEIGHT = 32;
+
+    localparam TERRAIN_WIDTH = 1024;
+    localparam TERRAIN_HEIGHT = 768;
     
     // VGA signals from timing
     wire [10:0] vcount_tim, hcount_tim;
@@ -41,9 +44,13 @@ module top_vga (
     wire [12:0] rgb_sprite;
     wire [$clog2(SPRITE_WIDTH * SPRITE_HEIGHT)-1:0] address_sprite;
 
+    wire terrain_present;
+    wire [$clog2(TERRAIN_WIDTH * TERRAIN_HEIGHT)-1:0] address_terrain;
+
     vga_if vga_bg();
-    vga_if vga_output();
+    vga_if vga_terrain();
     vga_if vga_circle();
+    vga_if vga_output();
 
 
 
@@ -88,6 +95,36 @@ module top_vga (
 
     );
 
+    terrain_rom #(
+        .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map1.dat"),
+        .WIDTH(TERRAIN_WIDTH),
+        .HEIGHT(TERRAIN_HEIGHT)
+    ) u_terrain_rom (
+        .clk,
+        .rst_n,
+
+        .address(address_terrain),
+        .is_occupied(terrain_present)
+    );
+
+    draw_terrain #(
+        .TERRAIN_WIDTH(TERRAIN_WIDTH),
+        .TERRAIN_HEIGHT(TERRAIN_HEIGHT),
+        .X_OFFSET(0),
+        .Y_OFFSET(0)
+    ) u_draw_terrain (
+        .clk,
+        .rst_n,
+
+        .color(12'h0_F_0),
+
+        .data_in(terrain_present),
+        .address(address_terrain),
+
+        .vga_in(vga_bg),
+        .vga_out(vga_terrain)
+    );
+
     sprite_rom #(
         .SPRITE_PATH("../../rtl/vga_driver/sprite_bank/arrow.dat"),
         .WIDTH(SPRITE_WIDTH),
@@ -109,7 +146,7 @@ module top_vga (
         
         .xpos(12'd100),
         .ypos(12'd100),
-        .vga_in(vga_bg),
+        .vga_in(vga_terrain),
 
         .modifier(3'b000),
 

@@ -4,6 +4,7 @@
  * Author: Robert Szczygiel
  * Modified: Piotr Kaczmarczyk
  * Modified: Maciej Piofczyk - added transparecy bit and parameters
+ * Modified: Maciej Piofczyk - parametrised
  *
  * Description:
  * This is the ROM for the 'AGH48x64.png' image.
@@ -20,7 +21,7 @@ module sprite_rom #(
     parameter string SPRITE_PATH = "../../rtl/vga_driver/sprite_bank/arrow.dat"
 )(
     input  logic clk,
-    input  logic [$clog2(WIDTH*HEIGHT)-1:0] address,
+    input  logic [$clog2(WIDTH * HEIGHT)-1:0] address,
     output logic [12:0] rgb
 );
 
