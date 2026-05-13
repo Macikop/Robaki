@@ -9,11 +9,13 @@ module draw_sprite #(
     parameter WIDTH = 32,
     parameter HEIGHT = 32
 )(
-    input logic clk,    
-    input logic rst_n,
+    input  logic clk,    
+    input  logic rst_n,
 
-    input logic [11:0] xpos,
-    input logic [11:0] ypos,
+    input  logic [11:0] xpos,
+    input  logic [11:0] ypos,
+
+    input  logic [2:0] modifier,    /* [0] - transpose, [1] - flips X, [2] flips Y*/
 
     input  logic [12:0] rgb_pixel,
     output logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres,
@@ -25,23 +27,34 @@ module draw_sprite #(
     timeunit 1ns;
     timeprecision 1ps;
 
-    /**
+    /*
      * Local variables and signals
      */
 
     localparam X_BITS = $clog2(WIDTH);
     localparam Y_BITS = $clog2(HEIGHT);
 
-    logic [11:0] rgb_nxt, rgb_d;
+    /*
+     * Delay signals
+     */
+    
     logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres_nxt;
 
-    logic [10:0] hcount_d, vcount_d;
-    logic        hsync_d, vsync_d;
-    logic        hblnk_d, vblnk_d;
+    logic [10:0] hcount_d, hcount_d2, vcount_d, vcount_d2;
+    logic        hsync_d, hsync_d2, vsync_d, vsync_d2;
+    logic        hblnk_d, hblnk_d2, vblnk_d, vblnk_d2;
+
+    logic [11:0] rgb_nxt, rgb_d, rgb_d2;
+
+    /*
+     * Modifications signals
+     */
 
     logic [11:0] dx, dy;
 
-    /**
+    logic [11:0] active_width, active_height;
+
+    /*
      * Internal logic
      */
 
@@ -56,6 +69,14 @@ module draw_sprite #(
             rgb_d           <= '0;
 
             pixel_addres    <= '0;
+
+            hcount_d2       <= '0;
+            vcount_d2       <= '0;
+            hsync_d2        <= '0;
+            vsync_d2        <= '0;
+            hblnk_d2        <= '0;
+            vblnk_d2        <= '0;
+            rgb_d2          <= '0;
 
             vga_out.hcount  <= '0;
             vga_out.vcount  <= '0;
@@ -77,37 +98,66 @@ module draw_sprite #(
 
             pixel_addres  <= pixel_addres_nxt;
 
+            hcount_d2       <= hcount_d;
+            vcount_d2       <= vcount_d;
+            hsync_d2        <= hsync_d;
+            vsync_d2        <= vsync_d;
+            hblnk_d2        <= hblnk_d;
+            vblnk_d2        <= vblnk_d;
+            rgb_d2          <= rgb_d;
+
             // stage 2
-            vga_out.hcount  <= hcount_d;
-            vga_out.vcount  <= vcount_d;
-            vga_out.hsync   <= hsync_d;
-            vga_out.vsync   <= vsync_d;
-            vga_out.hblnk   <= hblnk_d;
-            vga_out.vblnk   <= vblnk_d;
+            vga_out.hcount  <= hcount_d2;
+            vga_out.vcount  <= vcount_d2;
+            vga_out.hsync   <= hsync_d2;
+            vga_out.vsync   <= vsync_d2;
+            vga_out.hblnk   <= hblnk_d2;
+            vga_out.vblnk   <= vblnk_d2;
             vga_out.rgb     <= rgb_nxt;
         end
     end
 
     always_comb begin
 
+        active_width  = (modifier[0]) ? HEIGHT[11:0] : WIDTH[11:0];
+        active_height = (modifier[0]) ? WIDTH[11:0]  : HEIGHT[11:0];
+
         if (hblnk_d || vblnk_d) begin
             rgb_nxt = 12'h000;
             pixel_addres_nxt = '0;
-        end else if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + WIDTH) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + HEIGHT)) begin
+        end else if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + active_width) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + active_height)) begin
 
-            dx = vga_in.hcount - xpos + 12'd1;
+            dx = vga_in.hcount - xpos;
             dy = vga_in.vcount - ypos;
 
-            pixel_addres_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
+            if (dx < active_width && dy < active_height) begin
+                
+                if (modifier[1] == 1'b1) begin
+                    dx = (active_width - 1) - dx;
+                end
 
+                if (modifier[2] == 1'b1) begin
+                    dy = (active_height - 1) - dy;
+                end
+
+                if (modifier[0] == 1'b1) begin
+                    pixel_addres_nxt = {dx[X_BITS-1:0], dy[Y_BITS-1:0]};
+                end else begin
+                    pixel_addres_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
+                end
+
+            end else begin
+                pixel_addres_nxt = '0;
+            end
+            
         end else begin
             pixel_addres_nxt = '0;
         end
 
-        if ((hcount_d >= xpos) && (hcount_d < xpos + WIDTH) && (vcount_d >= ypos) && (vcount_d < ypos + HEIGHT))begin
-            rgb_nxt = (rgb_pixel[12] == 1'b1) ? rgb_d : rgb_pixel[11:0];
+        if ((hcount_d2 >= xpos) && (hcount_d2 < xpos + active_width) && (vcount_d2 >= ypos) && (vcount_d2 < ypos + active_height))begin
+            rgb_nxt = (rgb_pixel[12] == 1'b1) ? rgb_d2 : rgb_pixel[11:0];
         end else begin
-            rgb_nxt = rgb_d;
+            rgb_nxt = rgb_d2;
         end
     end
 

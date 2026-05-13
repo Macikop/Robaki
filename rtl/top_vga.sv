@@ -29,6 +29,9 @@ module top_vga (
      * Local variables and signals
      */
 
+    localparam SPRITE_WIDTH = 32;
+    localparam SPRITE_HEIGHT = 32;
+    
     // VGA signals from timing
     wire [10:0] vcount_tim, hcount_tim;
     wire vsync_tim, hsync_tim;
@@ -36,7 +39,7 @@ module top_vga (
 
 
     wire [12:0] rgb_sprite;
-    wire [$clog2(48*64)-1:0] address_sprite;
+    wire [$clog2(SPRITE_WIDTH * SPRITE_HEIGHT)-1:0] address_sprite;
 
     vga_if vga_bg();
     vga_if vga_output();
@@ -86,9 +89,9 @@ module top_vga (
     );
 
     sprite_rom #(
-        .SPRITE_PATH("../../rtl/vga_driver/sprite_bank/agh_logo.dat"),
-        .WIDTH(48),
-        .HEIGHT(64)
+        .SPRITE_PATH("../../rtl/vga_driver/sprite_bank/arrow.dat"),
+        .WIDTH(SPRITE_WIDTH),
+        .HEIGHT(SPRITE_HEIGHT)
     ) u_sprite_rom (
         .clk,
 
@@ -98,8 +101,8 @@ module top_vga (
     );
 
     draw_sprite #(
-        .WIDTH(48),
-        .HEIGHT(64)
+        .WIDTH(SPRITE_WIDTH),
+        .HEIGHT(SPRITE_HEIGHT)
     ) u_draw_sprite (
         .clk,
         .rst_n,
@@ -108,7 +111,7 @@ module top_vga (
         .ypos(12'd100),
         .vga_in(vga_bg),
 
-        //.modifier(3'b010),
+        .modifier(3'b000),
 
         .rgb_pixel(rgb_sprite),
         .pixel_addres(address_sprite),
