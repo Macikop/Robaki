@@ -54,7 +54,7 @@ module ps2_interface (
             if (fall_edge) begin
                 shift_reg <= {ps2_data_sync, shift_reg [10:1]};
                 if(bit_count == 10) begin
-                    bit_count <= '0;
+                    bit_count <= 0;
                     key_code <= {shift_reg[1], shift_reg[2], shift_reg[3], shift_reg[4], shift_reg[5], shift_reg[6], shift_reg[7], shift_reg[8]};
                     done <= 1;
                 end else begin
