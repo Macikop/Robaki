@@ -25,7 +25,7 @@ module key_decoder (
             tab <= '0;
             is_break <= '0;
         end else if (done) begin
-            if (key_code == 0'hf0) begin
+            if (key_code == 8'hf0) begin
                 is_break <= '1;
             end else begin
                 case (key_code)

@@ -7,8 +7,8 @@ module ps2_interface (
     input logic clk,
     input logic rst_n,
 
-    inout logic ps2_clk,
-    inout logic ps2_data,
+    input logic ps2_clk,
+    input logic ps2_data,
 
     output logic[7:0] key_code,        //byte output with raw key code
     output logic done                  //done bit, 1 when byte is ready 
@@ -55,7 +55,7 @@ module ps2_interface (
                 shift_reg <= {ps2_data_sync, shift_reg [10:1]};
                 if(bit_count == 10) begin
                     bit_count <= '0;
-                    key_code <= shift_reg[8:1];
+                    key_code <= {shift_reg[1], shift_reg[2], shift_reg[3], shift_reg[4], shift_reg[5], shift_reg[6], shift_reg[7], shift_reg[8]};
                     done <= 1;
                 end else begin
                     bit_count <= bit_count + 1;
