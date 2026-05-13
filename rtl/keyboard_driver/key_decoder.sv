@@ -15,7 +15,7 @@ module key_decoder (
 
     logic is_break;     //track if previous code was 0xF0
 
-    always_ff @(posedge_clk or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             up <= '0;
             down <= '0;
@@ -30,11 +30,11 @@ module key_decoder (
             end else begin
                 case (key_code)
                     8'h75: up <= !is_break;     //up
-                    8'h72: up <= !is_break;     //down
-                    8'h6b: up <= !is_break;     //left
-                    8'h74: up <= !is_break;     //right
-                    8'h29: up <= !is_break;     //spacebar
-                    8'h0d: up <= !is_break;     //tab
+                    8'h72: down <= !is_break;     //down
+                    8'h6b: left <= !is_break;     //left
+                    8'h74: right <= !is_break;     //right
+                    8'h29: space <= !is_break;     //spacebar
+                    8'h0d: tab <= !is_break;     //tab
                     default: ;
                 endcase
                 is_break <= '0;     //reset break state
