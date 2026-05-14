@@ -79,7 +79,7 @@ module top_vga (
     );
 
     draw_bg #(
-        .COLOR(12'h8_8_8)
+        .COLOR(12'h0_a_a)
     ) u_draw_bg (
         .clk,
         .rst_n,
@@ -164,7 +164,7 @@ module top_vga (
         .y_pos(12'd30),
 
         .radius(12'd25),
-        .color(12'h0_a_0),
+        .color(12'hF_F_0),
 
         .vga_in(vga_circle),
         .vga_out(vga_output)
