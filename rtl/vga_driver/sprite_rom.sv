@@ -21,6 +21,7 @@ module sprite_rom #(
     parameter string SPRITE_PATH = "../../rtl/vga_driver/sprite_bank/arrow.dat"
 )(
     input  logic clk,
+    input  logic rst_n,
     input  logic [$clog2(WIDTH * HEIGHT)-1:0] address,
     output logic [12:0] rgb
 );
@@ -40,19 +41,23 @@ module sprite_rom #(
     logic [12:0] rom [0:SIZE-1];
 
 
-    /**
+    /*
      * Memory initialization from a file
      */
 
-    /* Relative path from the simulation or synthesis working directory */
-    initial $readmemh(SPRITE_PATH, rom);
-
-
-    /**
+    initial begin
+        $readmemh(SPRITE_PATH, rom);
+    end
+    
+    /*
      * Internal logic
      */
 
     always_ff @(posedge clk)
-        rgb <= rom[address];
-
+        if(!rst_n) begin
+            rgb <= '0;
+        end else begin
+            rgb <= rom[address];
+        end
+        
 endmodule

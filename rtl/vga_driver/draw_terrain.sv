@@ -92,7 +92,8 @@ module draw_terrain #(
             dx = vga_in.hcount - X_OFFSET;
             dy = vga_in.vcount - Y_OFFSET;
 
-            address_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
+            //address_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
+            address_nxt = dy * TERRAIN_WIDTH + dx;
 
         end else begin
             address_nxt = '0;
