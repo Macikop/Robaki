@@ -131,7 +131,7 @@ module top_vga (
         .HEIGHT(SPRITE_HEIGHT)
     ) u_sprite_rom (
         .clk,
-
+        .rst_n,
         .address(address_sprite),
         .rgb(rgb_sprite)
 

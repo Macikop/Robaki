@@ -12,13 +12,13 @@ module draw_sprite #(
     input  logic clk,    
     input  logic rst_n,
 
-    input  logic [11:0] xpos,
-    input  logic [11:0] ypos,
+    input  logic [11:0] x_pos,
+    input  logic [11:0] y_pos,
 
     input  logic [2:0] modifier,    /* [0] - transpose, [1] - flips X, [2] flips Y*/
 
     input  logic [12:0] rgb_pixel,
-    output logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres,
+    output logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_address,
 
     vga_if.in vga_in,
     vga_if.out vga_out
@@ -38,7 +38,7 @@ module draw_sprite #(
      * Delay signals
      */
     
-    logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_addres_nxt;
+    logic [$clog2(WIDTH*HEIGHT)-1:0] pixel_address_nxt;
 
     logic [10:0] hcount_d, hcount_d2, vcount_d, vcount_d2;
     logic        hsync_d, hsync_d2, vsync_d, vsync_d2;
@@ -68,7 +68,7 @@ module draw_sprite #(
             vblnk_d         <= '0;
             rgb_d           <= '0;
 
-            pixel_addres    <= '0;
+            pixel_address    <= '0;
 
             hcount_d2       <= '0;
             vcount_d2       <= '0;
@@ -96,7 +96,7 @@ module draw_sprite #(
             vblnk_d         <= vga_in.vblnk;
             rgb_d           <= vga_in.rgb;
 
-            pixel_addres  <= pixel_addres_nxt;
+            pixel_address  <= pixel_address_nxt;
 
             hcount_d2       <= hcount_d;
             vcount_d2       <= vcount_d;
@@ -122,10 +122,10 @@ module draw_sprite #(
         active_width  = (modifier[0]) ? HEIGHT[11:0] : WIDTH[11:0];
         active_height = (modifier[0]) ? WIDTH[11:0]  : HEIGHT[11:0];
 
-        if ((vga_in.hcount >= xpos) && (vga_in.hcount < xpos + active_width) && (vga_in.vcount >= ypos) && (vga_in.vcount < ypos + active_height)) begin
+        if ((vga_in.hcount >= x_pos) && (vga_in.hcount < x_pos + active_width) && (vga_in.vcount >= y_pos) && (vga_in.vcount < y_pos + active_height)) begin
 
-            dx = vga_in.hcount - xpos;
-            dy = vga_in.vcount - ypos;
+            dx = vga_in.hcount - x_pos;
+            dy = vga_in.vcount - y_pos;
 
             if (dx < active_width && dy < active_height) begin
                 
@@ -138,20 +138,20 @@ module draw_sprite #(
                 end
 
                 if (modifier[0] == 1'b1) begin
-                    pixel_addres_nxt = {dx[X_BITS-1:0], dy[Y_BITS-1:0]};
+                    pixel_address_nxt = {dx[X_BITS-1:0], dy[Y_BITS-1:0]};
                 end else begin
-                    pixel_addres_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
+                    pixel_address_nxt = {dy[Y_BITS-1:0], dx[X_BITS-1:0]};
                 end
 
             end else begin
-                pixel_addres_nxt = '0;
+                pixel_address_nxt = '0;
             end
             
         end else begin
-            pixel_addres_nxt = '0;
+            pixel_address_nxt = '0;
         end
 
-        if ((hcount_d2 >= xpos) && (hcount_d2 < xpos + active_width) && (vcount_d2 >= ypos) && (vcount_d2 < ypos + active_height))begin
+        if ((hcount_d2 >= x_pos) && (hcount_d2 < x_pos + active_width) && (vcount_d2 >= y_pos) && (vcount_d2 < y_pos + active_height))begin
             rgb_nxt = (rgb_pixel[12] == 1'b1) ? rgb_d2 : rgb_pixel[11:0];
         end else begin
             rgb_nxt = rgb_d2;

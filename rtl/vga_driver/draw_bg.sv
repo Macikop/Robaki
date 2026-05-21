@@ -64,14 +64,14 @@ module draw_bg #(
         if (vblnk_in || hblnk_in) begin             // Blanking region:
             rgb_nxt = 12'h0_0_0;                    // - make it it black.
         end else begin                              // Active region:
-            if (vcount_in == 0)                     // - top edge:
-                rgb_nxt = 12'hf_f_0;                // - - make a yellow line.
-            else if (vcount_in == VER_PIXELS - 1)   // - bottom edge:
-                rgb_nxt = 12'hf_0_0;                // - - make a red line.
-            else if (hcount_in == 0)                // - left edge:
-                rgb_nxt = 12'h0_f_0;                // - - make a green line.
-            else if (hcount_in == HOR_PIXELS - 1)   // - right edge:
-                rgb_nxt = 12'h0_0_f;                // - - make a blue line.
+            // if (vcount_in == 0)                     // - top edge:
+            //     rgb_nxt = 12'hf_f_0;                // - - make a yellow line.
+            // else if (vcount_in == VER_PIXELS - 1)   // - bottom edge:
+            //     rgb_nxt = 12'hf_0_0;                // - - make a red line.
+            // else if (hcount_in == 0)                // - left edge:
+            //     rgb_nxt = 12'h0_f_0;                // - - make a green line.
+            // else if (hcount_in == HOR_PIXELS - 1)   // - right edge:
+            //     rgb_nxt = 12'h0_0_f;                // - - make a blue line.
 
             rgb_nxt = COLOR;
         end
