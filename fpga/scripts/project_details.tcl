@@ -31,10 +31,17 @@ set xdc_files {
 
 # Specify SystemVerilog design files location   -- EDIT
 set sv_files {
-    ../rtl/vga_pkg.sv
-    ../rtl/vga_timing.sv
-    ../rtl/draw_bg.sv
-    ../rtl/top_vga.sv
+    ../rtl/common/delay.sv \
+    ../rtl/vga_driver/draw_circle.sv \
+    ../rtl/vga_driver/draw_terrain.sv \
+    ../rtl/vga_driver/terrain_rom.sv \
+    ../rtl/vga_driver/draw_sprite.sv \
+    ../rtl/vga_driver/sprite_rom.sv \
+    ../rtl/vga_driver/vga_pkg.sv \
+    ../rtl/vga_driver/vga_timing.sv \
+    ../rtl/vga_driver/draw_bg.sv \
+    ../rtl/vga_driver/vga_if.sv \
+    ../rtl/top_vga.sv \
     rtl/top_vga_basys3.sv
 }
 

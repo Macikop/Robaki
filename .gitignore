@@ -13,6 +13,7 @@ fpga/xvlog*
 fpga/xelab*
 fpga/xsim*
 fpga/.hbs
+fpga/dfx_runtime.txt
 
 sim/build
 sim/.Xil
