@@ -14,4 +14,4 @@ run all
 
 # Show waveforms
 add_wave /      # top module signals only
-# add_wave -r / # all the design signals
+#add_wave -r / # all the design signals

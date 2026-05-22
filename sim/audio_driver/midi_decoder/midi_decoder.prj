@@ -1,0 +1,13 @@
+# Description:
+# List of files defining the modules used during the test.
+# Specify the file paths relative to THIS file.
+# For syntax detail see AMD Xilinx UG 900:
+# https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
+
+
+sv work ../../../rtl/audio_driver/note_pkg.sv \
+        ../../../rtl/audio_driver/address_counter.sv \
+        ../../../rtl/audio_driver/phase_increment_lut.sv \
+        ../../../rtl/audio_driver/sine_lut.sv \
+        ../../../rtl/audio_driver/midi_decoder.sv \
+        midi_decoder_tb.sv
