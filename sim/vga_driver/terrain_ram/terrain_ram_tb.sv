@@ -1,39 +1,48 @@
-/**
- *  Copyright (C) 2025  AGH University of Science and Technology
- * MTM UEC2
- * Author: Piotr Kaczmarczyk
+/*
+ * Designed by MP
  *
  * Description:
- * Testbench for vga_timing module.
+ * Testbench for terrain_ram module.
  */
 
-module vga_timing_tb;
+module terrain_ram_tb;
 
     timeunit 1ns;
     timeprecision 1ps;
 
-    import vga_pkg::*;
-
 
     /**
-     *  Local parameters
+     * Local parameters
      */
 
-    localparam CLK_PERIOD = 25;     // 40 MHz
-    localparam RST_START_TIME  = 1.25*CLK_PERIOD;
-    localparam RST_ACTIVE_TIME = 2.00*CLK_PERIOD;
+    localparam int WIDTH  = 4;
+    localparam int HEIGHT = 4;
+
+    localparam int SIZE   = WIDTH * HEIGHT;
+    localparam int ADDR_W = $clog2(SIZE);
+
+    localparam CLK_VGA_PERIOD  = 15.385;   // 65 MHz
+    localparam CLK_CORE_PERIOD = 10;   // 100 MHz
+
+    localparam RST_START_TIME  = 1.25 * CLK_CORE_PERIOD;
+    localparam RST_ACTIVE_TIME = 2.00 * CLK_CORE_PERIOD;
 
 
     /**
      * Local variables and signals
      */
 
-    logic clk;
+    logic clk_vga;
+    logic clk_core;
     logic rst_n;
 
-    wire [10:0] vcount, hcount;
-    wire        vsync,  hsync;
-    wire        vblnk,  hblnk;
+    logic [ADDR_W-1:0] address_vga;
+    logic [ADDR_W-1:0] address_core;
+
+    logic clear;
+
+    logic data_out_vga;
+    logic data_out_core;
 
 
     /**
@@ -41,8 +50,13 @@ module vga_timing_tb;
      */
 
     initial begin
-        clk = 1'b0;
-        forever #(CLK_PERIOD/2) clk = ~clk;
+        clk_vga = 1'b0;
+        forever #(CLK_VGA_PERIOD/2) clk_vga = ~clk_vga;
+    end
+
+    initial begin
+        clk_core = 1'b0;
+        forever #(CLK_CORE_PERIOD/2) clk_core = ~clk_core;
     end
 
 
@@ -52,155 +66,91 @@ module vga_timing_tb;
 
     initial begin
         rst_n = 1'b1;
-        #(RST_START_TIME) rst_n = 1'b0;
+        #(RST_START_TIME)  rst_n = 1'b0;
         #(RST_ACTIVE_TIME) rst_n = 1'b1;
     end
 
 
     /**
-     * Dut placement
+     * DUT placement
      */
 
-    vga_timing dut(
-        .clk,
-        .rst_n,
-        .vcount,
-        .vsync,
-        .vblnk,
-        .hcount,
-        .hsync,
-        .hblnk
+    terrain_ram #(
+        .WIDTH(WIDTH),
+        .HEIGHT(HEIGHT),
+        .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map_test.dat")
+    ) dut (
+        .clk_vga(clk_vga),
+        .clk_core(clk_core),
+
+        .rst_n(rst_n),
+
+        .address_vga(address_vga),
+        .address_core(address_core),
+
+        .clear(clear),
+
+        .data_out_vga(data_out_vga),
+        .data_out_core(data_out_core)
     );
+
 
     /**
      * Tasks and functions
      */
 
-    // Here you can declare tasks with immediate assertions (assert).
+    task automatic check_vga_read(
+        input logic [ADDR_W-1:0] addr,
+        input logic expected
+    );
+    begin
+        address_vga = addr;
 
+        @(posedge clk_vga);
 
-    /**
-     * Assertions
-     */
-
-    /* hcount : max value */
-    assert property (
-        /* run assertion at each positive clock edge: */
-        @(posedge clk)
-        /* except during reset (optional): */
-        disable iff (!rst_n || $realtime < RST_START_TIME)
-        /* check whether this condition is true: */
-        hcount < HOR_TOTAL_TIME
-    ) else begin
-        /* if condition is not true, display error message */
-        $error("hcount: max value exceeded");
+        assert(data_out_vga == expected)
+        else begin
+            $error("VGA READ ERROR: addr=%0d expected=%0b got=%0b", addr, expected, data_out_vga);
+        end
     end
+    endtask
 
-    /* hcount : zero after max value */
-    assert property (
-        @(posedge clk)
-        hcount == (HOR_TOTAL_TIME - 1) |=> hcount == 0
-    ) else begin
-        $error("hcount: return to 0 after expected max value failed");
-    end
 
-    /* hcount : incrementation with every clock tick */
-    assert property (
-        @(posedge clk)
-        disable iff (!rst_n)
-        (hcount < HOR_TOTAL_TIME - 1) |=> (hcount == $past(hcount) + 1)
-    ) else begin
-        $error("hcount: increment at every clk failed");
-    end
+    task automatic check_core_read(
+        input logic [ADDR_W-1:0] addr,
+        input logic expected
+    );
+    begin
+        @(negedge clk_core);
+        address_core = addr;
 
-    /* vcount : max value */
-    assert property (
-        @(posedge clk)
-        disable iff (!rst_n || $realtime < RST_START_TIME)
-        vcount < VER_TOTAL_TIME
-    ) else begin
-        $error("vcount: max value exceeded");
-    end
+        @(posedge clk_core);
+        @(negedge clk_core);
 
-    /* vcount : zero after max value */
-    assert property (
-        @(posedge clk)
-        vcount == (VER_TOTAL_TIME - 1) |=> ##(HOR_TOTAL_TIME - 1) vcount == 0
-    ) else begin
-        $error("vcount: return to 0 after expected max value failed");
+        assert(data_out_core == expected)
+        else begin
+            $error("CORE READ ERROR: addr=%0d expected=%0b got=%0b",addr, expected, data_out_core);
+        end
     end
+endtask
 
-    /* vcount : incrementation with every clock tick */
-    assert property (
-        @(posedge clk)
-        (hcount == HOR_TOTAL_TIME - 1) && vcount < (VER_TOTAL_TIME - 1) |=> (vcount == $past(vcount) + 1)
-    ) else begin
-        $error("vcount: increment at hcount reset failed");
-    end
 
-    /* hblnk : set */
-    assert property (
-        @(posedge clk)
-        hcount >= HOR_BLANK_START && hcount < HOR_BLANK_START + HOR_BLANK_TIME - 1 |-> hblnk
-    ) else begin
-        $error("hblnk: set failed");
-    end
+    task automatic clear_address(
+        input logic [ADDR_W-1:0] addr
+    );
+    begin
+        @(negedge clk_core);
+        address_core = addr;
+        clear = 1'b1;
 
-    /* hblnk : clear */
-    assert property (
-        @(posedge clk)
-        hcount < HOR_BLANK_START |-> !hblnk
-    ) else begin
-        $error("hblnk: clear failed");
-    end
+        @(posedge clk_core);
 
-    /* vblnk : set */
-    assert property (
-        @(posedge clk)
-        vcount >= VER_BLANK_START && vcount < VER_BLANK_START + VER_BLANK_TIME - 1 |-> vblnk
-    ) else begin
-        $error("vblnk set failed");
-    end
+        @(negedge clk_core);
+        clear = 1'b0;
 
-    /* vblnk : clear */
-    assert property (
-        @(posedge clk)
-        vcount < VER_BLANK_START |-> !vblnk
-    ) else begin
-        $error("vblnk: clear failed");
+        @(posedge clk_core);
     end
-
-    /* hsync : set */
-    assert property (
-        @(posedge clk)
-        hcount >= HOR_SYNC_START && hcount < HOR_SYNC_START + HOR_SYNC_TIME - 1 |-> hsync
-    ) else begin
-        $error("hsync: set failed");
-    end
-
-    /* hsync : clear */
-    assert property (
-        @(posedge clk)
-        (hcount < HOR_SYNC_START) || (hcount > (HOR_SYNC_START + HOR_SYNC_TIME - 1)) |-> !hsync
-    ) else begin
-        $error("hsync: clear failed");
-    end
-
-    /* vsync : set */
-    assert property (
-        @(posedge clk)
-        vcount >= VER_SYNC_START && vcount < VER_SYNC_START + VER_SYNC_TIME - 1 |-> vsync
-    ) else begin
-        $error("vsync: set failed");
-    end
-
-    /* vsync : clear */
-    assert property (
-        @(posedge clk)
-        vcount < VER_SYNC_START || vcount > VER_SYNC_START + VER_SYNC_TIME - 1 |-> !vsync
-    ) else begin
-        $error("vsync: clear failed");
-    end
+    endtask
 
 
     /**
@@ -208,12 +158,60 @@ module vga_timing_tb;
      */
 
     initial begin
+
+        /**
+         * Initial values
+         */
+
+        address_vga  = '0;
+        address_core = '0;
+        clear        = 1'b0;
+
+
+        /**
+         * Wait for reset
+         */
+
         @(negedge rst_n);
         @(posedge rst_n);
 
-        wait (vsync == 1'b0);
-        @(negedge vsync);
-        @(negedge vsync);
+
+        /**
+         * Check reset values
+         */
+
+        @(posedge clk_vga);
+
+        assert(data_out_vga !== 1'bx)
+        else $error("Reset failed for VGA output");
+
+        @(posedge clk_core);
+
+        assert(data_out_core !== 1'bx)
+        else $error("Reset failed for CORE output");
+
+
+        check_vga_read(0, 1'b0);
+        check_vga_read(1, 1'b1);
+
+        check_core_read(2, 1'b1);
+        check_core_read(3, 1'b0);
+
+
+        /**
+         * Test clear operation
+         */
+
+        clear_address(2);
+
+        check_core_read(2, 1'b0);
+
+
+        /**
+         * End simulation
+         */
+
+        $display("TEST FINISHED");
 
         $finish;
     end

@@ -34,7 +34,7 @@ module terrain_ram #(
      */
 
     initial begin
-        $readmemh(TERRAIN_FILE_PATH, rom);
+        $readmemb(TERRAIN_FILE_PATH, rom);
     end
 
     /*
