@@ -103,16 +103,16 @@ module terrain_ram_tb;
         input logic [ADDR_W-1:0] addr,
         input logic expected
     );
-    begin
-        address_vga = addr;
+        begin
+            address_vga = addr;
 
-        @(posedge clk_vga);
+            @(posedge clk_vga);
 
-        assert(data_out_vga == expected)
-        else begin
-            $error("VGA READ ERROR: addr=%0d expected=%0b got=%0b", addr, expected, data_out_vga);
+            assert(data_out_vga == expected)
+            else begin
+                $error("VGA READ ERROR: addr=%0d expected=%0b got=%0b", addr, expected, data_out_vga);
+            end
         end
-    end
     endtask
 
 
@@ -120,19 +120,19 @@ module terrain_ram_tb;
         input logic [ADDR_W-1:0] addr,
         input logic expected
     );
-    begin
-        @(negedge clk_core);
-        address_core = addr;
+        begin
+            @(negedge clk_core);
+            address_core = addr;
 
-        @(posedge clk_core);
-        @(negedge clk_core);
+            @(posedge clk_core);
+            @(negedge clk_core);
 
-        assert(data_out_core == expected)
-        else begin
-            $error("CORE READ ERROR: addr=%0d expected=%0b got=%0b",addr, expected, data_out_core);
+            assert(data_out_core == expected)
+            else begin
+                $error("CORE READ ERROR: addr=%0d expected=%0b got=%0b",addr, expected, data_out_core);
+            end
         end
-    end
-endtask
+    endtask
 
 
     task automatic clear_address(
