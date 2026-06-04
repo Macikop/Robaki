@@ -1,6 +1,6 @@
 /*
  * Designed by MP
- * * How it works:
+ * How it works:
  * Generates pseudorandom numbers using a pipelined 32-bit XORSHIFT.
  */
 
