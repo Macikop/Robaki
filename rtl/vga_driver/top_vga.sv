@@ -95,16 +95,16 @@ module top_vga (
 
     );
 
-    terrain_rom #(
+    terrain_ram #(
         .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map1.dat"),
         .WIDTH(TERRAIN_WIDTH),
         .HEIGHT(TERRAIN_HEIGHT)
     ) u_terrain_rom (
-        .clk,
+        .clk_vga(clk),
         .rst_n,
 
-        .address(address_terrain),
-        .data_out(terrain_present)
+        .address_vga(address_terrain),
+        .data_out_vga(terrain_present)
     );
 
     draw_terrain #(
@@ -144,14 +144,14 @@ module top_vga (
         .clk,
         .rst_n,
         
-        .xpos(12'd100),
-        .ypos(12'd100),
+        .x_pos(12'd100),
+        .y_pos(12'd100),
         .vga_in(vga_terrain),
 
         .modifier(3'b000),
 
         .rgb_pixel(rgb_sprite),
-        .pixel_addres(address_sprite),
+        .pixel_address(address_sprite),
 
         .vga_out(vga_circle)
     );
