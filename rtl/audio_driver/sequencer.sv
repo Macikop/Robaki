@@ -1,7 +1,8 @@
 /*
- *  Designed by MP
+ * Designed by MP
  * 
- * How it works
+ * How it works:
+ * Outputs sequence of notes according to it's lenght
  */
 
 import note_pkg::*;

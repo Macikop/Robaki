@@ -6,8 +6,7 @@
  * Description:
  * Package with vga related constants.
  * 
- * Modified: 
- * Maciej Piofczyk
+ * Modified: Maciej Piofczyk
  * Changed to 1024 x 768 @60Hz
  * timing  according to https://martin.hinner.info/vga/timing.html
  * 
