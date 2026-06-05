@@ -67,8 +67,11 @@ is_ignored() {
     local item=$1
     local alt_item=$2
     for pattern in "${IGNORE_PATTERNS[@]}"; do
-        if [[ "$item" == $pattern ]] || { [ -n "$alt_item" ] && [[ "$alt_item" == $pattern ]]; }; then
+        if [[ "$item" == $pattern ]]; then
             return 0 
+        fi
+        if [ -n "$alt_item" ] && [[ "$alt_item" == $pattern ]]; then
+            return 0
         fi
     done
     return 1 
@@ -79,7 +82,7 @@ generate_dut_instance() {
     local src_file=$1
     local mod_name=$2
     
-    # Clean code: strip block comments, line comments, and minimize space
+    # 1. Clean code: strip block comments, line comments, and minimize space
     local clean_code
     clean_code=$(awk '
         BEGIN {FS=OFS=""}
@@ -100,19 +103,42 @@ generate_dut_instance() {
         }
     ' "$src_file" | tr '\n' ' ' | tr -s ' ')
 
-    # Extract parameters safely
+    # 2. Extract parameters safely
     local param_list=""
-    if [[ "$clean_code" =~ \#\s*\(([^)]+)\) ]]; then
-        local param_block="${BASH_REMATCH[1]}"
+    if echo "$clean_code" | grep -qE '#[[:space:]]*\('; then
+        local param_block
+        param_block=$(echo "$clean_code" | sed -E 's/.*#[[:space:]]*\(([^)]+)\).*/\1/')
         param_list=$(echo "$param_block" | grep -oE '[A-Za-z_][A-Za-z0-9_]*\s*(=|,|\))' | tr -d '=,)' | tr -s ' ')
     fi
 
-    # Extract ALL port directions (input/output/inout) across multiple lines
+    # 3. Extract ALL port names safely by isolating ONLY the text inside module ( ... );
     local port_list=""
-    local processing_ports="${clean_code#*module*\(}"
-    port_list=$(echo "$processing_ports" | grep -oE '(input|output|inout)\s+([^,)]+)' | awk '{print $NF}' | tr -d ';[]0-9:')
+    
+    # Isolate ONLY from the start of the module name up to the FIRST closing ');'
+    local module_header
+    module_header=$(echo "$clean_code" | sed -E 's/.*(module[[:space:]]+[^;]+;).*/\1/')
 
-    # Construct structural mapping codeblock string
+    # Extract the port block within the main module parentheses, ignoring parameters
+    local raw_ports=""
+    if echo "$module_header" | grep -qE 'module[[:space:]]+[A-Za-z0-9_]+[[:space:]]*#[[:space:]]*\('; then
+        raw_ports=$(echo "$module_header" | sed -E 's/.*module[[:space:]]+[A-Za-z0-9_]+[[:space:]]*#[[:space:]]*\(.*\)[[:space:]]*\((.*)\);.*/\1/')
+    else
+        raw_ports=$(echo "$module_header" | sed -E 's/.*module[[:space:]]+[A-Za-z0-9_]+[[:space:]]*\((.*)\);.*/\1/')
+    fi
+
+    # Sanitize the ports block line to cleanly capture only valid variable names:
+    # - Step a: Strip multi-dimensional ranges / vector definitions (even with nested parens like $clog2)
+    #           We target everything from '[' up to the matching ']' at the end of a type assignment.
+    local sanitized_ports
+    sanitized_ports=$(echo "$raw_ports" | sed -E 's/\[[^]]+\]//g' \
+                                       | sed -E 's/\b(input|output|inout|logic|wire|reg|signed|unsigned)\b//g' \
+                                       | sed -E 's/=[^,)]+//g' \
+                                       | tr -d '()')
+
+    # Convert the sanitized comma/space separated list into individual clean word lines
+    port_list=$(echo "$sanitized_ports" | tr ',' '\n' | tr -s ' ' | awk '{print $NF}' | grep -v '^$')
+
+    # 4. Construct structural mapping codeblock string
     local dut_string="    ${mod_name} "
     
     if [ -n "$param_list" ]; then
@@ -145,7 +171,6 @@ elif [ -n "$TARGET_MODULE" ]; then
     [ ! -d "$TARGET_MODULE" ] && { echo "Module folder '$TARGET_MODULE' not found."; exit 1; }
     MODULES=("$TARGET_MODULE")
 else
-    # Safety fallback rule
     echo "Error: No generation target specified."
     usage
 fi
