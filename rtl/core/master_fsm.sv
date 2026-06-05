@@ -65,24 +65,29 @@ module master_fsm (
 
             WALKING: begin
                 //if posedge on keyboard spacebar -> SHOOTING
+                //polar to cartesian calculate positions of aim mark
             end
 
             SHOOTING: begin
                 //if negedge on keyboard spacebar -> BULLET_FLIGHT
+                //enable tdc
+                //polar to cartesian calculate initial velocities
             end
 
             BULLET_FLIGHT: begin
+                //disable tdc
                 //if terrain_colision -> EXPLOSION
             end
             
             EXPLOSION: begin
-                //if both worms have total velocity 0 && explosion ended -> SWITCH_PLAYERS
+                //if both worms have collided && explosion ended -> SWITCH_PLAYERS
             end
             
             SWITCH_PLAYER: begin
                 current_player_nxt = !current_player;
                 state_nxt = WALKING;
                 //generate random wind
+                //check health
             end
 
             END_SCREEN: begin

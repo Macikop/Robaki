@@ -5,37 +5,110 @@
  * 
  */
 
-module worm(
+module worm #(
+    parameter WORM_WIDTH = 32,
+    parameter WORM_HEIGHT = 32,
+
+    parameter GRAVITY = 10
+)(
     input  logic clk,
     input  logic rst_n,
 
-    input  logic walking_stage,
-    input  logic damage,
-    input  logic damage enable,
+    input  logic active_turn,           /* activates whole module */
 
-    input  logic pos_x,
-    input  logic pos_y,
+    input  logic sync,                  /* goes to every internal module that needs it */
 
-    output logic [21:0] position,   /* {posy[10:0], posx[10:0]} */
+    input  state_t current_state,
 
+    explosion.in explosion_in,          /* TODO: crerate this interface */
+
+    keyboard.in keyboard_in,            /* TODO: create this interface */
+
+    input  logic [7:0] wind,
+
+    memory.request terrain_ram_conn,    /* Interface for terrain ram */
+
+    output logic [10:0] pos_x,          /* goes into display and bullet */
+    output logic [10:0] pos_y,          /* goes into display and bullet */
+    output logic direction,             /* facing left or right */
+    output logic [7:0] aim_angle        /* goes into polar_to_cartesian and than to aim and bullet */
 );
 
-    logic [6:0]     health;         /* health max 100*/
-    logic [10:0]    pos_x;
-    logic [10:0]    pos_y;
-    logic [6:0]     aim;            /* {aim_dir - (1 - right 0 - left), aim value - (0 top down, 64 top up)} */
+    logic cd_start, cd_done;
+    logic [7:0] cd_hit;
+    logic exp_done;
+
+    logic signed [7:0] velocity_x;
+    logic signed [7:0] velocity_y;
 
 
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            health <= 7'd100;
-        end else begin
-            
-        end
-        
-        
-    end
-    
+    physics_engine #(
+        .GRAVITY(GRAVITY),
+        .MAP_WIDTH(1024),
+        .MAP_HEIGHT(768)
+    ) u_physics_engine (
+        .clk,
+        .rst_n,
+
+        .sync,
+        .start(exp_done),
+
+        .wind(wind),
+        .velocity_x_init(velocity_x),
+        .velocity_y_init(velocity_y),
+
+        .cd_hit(cd_hit),
+        .cd_done(cd_done),
+        .cd_start(cd_start),
+
+        .done(),
+        .pos_x(pos_x),
+        .pos_y(pos_y)
+
+    );
+
+    collision_detector #(
+        .WIDTH(WORM_WIDTH),
+        .HEIGHT(WORM_HEIGHT),
+        .RAM_DELAY(2),
+        .TERRAIN_WIDTH(1024),
+        .TERRAIN_HEIGHT(768)
+    ) u_collision_detector (
+        .clk,
+        .rst_n,
+
+        .pos_x(pos_x),
+        .pos_y(pos_y),
+        .start_check(cd_start),
+
+        .is_occupied(terrain_ram_conn.is_occupied),
+        .terrain_address(terrain_ram_conn.terrain_address),
+
+        .collisions(cd_hit),
+        .done(cd_done)
+    );
+
+    explosion_conseqences #(
+
+    ) u_explosion_conseqences (
+        .clk,
+        .rst_n,
+
+        .worm_pos_x(pos_x),
+        .worm_pos_y(pos_y),
+
+        .explosion_pos_x(),
+        .explosion_pos_y(),
+        .explosion_r(),
+
+        .start(),
+
+        .velocity_x(velocity_x),
+        .velocity_y(velocity_y),
+        .damage(),
+
+        .done(exp_done)
+    );
 
 
 endmodule

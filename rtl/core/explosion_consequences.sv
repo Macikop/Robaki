@@ -17,10 +17,9 @@ module explosion_conseqences #(
 
     input  logic [$clog2(TERRAIN_WIDTH)-1:0] explosion_pos_x,
     input  logic [$clog2(TERRAIN_HEIGHT)-1:0] explosion_pos_y,
+    input  logic [10:0] explosion_r,
 
     input  logic start,
-
-    input  logic [10:0] explosion_r,
 
     output logic signed [7:0] velocity_x,
     output logic signed [7:0] velocity_y,
@@ -41,6 +40,9 @@ module explosion_conseqences #(
     logic signed [7:0] velocity_y_nxt;
 
     logic signed [7:0] dx, dy, max_d, min_d, approx_r;
+
+    logic done_nxt;
+    logic [5:0] damage_nxt;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

@@ -21,7 +21,7 @@ module physics_engine #(
     input  logic signed [7:0] velocity_x_init,
     input  logic signed [7:0] velocity_y_init,
 
-    input  logic cd_hit,
+    input  logic [7:0] cd_hit,
     input  logic cd_done,
 
     output logic cd_start,

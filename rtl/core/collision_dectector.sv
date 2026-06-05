@@ -27,9 +27,9 @@ module collision_detector #(
     input  logic        start_check,
 
     input  logic        is_occupied,
-
     output logic [$clog2(TERRAIN_WIDTH*TERRAIN_HEIGHT)-1:0] terrain_address,
-    output logic [7:0] colisions,
+    
+    output logic [7:0] collisions,
     output logic       done
 );
 
@@ -96,7 +96,7 @@ module collision_detector #(
             responses_received <= '0;
 
             terrain_address <= '0;
-            colisions <= '0;
+            collisions <= '0;
             done <= 1'b0;
 
             for(i = 0; i < RAM_DELAY; i++) begin
@@ -113,7 +113,7 @@ module collision_detector #(
             responses_received <= responses_received_nxt;
 
             terrain_address <= terrain_address_nxt;
-            colisions <= colisions_nxt;
+            collisions <= colisions_nxt;
             done <= done_nxt;
 
             for(i = 0; i < RAM_DELAY; i++) begin
@@ -131,12 +131,13 @@ module collision_detector #(
         responses_received_nxt = responses_received;
 
         terrain_address_nxt = terrain_address;
-        colisions_nxt = colisions;
+        colisions_nxt = collisions;
         done_nxt = done;
 
+        // FIXED: Pipeline shifting logic (pulling from j-1)
         for(j = 1; j < RAM_DELAY; j++) begin
-            idx_pipe_nxt[j] = idx_pipe[j];
-            valid_pipe_nxt[j] = valid_pipe[j];
+            idx_pipe_nxt[j] = idx_pipe[j-1];
+            valid_pipe_nxt[j] = valid_pipe[j-1];
         end
 
         idx_pipe_nxt[0] = '0;
@@ -150,24 +151,16 @@ module collision_detector #(
         case(state)
 
             IDLE: begin
-
                 done_nxt = 1'b0;
-
                 colisions_nxt = '0;
                 requests_sent_nxt = 0;
                 responses_received_nxt = 0;
-
                 state_nxt = (start_check) ? RUNNING : IDLE;
             end
 
             RUNNING: begin
-
                 if(requests_sent < NUM_POINTS) begin
-
-                    terrain_address_nxt =
-                        (pos_y + point_y(requests_sent[2:0])) *
-                        TERRAIN_WIDTH +
-                        (pos_x + point_x(requests_sent[2:0]));
+                    terrain_address_nxt = (pos_y + points_y[requests_sent[2:0]]) * TERRAIN_WIDTH + (pos_x + points_x[requests_sent[2:0]]);
 
                     idx_pipe_nxt[0]   = requests_sent[2:0];
                     valid_pipe_nxt[0] = 1'b1;
