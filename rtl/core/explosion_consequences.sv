@@ -5,7 +5,7 @@
  * Calculates damage and kickback from explosion 
  */
 
-module explosion_conseqences #(
+module explosion_consequences #(
     parameter TERRAIN_WIDTH = 1024,
     parameter TERRAIN_HEIGHT = 768
 )(
