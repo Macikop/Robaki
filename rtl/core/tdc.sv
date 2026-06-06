@@ -44,16 +44,12 @@ module tdc #(
         done_nxt = '0;
 
         if (enable) begin
-            if (sync) begin
-                if (pulse) begin
-                    done_nxt = 1'b0;
-                    value_nxt = (value == MAX_TIME) ? value : value + 1;
-                end else begin
-                    if (pulse_buf) begin
-                        value_nxt = value;
-                        done_nxt = 1'b1;
-                    end
-                end         
+            if (sync && pulse) begin
+                value_nxt = (value == MAX_TIME) ? value : value + 1;
+            end
+            if (~pulse && pulse_buf) begin
+                value_nxt = value;
+                done_nxt = 1'b1;
             end
         end else begin
             value_nxt = '0;

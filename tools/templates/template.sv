@@ -1,6 +1,7 @@
 /*
  * Designed by MP
- * * Description:
+ * 
+ * Description:
  * Testbench for __BASE_NAME__ module.
  */
 
