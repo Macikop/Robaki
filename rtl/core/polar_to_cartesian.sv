@@ -12,30 +12,33 @@ module polar_to_cartesian (
     input  logic start,
 
     input  logic [7:0] phi,
-
     input  logic [7:0] length,
 
     input  logic [7:0] lut_value,
     output logic [7:0] lut_address,
 
-    output logic signed [15:0] x_component,
-    output logic signed [15:0] y_component,
+    output logic signed [7:0] x_component,
+    output logic signed [7:0] y_component,
 
     output logic done
 );
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         IDLE, 
         SIN,
         COS,
+        WAITING,
         FINISH
     } state_t;
     
     state_t state, state_nxt;
 
-    logic [7:0] sin, cos, sin_nxt, cos_nxt;
+    logic signed [8:0] sin, cos, sin_nxt, cos_nxt;
 
     logic done_nxt;
-    logic signed [15:0] x_component_nxt, y_component_nxt;
+    logic signed [7:0] x_component_nxt, y_component_nxt;
+
+    logic signed [16:0] mult_x;
+    logic signed [16:0] mult_y;
 
     logic [7:0] lut_address_nxt;
 
@@ -79,27 +82,38 @@ module polar_to_cartesian (
         case (state)
             IDLE: begin
                 if (start) begin
-                    state_nxt       = SIN;
+                    state_nxt = SIN;
                     lut_address_nxt = phi; 
                 end
             end
             
             SIN: begin
-                sin_nxt = lut_value; 
-                lut_address_nxt = phi + 8'd64; 
-                state_nxt       = COS;
+                
+                lut_address_nxt = phi + 8'd64;
+                state_nxt = COS;
             end
 
             COS: begin
-                cos_nxt         = lut_value;
-                y_component_nxt = $signed({1'b0, length}) * $signed({1'b0, sin});
-                state_nxt       = FINISH;
+                sin_nxt = $signed({1'b0,lut_value}) - 9'sd127;
+                
+
+                state_nxt = WAITING;
             end
 
+            WAITING: begin
+                cos_nxt = $signed({1'b0,lut_value}) - 9'sd127;
+                mult_y = $signed({1'b0,length}) * sin;
+                y_component_nxt = mult_y >>> 7;
+                state_nxt = FINISH;
+            end
+            
+
             FINISH: begin
-                x_component_nxt = $signed({1'b0, length}) * $signed({1'b0, cos});
-                done_nxt        = 1'b1;
-                state_nxt       = IDLE;
+                mult_x = $signed({1'b0,length}) * cos;
+                x_component_nxt = mult_x >>> 7;
+
+                done_nxt = 1'b1;
+                state_nxt = IDLE;
             end
             
             default: begin
