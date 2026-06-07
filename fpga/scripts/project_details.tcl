@@ -41,7 +41,21 @@ set sv_files {
     ../rtl/vga_driver/vga_timing.sv \
     ../rtl/vga_driver/draw_bg.sv \
     ../rtl/vga_driver/vga_if.sv \
+
+
     ../rtl/top_vga.sv \
+
+    ../rtl/audio_driver/address_counter.sv \
+    ../rtl/audio_driver/midi_decoder.sv \
+    ../rtl/audio_driver/music_rom.sv \
+    ../rtl/audio_driver/note_pkg.sv \
+    ../rtl/audio_driver/phase_increment_lut.sv \
+    ../rtl/audio_driver/pwm_generator.sv \
+    ../rtl/audio_driver/sequencer.sv \
+    ../rtl/audio_driver/sine_lut.sv \
+    ../rtl/audio_driver/sync_generator.sv \
+    ../rtl/audio_driver/top_audio_driver.sv \
+
     rtl/top_vga_basys3.sv
 }
 
@@ -56,6 +70,21 @@ set sv_files {
 # }
 
 # Specify files for a memory initialization     -- EDIT
-# set mem_files {
-#    path/to/file.data
-# }
+set mem_files {
+   ../rtl/audio_driver/luts/phase.dat \
+   ../rtl/audio_driver/luts/sine.dat \
+   ../rtl/audio_driver/music_files/nokia_ringtone.hex \
+   ../rtl/audio_driver/music_files/nokia_ringtone.midi \
+   ../rtl/audio_driver/music_files/test_music.hex \
+   
+   ../rtl/vga_driver/sprite_bank/arrow.dat \
+   ../rtl/vga_driver/sprite_bank/weapons_archive.dat \
+   ../rtl/vga_driver/sprite_bank/weapons.dat \
+   ../rtl/vga_driver/sprite_bank/worms.dat \
+
+   ../rtl/vga_driver/maps/map_test.dat \
+   ../rtl/vga_driver/maps/map1.dat \
+   ../rtl/vga_driver/maps/arrow.dat 
+
+
+}
