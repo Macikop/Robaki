@@ -6,7 +6,7 @@
 
  `timescale 1ns / 1ps
 
-module rx_FIFO(
+module uart_FIFO(
 
 
 );
