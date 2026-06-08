@@ -2,7 +2,8 @@
  * Designed by MP
  * 
  * How it works:
- * 
+ * Dual port RAM with access from core and vga side.
+ * Stores actual terrain.
  */
 
 module terrain_ram #(

@@ -12,6 +12,7 @@
  * [2]--[3]--[4]
  * 
  */
+
 module collision_detector #(
     parameter WIDTH          = 32,
     parameter HEIGHT         = 32,
@@ -24,13 +25,15 @@ module collision_detector #(
 
     input  logic [10:0] pos_x,
     input  logic [10:0] pos_y,
-    input  logic        start_check,
+    input  logic start_check,
 
-    input  logic        is_occupied,
+    input  logic is_occupied,
+    input  logic granted,
     output logic [$clog2(TERRAIN_WIDTH*TERRAIN_HEIGHT)-1:0] terrain_address,
+    output logic ram_request,
     
     output logic [7:0] collisions,
-    output logic       done
+    output logic done
 );
 
     localparam NUM_POINTS = 8;
@@ -47,10 +50,9 @@ module collision_detector #(
     logic [3:0] responses_received, responses_received_nxt;
 
     logic [7:0] colisions_nxt;
-
     logic [$clog2(TERRAIN_WIDTH*TERRAIN_HEIGHT)-1:0] terrain_address_nxt;
-
-    logic done_nxt;
+    logic       ram_request_nxt;
+    logic       done_nxt;
 
     logic [2:0] idx_pipe     [0:RAM_DELAY-1];
     logic [2:0] idx_pipe_nxt [0:RAM_DELAY-1];
@@ -58,8 +60,8 @@ module collision_detector #(
     logic valid_pipe     [0:RAM_DELAY-1];
     logic valid_pipe_nxt [0:RAM_DELAY-1];
 
-    logic [5:0] points_x [0:NUM_POINTS-1];
-    logic [5:0] points_y [0:NUM_POINTS-1];
+    logic [11:0] points_x [0:NUM_POINTS-1];
+    logic [11:0] points_y [0:NUM_POINTS-1];
 
     integer i, j;
 
@@ -89,13 +91,11 @@ module collision_detector #(
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-
             state <= IDLE;
-
             requests_sent <= '0;
             responses_received <= '0;
-
             terrain_address <= '0;
+            ram_request <= 1'b0;
             collisions <= '0;
             done <= 1'b0;
 
@@ -103,16 +103,13 @@ module collision_detector #(
                 idx_pipe[i] <= '0;
                 valid_pipe[i] <= 1'b0;
             end
-
         end
         else begin
-
             state <= state_nxt;
-
             requests_sent <= requests_sent_nxt;
             responses_received <= responses_received_nxt;
-
             terrain_address <= terrain_address_nxt;
+            ram_request <= ram_request_nxt;
             collisions <= colisions_nxt;
             done <= done_nxt;
 
@@ -124,23 +121,19 @@ module collision_detector #(
     end
 
     always_comb begin
-
         state_nxt = state;
-
         requests_sent_nxt = requests_sent;
         responses_received_nxt = responses_received;
-
         terrain_address_nxt = terrain_address;
+        ram_request_nxt = ram_request;
         colisions_nxt = collisions;
         done_nxt = done;
 
-        // FIXED: Pipeline shifting logic (pulling from j-1)
         for(j = 1; j < RAM_DELAY; j++) begin
-            idx_pipe_nxt[j] = idx_pipe[j-1];
+            idx_pipe_nxt[j]   = idx_pipe[j-1];
             valid_pipe_nxt[j] = valid_pipe[j-1];
         end
-
-        idx_pipe_nxt[0] = '0;
+        idx_pipe_nxt[0]   = '0;
         valid_pipe_nxt[0] = 1'b0;
 
         if(valid_pipe[RAM_DELAY-1]) begin
@@ -155,20 +148,37 @@ module collision_detector #(
                 colisions_nxt = '0;
                 requests_sent_nxt = 0;
                 responses_received_nxt = 0;
-                state_nxt = (start_check) ? RUNNING : IDLE;
+                
+                if (start_check) begin
+                    terrain_address_nxt = (pos_y + points_y[0]) * TERRAIN_WIDTH + (pos_x + points_x[0]);
+                    ram_request_nxt = 1'b1;
+                    state_nxt = RUNNING;
+                end else begin
+                    ram_request_nxt = 1'b0;
+                    state_nxt = IDLE;
+                end
             end
 
             RUNNING: begin
-                if(requests_sent < NUM_POINTS) begin
-                    terrain_address_nxt = (pos_y + points_y[requests_sent[2:0]]) * TERRAIN_WIDTH + (pos_x + points_x[requests_sent[2:0]]);
-
-                    idx_pipe_nxt[0]   = requests_sent[2:0];
+                if (ram_request && granted) begin
+                    idx_pipe_nxt[0] = requests_sent[2:0];
                     valid_pipe_nxt[0] = 1'b1;
-
-                    requests_sent_nxt = requests_sent + 1;
+                    
+                    if (requests_sent + 1 < NUM_POINTS) begin
+                        requests_sent_nxt = requests_sent + 1;
+                        terrain_address_nxt = (pos_y + points_y[requests_sent_nxt[2:0]]) * TERRAIN_WIDTH + (pos_x + points_x[requests_sent_nxt[2:0]]);
+                        ram_request_nxt = 1'b1;
+                    end else begin
+                        requests_sent_nxt = requests_sent + 1;
+                        ram_request_nxt = 1'b0;
+                    end
                 end
 
-                state_nxt = (responses_received == NUM_POINTS) ? FINISH : RUNNING;
+                if (responses_received_nxt == NUM_POINTS) begin
+                    state_nxt = FINISH;
+                end else begin
+                    state_nxt = RUNNING;
+                end
             end
 
             FINISH: begin

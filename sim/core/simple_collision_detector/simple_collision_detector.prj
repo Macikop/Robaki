@@ -5,4 +5,6 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 sv work ../../../rtl/core/simple_collision_detector.sv \
+        ../../../rtl/core/ram_address_mux.sv \
+        ../../../rtl/vga_driver/terrain_ram.sv \
         simple_collision_detector_tb.sv

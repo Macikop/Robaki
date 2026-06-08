@@ -5,4 +5,5 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 sv work ../../../rtl/core/ram_address_mux.sv \
+        ../../../rtl/vga_driver/terrain_ram.sv \
         ram_address_mux_tb.sv

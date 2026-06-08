@@ -5,4 +5,13 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 sv work ../../../rtl/core/terrain_destruction.sv \
+        ../../../rtl/core/ram_address_mux.sv \
+        ../../../rtl/vga_driver/vga_pkg.sv \
+        ../../../rtl/vga_driver/vga_if.sv \
+        ../../../rtl/vga_driver/vga_timing.sv \
+        ../../../rtl/vga_driver/draw_bg.sv \
+        ../../../rtl/vga_driver/terrain_ram.sv \
+        ../../../rtl/vga_driver/draw_terrain.sv \
+        ../../../rtl/shared_modules/delay.sv \
+        ../../common/tiff_writer.sv \
         terrain_destruction_tb.sv
