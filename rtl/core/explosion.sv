@@ -4,7 +4,9 @@
  * 
  */
 
-module explosion (
+module explosion #(
+    parameter logic [7:0] RADIUS = 50;
+)(
     input  logic clk,
     input  logic rst_n,
 

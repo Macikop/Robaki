@@ -68,24 +68,23 @@ module worm #(
     );
 
     collision_detector #(
-        .WIDTH(WORM_WIDTH),
-        .HEIGHT(WORM_HEIGHT),
-        .RAM_DELAY(2),
-        .TERRAIN_WIDTH(1024),
-        .TERRAIN_HEIGHT(768)
+        .WIDTH          (),
+        .HEIGHT         (),
+        .RAM_DELAY      (),
+        .TERRAIN_WIDTH  (),
+        .TERRAIN_HEIGHT ()
     ) u_collision_detector (
-        .clk,
-        .rst_n,
-
-        .pos_x(pos_x),
-        .pos_y(pos_y),
-        .start_check(cd_start),
-
-        .is_occupied(terrain_ram_conn.is_occupied),
-        .terrain_address(terrain_ram_conn.terrain_address),
-
-        .collisions(cd_hit),
-        .done(cd_done)
+        .clk             (),
+        .rst_n           (),
+        .pos_x           (),
+        .pos_y           (),
+        .start_check     (),
+        .is_occupied     (),
+        .granted         (),
+        .terrain_address (),
+        .ram_request     (),
+        .collisions      (),
+        .done            ()
     );
 
     explosion_conseqences #(
