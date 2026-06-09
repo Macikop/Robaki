@@ -20,10 +20,7 @@ module terrain_destruction #(
 
     input  logic [7:0]  radius,
 
-    output logic [$clog2(TERRAIN_WIDTH * TERRAIN_HEIGHT)-1:0] ram_address,
-    output logic ram_request,
-    output logic ram_clear,
-    input  logic ram_granted,
+    ram_mux_if.out v_ram,
 
     output logic done
 );
@@ -58,38 +55,38 @@ module terrain_destruction #(
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            state <= IDLE;
-            ram_address <= '0;
-            ram_request <= 1'b0;
-            ram_clear <= 1'b0;
-            done <= 1'b0;
-            x_i <= '0;
-            y_i <= '0;
-            p <= '0;
-            segment <= '0;
-            fill_start <= '0;
-            fill_end <= '0;
-            fill_cur <= '0;
-            current_row <= '0;
+            state           <= IDLE;
+            v_ram.addresses <= '0;
+            v_ram.request   <= 1'b0;
+            v_ram.value     <= 1'b0;
+            done            <= 1'b0;
+            x_i             <= '0;
+            y_i             <= '0;
+            p               <= '0;
+            segment         <= '0;
+            fill_start      <= '0;
+            fill_end        <= '0;
+            fill_cur        <= '0;
+            current_row     <= '0;
 
             for (int i = 0; i < RAM_DELAY; i++) begin
                 ram_busy_pipe[i] <= '0;
             end
 
         end else begin
-            state <= state_nxt;
-            ram_address <= ram_address_nxt;
-            ram_request <= ram_req_nxt;
-            ram_clear <= ram_clear_nxt;
-            done <= done_nxt;
-            x_i <= x_i_nxt;
-            y_i <= y_i_nxt;
-            p <= p_nxt;
-            segment <= segment_nxt;
-            fill_start <= fill_start_nxt;
-            fill_end <= fill_end_nxt;
-            fill_cur <= fill_cur_nxt;
-            current_row <= current_row_nxt;
+            state           <= state_nxt;
+            v_ram.addresses <= ram_address_nxt;
+            v_ram.request   <= ram_req_nxt;
+            v_ram.value     <= ram_clear_nxt;
+            done            <= done_nxt;
+            x_i             <= x_i_nxt;
+            y_i             <= y_i_nxt;
+            p               <= p_nxt;
+            segment         <= segment_nxt;
+            fill_start      <= fill_start_nxt;
+            fill_end        <= fill_end_nxt;
+            fill_cur        <= fill_cur_nxt;
+            current_row     <= current_row_nxt;
 
             ram_busy_pipe[0] <= ram_busy_nxt;
 
@@ -106,34 +103,34 @@ module terrain_destruction #(
             if (ram_busy_pipe[i]) pipeline_empty = 1'b0;
         end
 
-        state_nxt = state;
-        done_nxt = 1'b0;
-        ram_address_nxt = ram_address;
-        ram_req_nxt = ram_request;
-        ram_clear_nxt = ram_clear;
-        ram_busy_nxt = 1'b0;
+        state_nxt       = state;
+        done_nxt        = 1'b0;
+        ram_address_nxt = v_ram.addresses;
+        ram_req_nxt     = v_ram.request;
+        ram_clear_nxt   = v_ram.value;
+        ram_busy_nxt    = 1'b0;
         
-        x_i_nxt = x_i;
-        y_i_nxt = y_i;
-        p_nxt = p;
+        x_i_nxt         = x_i;
+        y_i_nxt         = y_i;
+        p_nxt           = p;
         
-        segment_nxt = segment;
-        fill_start_nxt = fill_start;
-        fill_end_nxt = fill_end;
-        fill_cur_nxt = fill_cur;
+        segment_nxt     = segment;
+        fill_start_nxt  = fill_start;
+        fill_end_nxt    = fill_end;
+        fill_cur_nxt    = fill_cur;
         current_row_nxt = current_row;
 
         case (state)
             
             IDLE: begin
                 ram_address_nxt = '0;
-                ram_req_nxt = 1'b0;
-                ram_clear_nxt = 1'b0;
-                done_nxt = 1'b0;
-                x_i_nxt = '0;
-                y_i_nxt = radius;
-                p_nxt = $signed(1) - $signed({4'b0, radius});
-                segment_nxt = 2'b00;
+                ram_req_nxt     = 1'b0;
+                ram_clear_nxt   = 1'b0;
+                done_nxt        = 1'b0;
+                x_i_nxt         = '0;
+                y_i_nxt         = radius;
+                p_nxt           = $signed(1) - $signed({4'b0, radius});
+                segment_nxt     = 2'b00;
                 
                 if (start) begin
                     state_nxt = CALC_POINT;
@@ -142,51 +139,49 @@ module terrain_destruction #(
             
             CALC_POINT: begin
                 if (x_i <= y_i) begin
-                    state_nxt = FILLING;
-                    segment_nxt = 2'b00;
+                    state_nxt       = FILLING;
+                    segment_nxt     = 2'b00;
                     current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, y_i});
-                    fill_start_nxt = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
-                    fill_end_nxt = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
-                    fill_cur_nxt = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
+                    fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
+                    fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
+                    fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                     
-                    ram_req_nxt = 1'b0;
-                    ram_clear_nxt = 1'b0;
+                    ram_req_nxt     = 1'b0;
+                    ram_clear_nxt   = 1'b0;
                 end else begin
                     state_nxt = FINISH;
                 end
             end
             
             FILLING: begin
-                // 1. Assert request lines if the current pixel is within the screen bounds
                 if (current_row >= 0 && current_row < TERRAIN_HEIGHT && fill_cur >= 0 && fill_cur < TERRAIN_WIDTH) begin
                     ram_address_nxt = (current_row * TERRAIN_WIDTH) + fill_cur;
                     ram_req_nxt     = 1'b1;
                     ram_clear_nxt   = 1'b1;
                     
-                    // 2. If we are in-bounds, ONLY advance coordinates when the arbiter accepts the write
-                    if (ram_request && ram_granted) begin
+                    if (v_ram.request && v_ram.granted) begin
                         ram_req_nxt   = 1'b0;
                         ram_clear_nxt = 1'b0;
-                        ram_busy_nxt  = 1'b1; // Mark pipeline active for tracking
+                        ram_busy_nxt  = 1'b1;
 
                         if (fill_cur < fill_end) begin
                             fill_cur_nxt = fill_cur + 1;
                         end else begin
-                            // Move to the next segment of the circle algorithm
+
                             if (segment == 2'b00) begin
-                                segment_nxt = 2'b01;
+                                segment_nxt     = 2'b01;
                                 current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, y_i});
                                 fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
                                 fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                             end else if (segment == 2'b01) begin
-                                segment_nxt = 2'b10;
+                                segment_nxt     = 2'b10;
                                 current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, x_i});
                                 fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                                 fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             end else if (segment == 2'b10) begin
-                                segment_nxt = 2'b11;
+                                segment_nxt     = 2'b11;
                                 current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, x_i});
                                 fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
@@ -204,7 +199,7 @@ module terrain_destruction #(
                         end
                     end
                 end else begin
-                    // 3. If the pixel is out of bounds, skip it immediately without a handshake
+
                     ram_req_nxt   = 1'b0;
                     ram_clear_nxt = 1'b0;
 
@@ -212,19 +207,19 @@ module terrain_destruction #(
                         fill_cur_nxt = fill_cur + 1;
                     end else begin
                         if (segment == 2'b00) begin
-                            segment_nxt = 2'b01;
+                            segment_nxt     = 2'b01;
                             current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, y_i});
                             fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
                             fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                         end else if (segment == 2'b01) begin
-                            segment_nxt = 2'b10;
+                            segment_nxt     = 2'b10;
                             current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, x_i});
                             fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                             fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                         end else if (segment == 2'b10) begin
-                            segment_nxt = 2'b11;
+                            segment_nxt     = 2'b11;
                             current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, x_i});
                             fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
@@ -245,7 +240,7 @@ module terrain_destruction #(
 
             FINISH: begin
                 if (pipeline_empty) begin
-                    done_nxt = 1'b1;
+                    done_nxt  = 1'b1;
                     state_nxt = IDLE;
                 end
             end
