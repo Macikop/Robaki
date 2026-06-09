@@ -32,18 +32,18 @@ class SVInstantiator:
             return None, None
 
         start_idx = mod_match.end()
-        depth = 0
-        in_header = False
+        paren_depth = 0
+        bracket_depth = 0
         header_end_idx = -1
         
+        # Scan forward to find the ending semicolon of the module statement
         for i in range(start_idx, len(clean_code)):
             ch = clean_code[i]
-            if ch == '(':
-                depth += 1
-                in_header = True
-            elif ch == ')':
-                depth -= 1
-            elif ch == ';' and depth == 0 and in_header:
+            if ch == '(': paren_depth += 1
+            elif ch == ')': paren_depth -= 1
+            elif ch == '[': bracket_depth += 1
+            elif ch == ']': bracket_depth -= 1
+            elif ch == ';' and paren_depth == 0 and bracket_depth == 0:
                 header_end_idx = i
                 break
                 
@@ -54,6 +54,7 @@ class SVInstantiator:
         param_block = ""
         port_block = ""
         
+        # Check if parameter port list #() exists
         if header_text.startswith('#'):
             p_depth = 0
             p_start = header_text.find('(')
@@ -74,6 +75,7 @@ class SVInstantiator:
                 if port_start != -1 and port_end != -1:
                     port_block = port_part[port_start+1:port_end].strip()
         else:
+            # No parameters, the entire bracketed area contains the ports
             port_start = header_text.find('(')
             port_end = header_text.rfind(')')
             if port_start != -1 and port_end != -1:
@@ -121,20 +123,25 @@ class SVInstantiator:
         for raw_port in self.safe_split(port_block):
             if not raw_port or '.' in raw_port: 
                 continue
+            
+            # Strip directions
             dir_match = re.match(r'^(input|output|inout|ref)\b\s*', raw_port)
             if dir_match:
                 raw_port = raw_port[dir_match.end():].strip()
             
-            tokens = raw_port.split()
-            if tokens:
-                port_name_raw = tokens[-1]
-                clean_port_name = re.sub(r'\[.*\]', '', port_name_raw).replace(';', '').strip()
-                names.append(clean_port_name)
+            # Strip data types (logic, reg, wire, logic [6:0], etc.)
+            # This regex clears standard types and packed arrays
+            raw_port = re.sub(r'^([A-Za-z0-9_]+)\s*(\[.*?\])?\s*', '', raw_port).strip()
+            
+            # Clean up the port name if it has an unpacked array suffix (like [0:1])
+            # The port name will be the first token left over before the unpacked array
+            match_name = re.match(r'^([A-Za-z0-9_]+)', raw_port)
+            if match_name:
+                names.append(match_name.group(1))
         return names
 
     def find_and_generate(self, target_input):
         """Parses inputs like 'core/rng' or just 'rng' and targets the correct file."""
-        # Handle section tracking if a slash is provided
         if "/" in target_input:
             section, target_module = target_input.split("/", 1)
             search_dir = self.rtl_dir / section
@@ -143,7 +150,7 @@ class SVInstantiator:
             search_dir = self.rtl_dir
 
         if not search_dir.exists():
-            print(f"❌ Error: The directory area '{search_dir.relative_to(self.project_root)}' does not exist.")
+            print(f"Error: The directory area '{search_dir.relative_to(self.project_root)}' does not exist.")
             return False
 
         for root, _, files in os.walk(search_dir):
