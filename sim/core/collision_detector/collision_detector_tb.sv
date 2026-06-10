@@ -13,7 +13,6 @@ module collision_detector_tb;
     /**
      * Local parameters
      */
-
     localparam CLK_PERIOD = 10;     // 100 MHz
     localparam RST_START_TIME = 1.25 * CLK_PERIOD;
     localparam RST_ACTIVE_TIME = 2.00 * CLK_PERIOD;
@@ -28,7 +27,6 @@ module collision_detector_tb;
     /**
      * Local variables and signals
      */
-
     logic clk;
     logic rst_n;
 
@@ -36,28 +34,30 @@ module collision_detector_tb;
     logic [10:0] pos_y;
     logic start_check;
 
-    logic [ADDR_WIDTH-1:0] terrain_address;
-    logic ram_request;
     logic [7:0] collisions;
     logic done;
 
-    logic [ADDR_WIDTH-1:0] mux_in_addresses [0:2];
-    logic mux_in_requests  [0:2];
-    logic mux_in_granted   [0:2];
-    logic mux_out_values   [0:2];
-
+    // RAM Backend hardware wires
     logic [ADDR_WIDTH-1:0] ram_core_address;
     logic ram_core_clear;
     logic ram_core_data_out;
 
-    assign mux_in_addresses[0] = '0;
-    assign mux_in_requests[0] = 1'b0;
+    /**
+     * Interface Instantiations
+     */
+    // Create the interface array exactly matching the size the Mux expects
+    memory_if mux_ports [0:2]();
 
-    assign mux_in_addresses[1] = terrain_address;
-    assign mux_in_requests[1] = ram_request;
+    /**
+     * Interconnect assignments for unused Mux slots
+     */
+    // Channel 0: Unused
+    assign mux_ports[0].addresses = '0;
+    assign mux_ports[0].request   = 1'b0;
 
-    assign mux_in_addresses[2] = '0;
-    assign mux_in_requests[2] = 1'b0;
+    // Channel 2: Unused
+    assign mux_ports[2].addresses = '0;
+    assign mux_ports[2].request   = 1'b0;
 
     /**
      * Clock generation
@@ -89,12 +89,9 @@ module collision_detector_tb;
     ) u_ram_mux (
         .clk(clk),
         .rst_n(rst_n),
-        .addresses(mux_in_addresses),
-        .request(mux_in_requests),
+        .clients(mux_ports), // Pure interface array mapping
         .clear(1'b0),
         .ram_value(ram_core_data_out),
-        .value(mux_out_values),
-        .granted(mux_in_granted),
         .ram_address(ram_core_address),
         .ram_clear(ram_core_clear)
     );
@@ -115,11 +112,11 @@ module collision_detector_tb;
         .address_core(ram_core_address),
         .clear(ram_core_clear),
         .data_out_vga(),
-        .data_out_core (ram_core_data_out)
+        .data_out_core(ram_core_data_out)
     );
 
     /**
-     * Dut placement
+     * DUT placement with Direct Interface Array Slice
      */
 
     collision_detector #(
@@ -131,13 +128,10 @@ module collision_detector_tb;
     ) dut (
         .clk(clk),
         .rst_n(rst_n),
+        .ram_client(mux_ports[1].out), // Directly mapping channel 1 out modport to the DUT
         .pos_x(pos_x),
         .pos_y(pos_y),
         .start_check(start_check),
-        .is_occupied(mux_out_values[1]),
-        .granted(mux_in_granted[1]),
-        .terrain_address(terrain_address),
-        .ram_request(ram_request),
         .collisions(collisions),
         .done(done)
     );
@@ -168,11 +162,7 @@ module collision_detector_tb;
     endtask
 
     /**
-     * Assertions
-     */
-
-    /**
-     * Main test
+     * Main test loop
      */
     initial begin
         pos_x       = '0;
@@ -185,10 +175,10 @@ module collision_detector_tb;
         $display("Open Place");
         run_collision_test(11'd100, 11'd200);
 
-        $display("Partial Colision");
+        $display("Partial Collision");
         run_collision_test(11'd619, 11'd360);
 
-        $display("Compleat collision");
+        $display("Complete collision");
         run_collision_test(11'd500, 11'd400);
 
         repeat (5) @(posedge clk);

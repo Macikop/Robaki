@@ -2,13 +2,13 @@
  * Designed by MP
  * * Description:
  * Testbench for physics_engine module with RAM MUX integration.
+ * Fixed to support SystemVerilog Interfaces.
  */
 
 module physics_engine_tb;
 
     timeunit 1ns;
     timeprecision 1ps;
-
 
     /**
      * Local parameters
@@ -28,23 +28,10 @@ module physics_engine_tb;
     /**
      * Local variables and signals
      */
-
     logic clk;
     logic rst_n;
-    
-    wire clk_vga; 
-    wire clk_core;
-    assign clk_vga  = clk; 
-    assign clk_core = clk;
 
-    wire [ADDR_WIDTH-1:0] address_vga = '0; 
-    wire [ADDR_WIDTH-1:0] address_core;
-    wire clear = 1'b0; // Defaulting clear to deasserted for standard reads
-    wire data_out_vga;
-    wire data_out_core;
-
-    wire ram_request;
-    wire granted; // Now driven by the Mux
+    wire raw_ram_data_out;
 
     logic        sync;
     logic        start;
@@ -62,22 +49,13 @@ module physics_engine_tb;
     wire [10:0]  pos_x;
     wire [10:0]  pos_y;
 
+    wire [ADDR_WIDTH-1:0]   mux_to_ram_address;
+    wire                    mux_to_ram_clear;
+
     /**
-     * Mux Interconnect Arrays
+     * Mux Interface Instance Array
      */
-    logic [ADDR_WIDTH-1:0] mux_addresses [0:MUX_INPUTS-1];
-    logic                  mux_requests  [0:MUX_INPUTS-1];
-    logic                  mux_values    [0:MUX_INPUTS-1];
-    logic                  mux_granteds  [0:MUX_INPUTS-1];
-
-    wire [ADDR_WIDTH-1:0]  mux_to_ram_address;
-    wire                   mux_to_ram_clear;
-
-    assign mux_addresses[0] = address_core;
-    assign mux_requests[0]  = ram_request;
-    assign data_out_core    = mux_values[0];
-    assign granted          = mux_granteds[0];
-
+    memory_if mux_client_ifs[0:MUX_INPUTS-1]();
 
     /**
      * Clock generation
@@ -128,13 +106,13 @@ module physics_engine_tb;
         .HEIGHT(MAP_HEIGHT),
         .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map1.dat")
     ) u_terrain_ram (
-        .clk_vga(clk_vga),
-        .clk_core(clk_core),
+        .clk_vga('0),
+        .clk_core(clk),
         .rst_n(rst_n),
-        .address_vga(address_vga),
-        .address_core(mux_to_ram_address), // Routed from MUX
-        .clear(mux_to_ram_clear),          // Routed from MUX
-        .data_out_vga(data_out_vga),
+        .address_vga('0),
+        .address_core(mux_to_ram_address), 
+        .clear(mux_to_ram_clear),          
+        .data_out_vga(),
         .data_out_core(raw_ram_data_out)
     );
 
@@ -150,10 +128,7 @@ module physics_engine_tb;
         .pos_x(pos_x),
         .pos_y(pos_y),
         .start_check(cd_start),
-        .is_occupied(data_out_core),
-        .granted(granted),
-        .terrain_address(address_core),
-        .ram_request(ram_request),
+        .ram_client(mux_client_ifs[0]), // Connected via modport inside the interface block
         .collisions(cd_hit),
         .done(cd_done)
     );
@@ -167,12 +142,9 @@ module physics_engine_tb;
     ) u_ram_address_mux (
         .clk(clk),
         .rst_n(rst_n),
-        .addresses(mux_addresses),
-        .request(mux_requests),
+        .clients(mux_client_ifs), // Pass the interface array directly
         .clear('0),
         .ram_value(raw_ram_data_out),
-        .value(mux_values),
-        .granted(mux_granteds),
         .ram_address(mux_to_ram_address),
         .ram_clear(mux_to_ram_clear)
     );

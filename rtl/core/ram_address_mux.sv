@@ -81,7 +81,7 @@ module ram_address_mux #(
             end
         end
 
-        if (any_request_granted) begin
+        if (!any_request_granted) begin
             for (int i = 0; i < INPUTS_NUMBER; i++) begin
                 if (clients[i].request && (i <= last_access)) begin
                     ram_address_nxt     = clients[i].addresses;
@@ -105,12 +105,10 @@ module ram_address_mux #(
             if (delay_valid[RAM_DELAY-1] && (index_t'(i) == delay_pipeline[RAM_DELAY-1])) begin
                 value_nxt[i] = ram_value;
             end else begin
-                value_nxt[i] = clients[i].value;
+                value_nxt[i] = '0;
             end
         end
-    end
-
-    always_comb begin
+    
         for (int i = 0; i < INPUTS_NUMBER; i++) begin
             clients[i].granted = granted_nxt[i];
             clients[i].value   = value_nxt[i];

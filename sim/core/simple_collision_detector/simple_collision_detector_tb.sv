@@ -31,10 +31,7 @@ module simple_collision_detector_tb;
     logic data_out_core; 
     logic clear_sig;
 
-    logic [$clog2(WIDTH * HEIGHT)-1:0] m_addresses [0:0];
-    logic m_request   [0:0];
-    logic [0:0] m_value     [0:0];
-    logic m_granted   [0:0];
+    memory_if client_ifs[0:0]();
 
     logic [10:0] pos_x;
     logic [10:0] pos_y;
@@ -45,6 +42,7 @@ module simple_collision_detector_tb;
     /**
      * Clock generation
      */
+
     initial begin
         clk = 1'b0;
         forever #(CLK_PERIOD/2) clk = ~clk;
@@ -53,6 +51,7 @@ module simple_collision_detector_tb;
     /**
      * Reset generation block
      */
+
     initial begin
         rst_n = 1'b1;
         #(RST_START_TIME) rst_n = 1'b0;
@@ -62,6 +61,7 @@ module simple_collision_detector_tb;
     /**
      * Supporting modules instantiation
      */
+
     terrain_ram #(
         .WIDTH(WIDTH),
         .HEIGHT(HEIGHT),
@@ -84,14 +84,11 @@ module simple_collision_detector_tb;
         .WRITE_CHANNEL (0),
         .RAM_DELAY     (RAM_DELAY)
     ) u_ram_mux (
-        .clk,
-        .rst_n,
-        .addresses(m_addresses),
-        .request(m_request),
+        .clk(clk),
+        .rst_n(rst_n),
+        .clients(client_ifs), // Pass the interface collection directly
         .clear(1'b0),
         .ram_value(data_out_core),
-        .value(m_value),
-        .granted(m_granted),
         .ram_address(address_core),
         .ram_clear(clear_sig)
     );
@@ -99,20 +96,18 @@ module simple_collision_detector_tb;
     /**
      * DUT Placement
      */
+
     simple_collision_detector #(
         .RAM_DELAY(RAM_DELAY),
         .TERRAIN_WIDTH(WIDTH),
         .TERRAIN_HEIGHT(HEIGHT)
     ) u_collision_detector (
-        .clk,
-        .rst_n,
+        .clk(clk),
+        .rst_n(rst_n),
+        .ram_client(client_ifs[0]), // Connected cleanly via the local interface index
         .pos_x(pos_x),
         .pos_y(pos_y),
         .start(start),
-        .is_occupied(m_value[0]),
-        .ram_granted(m_granted[0]),
-        .ram_address(m_addresses[0]),
-        .ram_request(m_request[0]),
         .collision(collision),
         .done(done)
     );
@@ -138,24 +133,24 @@ module simple_collision_detector_tb;
             @(posedge done);
             
             assert (collision === expected_collision) begin
-                $display("[PASS] (%0d, %0d) Match! Collision: %b", test_x, test_y, collision);
+                $display("PASSED (%0d, %0d) Match! Collision: %b", test_x, test_y, collision);
             end else begin
-                $error("Mismatch at (%0d, %0d)! Got collision=%b, Expected=%b", test_x, test_y, collision, expected_collision);
+                $error("FAILED Mismatch at (%0d, %0d)! Got collision=%b, Expected=%b", test_x, test_y, collision, expected_collision);
             end
-
-            //repeat (2) @(posedge clk);
         end
     endtask
 
     /**
      * Main simulation execution sequence
      */
+
     initial begin
+        start = 1'b0;
+        pos_x = '0;
+        pos_y = '0;
 
         @(negedge rst_n);
         @(posedge rst_n);
-
-        $display("[TB] --- Starting Task-Based Collision Tests ---");
         
         run_collision_test(11'd0, 11'd0, 1'b0); /* Address 0  -> 0 */
         run_collision_test(11'd1, 11'd0, 1'b1); /* Address 1  -> 1 */
@@ -166,7 +161,7 @@ module simple_collision_detector_tb;
         run_collision_test(11'd3, 11'd3, 1'b0); /* Address 15 -> 0 */
 
         repeat (3) @(posedge clk);
-        $display("[TB] --- All Tasks Completed Successfully ---");
+        $display("Testbench finished");
         $finish;
     end
 

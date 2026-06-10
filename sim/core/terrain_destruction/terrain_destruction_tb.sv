@@ -3,6 +3,7 @@
  * 
  * Description:
  * Testbench for terrain_destruction module.
+ * Fixed interface structure compatibility.
  */
 
 module terrain_destruction_tb;
@@ -32,6 +33,7 @@ module terrain_destruction_tb;
     /**
      * Local variables and signals
      */
+
     logic clk, clk_vga;
     logic rst_n;
 
@@ -58,12 +60,8 @@ module terrain_destruction_tb;
     assign g = vga_out.rgb[7:4];
     assign b = vga_out.rgb[3:0];
 
-    wire  [ADDR_WIDTH-1:0] tb_addresses [0:INPUTS_NUMBER-1];
-    logic                  tb_request   [0:INPUTS_NUMBER-1];
-    wire  [WORD_WIDTH-1:0] mux_outputs  [0:INPUTS_NUMBER-1];
-    wire                   mux_granted  [0:INPUTS_NUMBER-1];
-
-    logic                  global_mux_clear;
+    // Instantiate memory_if instance array to cleanly feed the mux
+    memory_if client_ifs[0:INPUTS_NUMBER-1]();
 
     wire [ADDR_WIDTH-1:0]  address_core;
     wire                   clear_sig;
@@ -75,20 +73,10 @@ module terrain_destruction_tb;
     logic [7:0]            dut_radius;
     wire                   dut_done;
 
-    wire [ADDR_WIDTH-1:0]  dut_ram_address;
-    wire                   dut_ram_request;
-    wire                   dut_ram_clear;
-    wire                   dut_ram_granted;
-
-    assign tb_addresses[1] = dut_ram_address;
-    assign tb_request[1]   = dut_ram_request;
-    assign dut_ram_granted = mux_granted[1];
-
-    assign tb_addresses[0] = '0;
-    assign tb_request[0]   = 1'b0;
-
-    assign global_mux_clear = (mux_granted[WRITE_CHANNEL]) ? dut_ram_clear : 1'b0;
-
+    // Default static driving assignment for unused channel 0 inside the interface structure
+    assign client_ifs[0].addresses = '0;
+    assign client_ifs[0].request   = 1'b0;
+    assign client_ifs[0].value     = 1'b0;
 
     /**
      * Clock generation
@@ -148,14 +136,15 @@ module terrain_destruction_tb;
         .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map1.dat"),
         .WIDTH(TERRAIN_WIDTH),
         .HEIGHT(TERRAIN_HEIGHT)
-    ) u_terrain_rom (
+    ) u_terrain_ram (
         .clk_vga(clk_vga),
         .clk_core(clk),
         .rst_n(rst_n),
         .address_core(address_core),
         .clear(clear_sig),
         .address_vga(address_terrain),
-        .data_out_vga(terrain_present)
+        .data_out_vga(terrain_present),
+        .data_out_core()
     );
 
     ram_address_mux #(
@@ -167,12 +156,9 @@ module terrain_destruction_tb;
     ) u_ram_address_mux (
         .clk(clk),
         .rst_n(rst_n),
-        .addresses(tb_addresses),
-        .request(tb_request),
-        .clear(global_mux_clear),
+        .clients(client_ifs),
+        .clear(1'b0),
         .ram_value(data_out_core),
-        .value(mux_outputs),
-        .granted(mux_granted),
         .ram_address(address_core),
         .ram_clear(clear_sig)
     );
@@ -204,7 +190,6 @@ module terrain_destruction_tb;
         .go(vs)
     );
 
-
     /**
      * Dut placement
      */
@@ -220,17 +205,14 @@ module terrain_destruction_tb;
         .pos_x(dut_pos_x),
         .pos_y(dut_pos_y),
         .radius(dut_radius),
-        .ram_address(dut_ram_address),
-        .ram_request(dut_ram_request),
-        .ram_clear(dut_ram_clear),
-        .ram_granted(dut_ram_granted),
+        .v_ram(client_ifs[1]), // cleanly map out dedicated client channel 1 interface
         .done(dut_done)
     );
-
 
     /**
      * Tasks and functions
      */
+
     task automatic trigger_explosion(input [10:0] x, input [10:0] y, input [7:0] r);
         begin
             @(posedge clk);
@@ -248,10 +230,10 @@ module terrain_destruction_tb;
         end
     endtask
 
-
     /**
      * Main test
      */
+
     initial begin
         dut_start  = 1'b0;
         dut_pos_x  = '0;
@@ -262,7 +244,6 @@ module terrain_destruction_tb;
         repeat(10) @(posedge clk);
 
         trigger_explosion(11'd212, 11'd584, 8'd25);
-
         trigger_explosion(11'd530, 11'd390, 8'd45);
 
         $display("Check output frame");

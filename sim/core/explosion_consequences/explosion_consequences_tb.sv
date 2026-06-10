@@ -19,8 +19,6 @@ module explosion_consequences_tb;
     localparam RST_START_TIME  = 1.25*CLK_PERIOD;
     localparam RST_ACTIVE_TIME = 2.00*CLK_PERIOD;
 
-    localparam TERRAIN_WIDTH = 1024;
-    localparam TERRAIN_HEIGHT = 768;
 
     /**
      * Local variables and signals
@@ -29,11 +27,11 @@ module explosion_consequences_tb;
     logic clk;
     logic rst_n;
 
-    logic [$clog2(TERRAIN_WIDTH)-1:0] worm_pos_x;
-    logic [$clog2(TERRAIN_HEIGHT)-1:0] worm_pos_y;
+    logic [10:0] worm_pos_x;
+    logic [10:0] worm_pos_y;
 
-    logic [$clog2(TERRAIN_WIDTH)-1:0] explosion_pos_x;
-    logic [$clog2(TERRAIN_HEIGHT)-1:0] explosion_pos_y;
+    logic [10:0] explosion_pos_x;
+    logic [10:0] explosion_pos_y;
     logic [10:0] explosion_r;
 
     logic start, done;
@@ -63,8 +61,9 @@ module explosion_consequences_tb;
         #(RST_ACTIVE_TIME) rst_n = 1'b1;
     end
 
+
     /*
-     * starting condition
+     * Starting condition
      */
 
     initial begin
@@ -80,28 +79,22 @@ module explosion_consequences_tb;
     end
     
 
-
     /**
      * Dut placement
      */
-    
-    explosion_consequences #(
-        .TERRAIN_WIDTH(TERRAIN_WIDTH),
-        .TERRAIN_HEIGHT(TERRAIN_HEIGHT)
-    ) dut (
-        .clk,
-        .rst_n,
-
-        .worm_pos_x (worm_pos_x),
-        .worm_pos_y (worm_pos_y),
+    explosion_consequences dut (
+        .clk             (clk),
+        .rst_n           (rst_n),
+        .worm_pos_x      (worm_pos_x),
+        .worm_pos_y      (worm_pos_y),
         .explosion_pos_x (explosion_pos_x),
         .explosion_pos_y (explosion_pos_y),
-        .explosion_r (explosion_r),
-        .start (start),
-        .velocity_x (velocity_x),
-        .velocity_y (velocity_y),
-        .damage (damage),
-        .done (done)
+        .explosion_r     (explosion_r),
+        .start           (start),
+        .velocity_x      (velocity_x),
+        .velocity_y      (velocity_y),
+        .damage          (damage),
+        .done            (done)
     );
 
 
@@ -110,10 +103,10 @@ module explosion_consequences_tb;
      */
 
     task automatic drive_explosion(
-        input logic [$clog2(TERRAIN_WIDTH)-1:0]  w_x,
-        input logic [$clog2(TERRAIN_HEIGHT)-1:0] w_y,
-        input logic [$clog2(TERRAIN_WIDTH)-1:0]  e_x,
-        input logic [$clog2(TERRAIN_HEIGHT)-1:0] e_y,
+        input logic [10:0] w_x,
+        input logic [10:0] w_y,
+        input logic [10:0] e_x,
+        input logic [10:0] e_y,
         input logic [10:0] rad,
 
         input logic signed [7:0] exp_vel_x,
