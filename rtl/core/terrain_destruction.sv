@@ -20,7 +20,7 @@ module terrain_destruction #(
 
     input  logic [7:0]  radius,
 
-    ram_mux_if.out v_ram,
+    memory_if.out v_ram,
 
     output logic done
 );

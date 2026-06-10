@@ -12,7 +12,7 @@ module simple_collision_detector #(
     input  logic clk,
     input  logic rst_n,
 
-    ram_mux_if.out ram_client,
+    memory_if.out ram_client,
 
     input  logic [10:0] pos_x,
     input  logic [10:0] pos_y,
@@ -21,6 +21,8 @@ module simple_collision_detector #(
     output logic collision,
     output logic done    
 );
+
+    localparam ADDR_W = $clog2(TERRAIN_HEIGHT * TERRAIN_WIDTH);
 
     typedef enum logic [1:0] {
         IDLE,
@@ -38,7 +40,7 @@ module simple_collision_detector #(
     logic valid_pipe     [0:RAM_DELAY-1];
     logic valid_pipe_nxt [0:RAM_DELAY-1];
 
-    always_ff @(posedge clk or megedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state               <= IDLE;
             collision           <= 1'b0;
@@ -97,7 +99,7 @@ module simple_collision_detector #(
                 end
 
                 if (valid_pipe[RAM_DELAY-1]) begin
-                    collision_nxt = ram_client.value[0];
+                    collision_nxt = ram_client.value;
                     state_nxt     = FINISH;
                 end
             end
