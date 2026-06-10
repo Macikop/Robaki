@@ -17,7 +17,7 @@ module ram_address_mux #(
     input  logic clk,
     input  logic rst_n,
 
-    ram_mux_if.in clients [0:INPUTS_NUMBER-1],
+    memory_if.in clients [0:INPUTS_NUMBER-1],
 
     input  logic clear,
     input  logic [WORD_WIDTH-1:0] ram_value,

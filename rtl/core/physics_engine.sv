@@ -201,7 +201,9 @@ module physics_engine # (
 
             WAIT_CD: begin
                 if (cd_done) begin
-                    if (cd_hit || x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) begin
+                    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) begin
+                        state_nxt = FINISH;
+                    end else if (cd_hit) begin
                         x_nxt = x_prev;
                         y_nxt = y_prev;
                         state_nxt = FINISH;

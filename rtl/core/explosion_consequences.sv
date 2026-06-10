@@ -5,18 +5,15 @@
  * Calculates damage and kickback from explosion 
  */
 
-module explosion_consequences #(
-    parameter TERRAIN_WIDTH = 1024,
-    parameter TERRAIN_HEIGHT = 768
-)(
+module explosion_consequences(
     input  logic clk,
     input  logic rst_n,
 
-    input  logic [$clog2(TERRAIN_WIDTH)-1:0] worm_pos_x,
-    input  logic [$clog2(TERRAIN_HEIGHT)-1:0] worm_pos_y,
+    input  logic [10:0] worm_pos_x,
+    input  logic [10:0] worm_pos_y,
 
-    input  logic [$clog2(TERRAIN_WIDTH)-1:0] explosion_pos_x,
-    input  logic [$clog2(TERRAIN_HEIGHT)-1:0] explosion_pos_y,
+    input  logic [10:0] explosion_pos_x,
+    input  logic [10:0] explosion_pos_y,
     input  logic [10:0] explosion_r,
 
     input  logic start,

@@ -24,7 +24,7 @@ module walk #(
     input  logic [10:0] pos_y_init,
 
     input  logic [7:0]  collisions,
-    input  logic        detector_done
+    input  logic        detector_done,
     output logic        start_check,
     output logic [10:0] detector_pos_x,
     output logic [10:0] detector_pos_y,
@@ -42,9 +42,9 @@ module walk #(
         WAIT_MOVE,
         EVALUATE,
         DONE
-    } walk_state_t;
+    } state_t;
     
-    walk_state_t state, state_nxt;
+    state_t state, state_nxt;
     
     logic initialized, initialized_nxt;
 
@@ -53,7 +53,7 @@ module walk #(
     logic [10:0] target_y, target_y_nxt;
     logic [10:0] detector_pos_x_nxt, detector_pos_y_nxt;
 
-    always_ff @(posedge clk or megedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             pos_x          <= '0;
             pos_y          <= '0;
@@ -94,7 +94,6 @@ module walk #(
 
         case(state)
             IDLE: begin
-                // Use sync directly since it's guaranteed to be 1 clock cycle wide
                 if (enable && initialized && sync) begin
                     target_x_nxt = pos_x;
                     target_y_nxt = pos_y;
@@ -102,7 +101,6 @@ module walk #(
                 end
             end
 
-            // --- GRAVITY / FALL HANDLING STAGES ---
             CHECK_FALL: begin
                 detector_pos_x_nxt = target_x;
                 detector_pos_y_nxt = target_y;
@@ -117,20 +115,17 @@ module walk #(
             end
 
             EVALUATE_FALL: begin
-                // Check the bottom row of the collision array:
-                // [2] (Bottom-Left), [3] (Bottom-Center), [4] (Bottom-Right)
                 if (!collisions[2] && !collisions[3] && !collisions[4]) begin
                     // Path underneath is completely empty -> Apply Gravity
                     if ((pos_y + GRAVITY) < TERRAIN_HEIGHT) begin
                         pos_y_nxt    = pos_y + GRAVITY;
                         target_y_nxt = pos_y + GRAVITY;
-                        state_nxt    = CHECK_FALL; // Re-evaluate until we find ground
+                        state_nxt    = CHECK_FALL;
                     end else begin
-                        pos_y_nxt    = TERRAIN_HEIGHT - 1; // Clamp at bottom border
+                        pos_y_nxt    = TERRAIN_HEIGHT - 1;
                         state_nxt    = DONE;
                     end
                 end else begin
-                    // Ground detected -> Transition to horizontal movement checks
                     if (left || right) begin
                         if (left) begin
                             target_x_nxt = (pos_x >= SPEED) ? (pos_x - SPEED) : 0;
@@ -145,7 +140,6 @@ module walk #(
                 end
             end
 
-            // --- HORIZONTAL MOVEMENT / CLIMB STAGES ---
             CHECK_MOVE: begin
                 detector_pos_x_nxt = target_x;
                 detector_pos_y_nxt = target_y;
@@ -160,23 +154,15 @@ module walk #(
             end
 
             EVALUATE: begin
-                // Side/Top check markers:
-                // [0]--[7]--[6]
-                //  |         |
-                // [1]       [5]
-                //  |         |
-                // [2]--[3]--[4]
                 if (left && (collisions[0] || collisions[1] || collisions[2])) begin
-                    // Left side blocked: try moving up 4 pixels if there is no ceiling collision
                     if (target_y > 4 && !collisions[7]) begin
                         target_y_nxt = target_y - 4; 
-                        state_nxt    = CHECK_MOVE; // Re-run lookup to check new height profile
+                        state_nxt    = CHECK_MOVE;
                     end else begin
-                        state_nxt = DONE; // Slope too steep or ceiling hit
+                        state_nxt = DONE;
                     end
                 end 
                 else if (right && (collisions[4] || collisions[5] || collisions[6])) begin
-                    // Right side blocked: try moving up 4 pixels if there is no ceiling collision
                     if (target_y > 4 && !collisions[7]) begin
                         target_y_nxt = target_y - 4;
                         state_nxt    = CHECK_MOVE;
@@ -185,7 +171,6 @@ module walk #(
                     end
                 end 
                 else begin
-                    // Clean path verified, update coordinates
                     pos_x_nxt = target_x;
                     pos_y_nxt = target_y;
                     state_nxt = DONE;

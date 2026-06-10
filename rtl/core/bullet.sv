@@ -27,19 +27,17 @@ module bullet #(
     input  logic signed [7:0] y_component,
     input  logic conv_done,
 
-    output logic connv_start,
+    output logic conv_start,
     output logic [7:0] conv_phi,
     output logic [7:0] conv_length,
 
-    output logic collision_x,
-    output logic collision_y,
     output logic start_exposion,
+    memory_if.out ram_client,
 
     output logic enable_draw,
     output logic [10:0] pos_x,
     output logic [10:0] pos_y
 
-    ram_mux_if.out ram_client,
 );
 
     logic start;
@@ -55,7 +53,7 @@ module bullet #(
         .clk,
         .rst_n,
         .din           (enable),
-        .edge_detected (connv_start)
+        .edge_detected (conv_start) // Fixed typo
     );
 
     physics_engine #(
@@ -72,7 +70,7 @@ module bullet #(
         .velocity_y_init (y_component),
         .pos_x_init      (worm_pos_x),
         .pos_y_init      (worm_pos_y),
-        .cd_hit          (8{cd_hit}),
+        .cd_hit          ({7'b0, cd_hit}),
         .cd_done         (cd_done),
         .cd_start        (cd_start),
         .done            (start_exposion),

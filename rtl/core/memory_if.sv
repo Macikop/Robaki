@@ -5,15 +5,12 @@
  * Interface for ram mux
  */
 
-interface ram_mux_if #(
-    parameter int WORD_WIDTH    = 1,
-    parameter int ADDRESS_WIDTH = 20
-) ();
+interface memory_if;
 
-    logic [WORD_WIDTH-1:0]    value;
-    logic                     granted;
-    logic [ADDRESS_WIDTH-1:0] addresses;
-    logic                     request;
+    logic [19:0] addresses;
+    logic        request;
+    logic        granted;
+    logic        value;
 
     modport in (
         input  addresses,

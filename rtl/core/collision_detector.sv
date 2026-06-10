@@ -23,17 +23,17 @@ module collision_detector #(
     input  logic clk,
     input  logic rst_n,
 
-    ram_mux_if.out ram_client,
-
     input  logic [10:0] pos_x,
     input  logic [10:0] pos_y,
     input  logic start_check,
     
+    memory_if.out ram_client,
     output logic [7:0] collisions,
     output logic done
 );
 
     localparam NUM_POINTS = 8;
+    localparam ADDR_W = $clog2(TERRAIN_HEIGHT * TERRAIN_WIDTH);
 
     typedef enum logic [1:0] {
         IDLE,
@@ -134,7 +134,7 @@ module collision_detector #(
         valid_pipe_nxt[0] = 1'b0;
 
         if(valid_pipe[RAM_DELAY-1]) begin
-            collisions_nxt[idx_pipe[RAM_DELAY-1]] = ram_client.value[0];
+            collisions_nxt[idx_pipe[RAM_DELAY-1]] = ram_client.value;
             responses_received_nxt = responses_received + 1;
         end
 
