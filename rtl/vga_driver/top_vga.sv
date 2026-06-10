@@ -41,7 +41,7 @@ module top_vga (
     wire vblnk_tim, hblnk_tim;
 
 
-    wire [12:0] rgb_sprite;
+    wire [11:0] rgb_sprite;
     wire [$clog2(SPRITE_WIDTH * SPRITE_HEIGHT)-1:0] address_sprite;
 
     wire terrain_present;

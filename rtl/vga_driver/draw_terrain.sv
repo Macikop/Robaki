@@ -41,7 +41,7 @@ module draw_terrain #(
     logic        hblnk_d, vblnk_d;
     logic [11:0] rgb_d;
 
-    logic [11:0] dx, dy;
+    logic [10:0] dx, dy;
     logic [$clog2(TERRAIN_WIDTH*TERRAIN_HEIGHT)-1:0] address_nxt;
 
     delay #(

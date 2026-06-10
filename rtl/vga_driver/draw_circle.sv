@@ -2,10 +2,10 @@ module draw_circle (
     input logic clk,
     input logic rst_n,
 
-    input logic [11:0] x_pos,
-    input logic [11:0] y_pos,
+    input logic [10:0] x_pos,
+    input logic [10:0] y_pos,
 
-    input logic [11:0] radius,
+    input logic [10:0] radius,
     input logic [11:0] color,
 
     vga_if.in vga_in,
@@ -21,9 +21,9 @@ module draw_circle (
 
     logic [11:0] rgb_nxt;
 
-    logic [11:0] dx, dy;
-    logic [11:0] max_d, min_d;
-    logic [12:0] approx_r;
+    logic [10:0] dx, dy;
+    logic [10:0] max_d, min_d;
+    logic [11:0] approx_r;
 
 
     /**
