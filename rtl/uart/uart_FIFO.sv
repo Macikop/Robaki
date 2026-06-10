@@ -13,7 +13,7 @@
 
 `timescale 1ns / 1ps
 
-module uart_fifo #(
+module uart_FIFO #(
     parameter DATA_WIDTH = 8,                   // 8 bits for uart
     parameter FIFO_DEPTH = 16                   // power of 2 
 )(

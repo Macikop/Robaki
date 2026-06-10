@@ -38,7 +38,7 @@ module top_UART #(
     logic       rx_fifo_full;
 
     baud_rate_generator #(
-        .CLK_FREQ(CLK_FREQ),
+        .CLK_FREQUENCY(CLK_FREQ),
         .BAUD_RATE(BAUD_RATE)
     ) u_baud_rate_generator (
         .clk100MHz(clk),
