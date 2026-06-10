@@ -152,7 +152,7 @@ module master_fsm(
                 end else begin
                     state_nxt = WALKING;
                 end
-                walking_en = 1'b1;
+                walking_en_nxt = 1'b1;
             end
 
             SHOOTING: begin
@@ -162,12 +162,12 @@ module master_fsm(
                 end else begin
                     state_nxt = SHOOTING;
                 end
-                shooting_en = 1'b1;
+                shooting_en_nxt = 1'b1;
             end
 
             BULLET_FLIGHT: begin
                 state_nxt = (bullet_impact && vsync_in) ? EXPLOSION : BULLET_FLIGHT;
-                bullet_en = 1'b1;
+                bullet_en_nxt = 1'b1;
             end
             
             EXPLOSION: begin
@@ -182,7 +182,7 @@ module master_fsm(
             end
 
             END_SCREEN: begin
-                end_screen_en = 1'b1
+                end_screen_en_nxt = 1'b1;
                 state_nxt = END_SCREEN;     /* Press reset to play again */
             end
             

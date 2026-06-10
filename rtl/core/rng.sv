@@ -1,5 +1,6 @@
 /*
  * Designed by MP
+ * 
  * How it works:
  * Generates pseudorandom numbers using a pipelined 32-bit XORSHIFT.
  */
@@ -11,6 +12,8 @@ module rng #(
 )(
     input  logic clk,
     input  logic rst_n,
+    
+    input  logic capture,
 
     output logic [OUTPUT_WIDTH-1:0] random_number
 );
@@ -27,7 +30,9 @@ module rng #(
             random_number_reg[2] <= SEED ^ (SPREAD * 2);
 
         end else begin
-            random_number <= random_number_nxt[2][31:32-OUTPUT_WIDTH];
+            if (capture) begin
+                random_number <= random_number_nxt[2][31:32-OUTPUT_WIDTH];
+            end
 
             random_number_reg[0] <= random_number_nxt[0];
             random_number_reg[1] <= random_number_nxt[1];
