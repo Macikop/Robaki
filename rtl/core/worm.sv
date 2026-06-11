@@ -29,25 +29,27 @@ module worm #(
     /* keyboard inputs */
     input  logic left,
     input  logic right,
-    input  logic up,
-    input  logic down,
 
     input  logic [7:0] wind,
 
     memory_if.out terrain_ram,          /* Interface for terrain ram */
 
+    output logic explosion_done,
+
     output logic [10:0] pos_x,          /* goes into display and bullet */
     output logic [10:0] pos_y,          /* goes into display and bullet */
     output logic direction,             /* facing left or right */
-    output logic [7:0]  aim_angle,      /* goes into polar_to_cartesian and than to aim and bullet */
-    output logic [7:0]  worm_hp         /* tracks current health status for the main FSM to read */
+    output logic [6:0]  worm_hp,        /* tracks current health status for the main FSM to read */
+
+    output logic worm_hit
 );
 
     logic [10:0] r_pos_x, r_pos_y;
-    logic [7:0]  r_worm_hp;
+    logic [6:0]  r_worm_hp;
 
     logic cd_start, cd_done, cd_start_walk;
     logic exp_done;
+    logic physics_done; 
 
     logic signed [7:0] velocity_x;
     logic signed [7:0] velocity_y;
@@ -63,9 +65,8 @@ module worm #(
         if (!rst_n) begin
             r_pos_x   <= 11'd100;
             r_pos_y   <= 11'd100;
-            aim_angle <= 8'd45;
             direction <= 1'b1;
-            r_worm_hp <= 8'd100;
+            r_worm_hp <= 7'd100;
         end else begin
             if (walking_en) begin
                 r_pos_x <= pos_x_walking;
@@ -75,14 +76,6 @@ module worm #(
                 r_pos_y <= pos_y_physics;
             end 
             if (active_turn && walking_en) begin
-                if (up) begin
-                    aim_angle <= aim_angle + 1'b1;
-                end
-
-                if (down) begin
-                    aim_angle <= aim_angle - 1'b1;
-                end
-
                 if (left) begin
                     direction <= 1'b0;
                 end
@@ -93,18 +86,20 @@ module worm #(
             end
             if (exp_done) begin
                 if (exp_damage >= r_worm_hp) begin
-                    r_worm_hp <= 8'd0;
+                    r_worm_hp <= 7'd0;
                 end else begin
                     r_worm_hp <= r_worm_hp - exp_damage;
                 end
             end
-
         end
     end
 
-    assign pos_x   = r_pos_x;
-    assign pos_y   = r_pos_y;
-    assign worm_hp = r_worm_hp;
+    assign pos_x          = r_pos_x;
+    assign pos_y          = r_pos_y;
+    assign worm_hp        = r_worm_hp;
+    assign explosion_done = physics_done; 
+    
+    assign worm_hit       = (explosion_en && !physics_done); 
 
     physics_engine #(
         .GRAVITY(GRAVITY),
@@ -123,7 +118,7 @@ module worm #(
         .cd_hit          (cd_collisions),
         .cd_done         (cd_done),
         .cd_start        (cd_start),
-        .done            (), 
+        .done            (physics_done),
         .pos_x           (pos_x_physics),
         .pos_y           (pos_y_physics)
     );

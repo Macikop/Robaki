@@ -17,14 +17,15 @@ module aim #(
     input  logic up,
     input  logic down,
 
-    output logic start_calc,
-    input  logic calc_done,
     input  logic signed [7:0] x_aim,
     input  logic signed [7:0] y_aim,
 
     input  logic [10:0] x_pos,
     input  logic [10:0] y_pos,
     input  logic orientation,
+
+    input  logic calc_done,
+    output logic start_calc,
 
     output logic [7:0] aim_angle,
     output logic [7:0] length,
@@ -45,6 +46,7 @@ module aim #(
     logic [10:0] x_out_nxt, y_out_nxt;
     logic [7:0] aim_angle_nxt; 
     logic orientation_last;
+    logic start_calc_nxt;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -54,6 +56,7 @@ module aim #(
             orientation_last <= 1'b0;
             state            <= IDLE;
             length           <= '0;
+            start_calc       <= '0;
         end else begin
             x_out            <= x_out_nxt;
             y_out            <= y_out_nxt;
@@ -61,15 +64,16 @@ module aim #(
             orientation_last <= orientation;
             state            <= state_nxt;
             length           <= AIM_DISTACNE;
+            start_calc       <= start_calc_nxt;
         end
     end
 
     always_comb begin
-        state_nxt     = state;
-        aim_angle_nxt = aim_angle;
-        x_out_nxt     = x_out;
-        y_out_nxt     = y_out;
-        start_calc    = 1'b0;
+        state_nxt      = state;
+        aim_angle_nxt  = aim_angle;
+        x_out_nxt      = x_out;
+        y_out_nxt      = y_out;
+        start_calc_nxt = start_calc;
 
         if(enable && sync) begin
             if(orientation && ~orientation_last) begin
@@ -116,7 +120,7 @@ module aim #(
 
             START_CALC: begin
                 if (enable) begin
-                    start_calc = 1'b1;
+                    start_calc_nxt = 1'b1;
                     state_nxt  = WAIT_CALC;
                 end else begin
                     state_nxt  = IDLE;

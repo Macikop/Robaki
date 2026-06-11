@@ -5,8 +5,6 @@
  * Decides the game flow
  */
 
-//TODO: add so states change on sync
-
 module master_fsm(
     input  logic clk,
     input  logic rst_n,
@@ -29,7 +27,9 @@ module master_fsm(
     output logic explosion_en,
     output logic end_screen_en,
 
-    output logic capture_wind
+    output logic capture_wind,
+
+    output logic current_player
 );
 
     typedef enum logic [2:0] {
@@ -44,7 +44,7 @@ module master_fsm(
 
     state_t state, state_nxt;
 
-    logic current_player, current_player_nxt;
+    logic current_player_nxt;
     logic space_bar_last;
 
     logic start_screen_en_nxt;

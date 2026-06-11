@@ -21,6 +21,7 @@ module terrain_destruction #(
     input  logic [7:0]  radius,
 
     memory_if.out v_ram,
+    output logic ram_clear,
 
     output logic done
 );
@@ -58,7 +59,7 @@ module terrain_destruction #(
             state           <= IDLE;
             v_ram.addresses <= '0;
             v_ram.request   <= 1'b0;
-            v_ram.value     <= 1'b0;
+            ram_clear           <= 1'b0;
             done            <= 1'b0;
             x_i             <= '0;
             y_i             <= '0;
@@ -77,7 +78,7 @@ module terrain_destruction #(
             state           <= state_nxt;
             v_ram.addresses <= ram_address_nxt;
             v_ram.request   <= ram_req_nxt;
-            v_ram.value     <= ram_clear_nxt;
+            ram_clear       <= ram_clear_nxt;
             done            <= done_nxt;
             x_i             <= x_i_nxt;
             y_i             <= y_i_nxt;
@@ -107,7 +108,7 @@ module terrain_destruction #(
         done_nxt        = 1'b0;
         ram_address_nxt = v_ram.addresses;
         ram_req_nxt     = v_ram.request;
-        ram_clear_nxt   = v_ram.value;
+        ram_clear_nxt   = 1'b0;
         ram_busy_nxt    = 1'b0;
         
         x_i_nxt         = x_i;
