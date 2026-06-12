@@ -12,6 +12,8 @@ module draw_sprite #(
     input  logic clk,    
     input  logic rst_n,
 
+    input  logic enable,
+
     input  logic [10:0] x_pos,
     input  logic [10:0] y_pos,
 
@@ -52,7 +54,7 @@ module draw_sprite #(
 
     logic [10:0] dx, dy;
 
-    logic [10:0] active_width, active_height;
+    logic [11:0] active_width, active_height;
 
     /*
      * Internal logic
