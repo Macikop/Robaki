@@ -32,10 +32,10 @@ module explosion_effect (
         RED
     } state_t;
 
-    logic pos_x_nxt;
-    logic pos_y_nxt;
-    logic radius_nxt;
-    logic color_nxt;
+    logic [10:0] pos_x_nxt;
+    logic [10:0] pos_y_nxt;
+    logic [10:0] radius_nxt;
+    logic [11:0] color_nxt;
     logic enable_draw_nxt;
     logic done_nxt;
 
@@ -118,7 +118,5 @@ module explosion_effect (
         endcase
         
     end
-    
-    
 
 endmodule
