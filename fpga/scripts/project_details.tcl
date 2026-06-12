@@ -58,19 +58,22 @@ set sv_files {
     ../rtl/audio_driver/sync_generator.sv \
     ../rtl/audio_driver/top_audio_driver.sv \
 
+    ../rtl/keyboard_driver/key_decoder.sv \
+    ../rtl/keyboard_driver/top_keyboard_driver.sv \
+
     rtl/top_vga_basys3.sv
 }
 
 # Specify Verilog design files location         -- EDIT
 set verilog_files {
     rtl/clk/clk_wiz_0.v \
-    rtl/clk/clk_wiz_0_clk_wiz.v
+    rtl/clk/clk_wiz_0_clk_wiz.v 
 }
 
 # Specify VHDL design files location            -- EDIT
-# set vhdl_files {
-#    path/to/file.vhd
-# }
+set vhdl_files {
+   ../rtl/keyboard_driver/Ps2Interface.vhd
+}
 
 # Specify files for a memory initialization     -- EDIT
 set mem_files {

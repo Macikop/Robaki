@@ -16,14 +16,17 @@ module top_vga_basys3 (
         input  wire clk,
         input  wire btnC,
         input  wire sw[1:0], //sw[0] - mute, sw[1] - volume
+        inout  wire PS2Clk,
+        inout  wire PS2Data,
         output wire Vsync,
         output wire Hsync,
         output wire [3:0] vgaRed,
         output wire [3:0] vgaGreen,
         output wire [3:0] vgaBlue,
         output wire JA1,
-        
-        output wire JA[3:1] //JA2 - shutdown, JA3 - gain, JA4 - AIN
+        output wire JA[3:1], //JA2 - shutdown, JA3 - gain, JA4 - AIN
+        output wire an[3:0],
+        output wire seg[6:0]
     );
 
     timeunit 1ns;
@@ -36,7 +39,13 @@ module top_vga_basys3 (
     wire clk_in, clk_fb, clk_ss, clk_out;
     wire locked;
     wire pclk;
+    wire clk_core;
     wire pclk_mirror;
+
+    //keyboard
+    wire up, down, left, right, space, tab;
+    assign seg[5:0] = {up, down, left, right, space, tab};
+    assign an[0] = '0;
 
     (* KEEP = "TRUE" *)
     (* ASYNC_REG = "TRUE" *)
@@ -67,7 +76,7 @@ module top_vga_basys3 (
     // not functionally required for this design to work.
 
     clk_wiz_0 u_clk_wiz_0 (
-        .clk_core(),
+        .clk_core(clk_core),
         .clk_vga_audio(pclk),
         .locked(locked),
         .clk(clk)
@@ -87,6 +96,19 @@ module top_vga_basys3 (
         .wave_out(JA[3]),
         .gain(JA[2]),
         .shoutdown(JA[1])
+    );
+
+    top_keyboard_driver u_top_keyboard_driver(
+        .clk(clk_core),
+        .rst_n(~btnC),
+        .ps2_clk(PS2Clk),
+        .ps2_data(PS2Data),
+        .up(up),
+        .down(down),
+        .left(left),
+        .right(right),
+        .space(space),
+        .tab(tab)
     );
 
 endmodule
