@@ -4,7 +4,8 @@
 ## Overview
 **Author:** MP  
 **Description:** 
-
+Dual port RAM with access from core and vga side.
+Stores actual terrain.
 
 
 ---

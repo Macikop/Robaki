@@ -12,7 +12,7 @@ Draw background.
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **COLOR** | `[11:0]` | `12'h0_a_0` |
+| **COLOR** | `[11:0]` | `12'h0_a_a` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

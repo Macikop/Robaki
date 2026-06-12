@@ -5,6 +5,9 @@ Generated tracking tree of available functional system hardware modules.
 
 ## Component Directories
 
+### 📂 Area Workspace: `rtl/` (Root Area)
+* 🛠️ Logic Module: [top_game](top_game.md)
+
 ### 📂 Area Workspace: `rtl/audio_driver`
 * 🛠️ Logic Module: [address_counter](audio_driver/address_counter.md)
 * 🛠️ Logic Module: [midi_decoder](audio_driver/midi_decoder.md)
@@ -20,10 +23,12 @@ Generated tracking tree of available functional system hardware modules.
 ### 📂 Area Workspace: `rtl/core`
 * 🛠️ Logic Module: [aim](core/aim.md)
 * 🛠️ Logic Module: [bullet](core/bullet.md)
-* 🛠️ Logic Module: [collision_dectector](core/collision_dectector.md)
+* 🛠️ Logic Module: [collision_detector](core/collision_detector.md)
 * 🛠️ Logic Module: [explosion](core/explosion.md)
 * 🛠️ Logic Module: [explosion_consequences](core/explosion_consequences.md)
+* 🛠️ Logic Module: [explosion_effect](core/explosion_effect.md)
 * 🛠️ Logic Module: [master_fsm](core/master_fsm.md)
+* 🔀 Interface Mapping: [memory_if](core/memory_if.md)
 * 🛠️ Logic Module: [physics_engine](core/physics_engine.md)
 * 🛠️ Logic Module: [polar_to_cartesian](core/polar_to_cartesian.md)
 * 🛠️ Logic Module: [ram_address_mux](core/ram_address_mux.md)
@@ -31,11 +36,15 @@ Generated tracking tree of available functional system hardware modules.
 * 🛠️ Logic Module: [simple_collision_detector](core/simple_collision_detector.md)
 * 🛠️ Logic Module: [tdc](core/tdc.md)
 * 🛠️ Logic Module: [terrain_destruction](core/terrain_destruction.md)
+* 🛠️ Logic Module: [top_core](core/top_core.md)
+* 🛠️ Logic Module: [walk](core/walk.md)
 * 🛠️ Logic Module: [worm](core/worm.md)
 
 ### 📂 Area Workspace: `rtl/shared_modules`
+* 🛠️ Logic Module: [cdc](shared_modules/cdc.md)
 * 🛠️ Logic Module: [delay](shared_modules/delay.md)
 * 🛠️ Logic Module: [edge_detector](shared_modules/edge_detector.md)
+* 🛠️ Logic Module: [sr_flip_flop](shared_modules/sr_flip_flop.md)
 
 ### 📂 Area Workspace: `rtl/vga_driver`
 * 🛠️ Logic Module: [draw_bg](vga_driver/draw_bg.md)

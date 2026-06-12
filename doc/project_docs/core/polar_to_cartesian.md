@@ -19,6 +19,6 @@ Calculates X and Y component of the vector according to length and angle
 | input | `logic [7:0]` | **length** |
 | input | `logic [7:0]` | **lut_value** |
 | output | `logic [7:0]` | **lut_address** |
-| output | `logic signed [15:0]` | **x_component** |
-| output | `logic signed [15:0]` | **y_component** |
+| output | `logic signed [7:0]` | **x_component** |
+| output | `logic signed [7:0]` | **y_component** |
 | output | `logic` | **done** |

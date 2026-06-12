@@ -22,6 +22,7 @@ Draws terrain from ram, ram is driven by core
 | :--- | :--- | :--- |
 | input | `logic` | **clk** |
 | input | `logic` | **rst_n** |
+| input | `logic` | **enable** |
 | input | `logic [11:0]` | **color** |
 | input | `logic` | **data_in** |
 | output | `logic [$clog2(TERRAIN_WIDTH * TERRAIN_HEIGHT)-1:0]` | **address** |

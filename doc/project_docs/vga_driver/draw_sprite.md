@@ -20,8 +20,9 @@ Draws sprite, modifies it according to flags
 | :--- | :--- | :--- |
 | input | `logic` | **clk** |
 | input | `logic` | **rst_n** |
-| input | `logic [11:0]` | **x_pos** |
-| input | `logic [11:0]` | **y_pos** |
+| input | `logic` | **enable** |
+| input | `logic [10:0]` | **x_pos** |
+| input | `logic [10:0]` | **y_pos** |
 | input | `logic [2:0]` | **modifier** |
 | input | `logic [12:0]` | **rgb_pixel** |
 | output | `logic [$clog2(WIDTH*HEIGHT)-1:0]` | **pixel_address** |

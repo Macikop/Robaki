@@ -11,9 +11,10 @@
 | :--- | :--- | :--- |
 | input | `logic` | **clk** |
 | input | `logic` | **rst_n** |
-| input | `logic [11:0]` | **x_pos** |
-| input | `logic [11:0]` | **y_pos** |
-| input | `logic [11:0]` | **radius** |
+| input | `logic` | **enable** |
+| input | `logic [10:0]` | **x_pos** |
+| input | `logic [10:0]` | **y_pos** |
+| input | `logic [10:0]` | **radius** |
 | input | `logic [11:0]` | **color** |
 | interface | `interface` | **vga_in** |
 | interface | `interface` | **vga_out** |

@@ -25,6 +25,6 @@ Deletes terrain where explosion occurs using a filled Midpoint Circle Algorithm.
 | input | `logic [10:0]` | **pos_x** |
 | input | `logic [10:0]` | **pos_y** |
 | input | `logic [7:0]` | **radius** |
-| output | `logic [$clog2(TERRAIN_WIDTH * TERRAIN_HEIGHT)-1:0]` | **ram_address** |
-| output | `logic` | **ram_clr** |
+| interface | `interface` | **v_ram** |
+| output | `logic` | **ram_clear** |
 | output | `logic` | **done** |

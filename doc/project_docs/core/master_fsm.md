@@ -16,5 +16,16 @@ Decides the game flow
 | input | `logic` | **rst_n** |
 | input | `logic` | **space_bar** |
 | input | `logic` | **vsync_in** |
-| output | `logic` | **vsync_out** |
-| output | `logic` | **state_output** |
+| input | `logic [6:0] worm_health` | **** |
+| input | `logic worms_on_ground` | **** |
+| input | `logic` | **bullet_impact** |
+| input | `logic` | **explosion_done** |
+| output | `logic` | **sync_out** |
+| output | `logic` | **start_screen_en** |
+| output | `logic` | **walking_en** |
+| output | `logic` | **shooting_en** |
+| output | `logic` | **bullet_en** |
+| output | `logic` | **explosion_en** |
+| output | `logic` | **end_screen_en** |
+| output | `logic` | **capture_wind** |
+| output | `logic` | **current_player** |

@@ -2,10 +2,12 @@
 [⬅️ Back to Directory Index](../index.md)
 
 ## Overview
-**Author:** MP  
+**Author:** MP (Modified for pre-collision fallback)  
+**Modified:** for pre-collision fallback)  
 **Description:** 
 Moves object and applies wind and gravity to it.
 Object stops moving when it hits terrain (cd_hit) or map border.
+If a collision occurs, it rewinds to the last valid step position.
 
 
 ---
@@ -27,6 +29,8 @@ Object stops moving when it hits terrain (cd_hit) or map border.
 | input | `logic signed [7:0]` | **wind** |
 | input | `logic signed [7:0]` | **velocity_x_init** |
 | input | `logic signed [7:0]` | **velocity_y_init** |
+| input | `logic [10:0]` | **pos_x_init** |
+| input | `logic [10:0]` | **pos_y_init** |
 | input | `logic [7:0]` | **cd_hit** |
 | input | `logic` | **cd_done** |
 | output | `logic` | **cd_start** |
