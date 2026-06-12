@@ -124,17 +124,19 @@ class SVInstantiator:
             if not raw_port or '.' in raw_port: 
                 continue
             
-            # Strip directions
+            # 1. Strip directions (input, output, inout, ref)
             dir_match = re.match(r'^(input|output|inout|ref)\b\s*', raw_port)
             if dir_match:
                 raw_port = raw_port[dir_match.end():].strip()
             
-            # Strip data types (logic, reg, wire, logic [6:0], etc.)
-            # This regex clears standard types and packed arrays
+            # 2. Strip standard signing/modifiers (signed, unsigned)
+            raw_port = re.sub(r'\b(signed|unsigned)\b\s*', '', raw_port).strip()
+
+            # 3. Strip data types and any attached packed arrays (e.g., logic [10:0], MyType_t, etc.)
+            # This handles words followed safely by nested bracket segments.
             raw_port = re.sub(r'^([A-Za-z0-9_]+)\s*(\[.*?\])?\s*', '', raw_port).strip()
             
-            # Clean up the port name if it has an unpacked array suffix (like [0:1])
-            # The port name will be the first token left over before the unpacked array
+            # 4. Clean up and extract the remaining port name
             match_name = re.match(r'^([A-Za-z0-9_]+)', raw_port)
             if match_name:
                 names.append(match_name.group(1))
