@@ -40,14 +40,14 @@ module draw_circle_tb;
     assign b  = vga_out.rgb[3:0];
 
     // Circle properties for testing
-    logic [11:0] circle_x;
-    logic [11:0] circle_y;
-    logic [11:0] circle_radius;
+    logic [10:0] circle_x;
+    logic [10:0] circle_y;
+    logic [10:0] circle_radius;
     logic [11:0] circle_color;
 
-    assign circle_x      = 12'd200;      // X coordinate of center
-    assign circle_y      = 12'd200;      // Y coordinate of center
-    assign circle_radius = 12'd50;       // Radius of the circle
+    assign circle_x      = 11'd200;      // X coordinate of center
+    assign circle_y      = 11'd200;      // Y coordinate of center
+    assign circle_radius = 11'd50;       // Radius of the circle
     assign circle_color  = 12'hF_0_0;    // Red color (RGB 4:4:4)
 
     /**
@@ -100,6 +100,7 @@ module draw_circle_tb;
     draw_circle u_draw_circle (
         .clk(clk),
         .rst_n(rst_n),
+        .enable(1'b1),
 
         .x_pos(circle_x),
         .y_pos(circle_y),
