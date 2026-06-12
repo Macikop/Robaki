@@ -13,7 +13,8 @@
  */
 
 module top_vga (
-        input  logic clk,
+        input  logic clk_vga,
+        input logic clk_core,
         input  logic rst_n,
         output logic vs,
         output logic hs,
@@ -68,7 +69,7 @@ module top_vga (
      */
 
     vga_timing u_vga_timing (
-        .clk,
+        .clk(clk_vga),
         .rst_n,
         .vcount (vcount_tim),
         .vsync  (vsync_tim),
@@ -81,7 +82,7 @@ module top_vga (
     draw_bg #(
         .COLOR(12'h0_a_a)
     ) u_draw_bg (
-        .clk,
+        .clk(clk_vga),
         .rst_n,
 
         .vcount_in  (vcount_tim),
@@ -95,12 +96,13 @@ module top_vga (
 
     );
 
-    terrain_rom #(
+    terrain_ram #(
         .TERRAIN_FILE_PATH("../../rtl/vga_driver/maps/map1.dat"),
         .WIDTH(TERRAIN_WIDTH),
         .HEIGHT(TERRAIN_HEIGHT)
-    ) u_terrain_rom (
-        .clk,
+    ) u_terrain_ram (
+        .clk_vga,
+        .clk_core,
         .rst_n,
 
         .address(address_terrain),
@@ -113,7 +115,7 @@ module top_vga (
         .X_OFFSET(0),
         .Y_OFFSET(0)
     ) u_draw_terrain (
-        .clk,
+        .clk(clk_vga),
         .rst_n,
 
         .color(12'h0_F_0),
@@ -130,7 +132,7 @@ module top_vga (
         .WIDTH(SPRITE_WIDTH),
         .HEIGHT(SPRITE_HEIGHT)
     ) u_sprite_rom (
-        .clk,
+        .clk(clk_vga),
         .rst_n,
         .address(address_sprite),
         .rgb(rgb_sprite)
@@ -141,23 +143,23 @@ module top_vga (
         .WIDTH(SPRITE_WIDTH),
         .HEIGHT(SPRITE_HEIGHT)
     ) u_draw_sprite (
-        .clk,
+        .clk(clk_vga),
         .rst_n,
         
-        .xpos(12'd100),
-        .ypos(12'd100),
+        .x_pos(12'd100),
+        .y_pos(12'd100),
         .vga_in(vga_terrain),
 
         .modifier(3'b000),
 
         .rgb_pixel(rgb_sprite),
-        .pixel_addres(address_sprite),
+        .pixel_address(address_sprite),
 
         .vga_out(vga_circle)
     );
 
     draw_circle u_draw_circle(
-        .clk,
+        .clk(clk_vga),
         .rst_n,
         
         .x_pos(12'd30),

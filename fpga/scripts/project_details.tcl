@@ -30,20 +30,22 @@ set xdc_files {
 }
 
 # Specify SystemVerilog design files location   -- EDIT
+#    ../rtl/shared_modules/delay.sv \#
+#    ../rtl/vga_driver/draw_circle.sv \#
+#    ../rtl/vga_driver/draw_terrain.sv \#
+#    ../rtl/vga_driver/terrain_ram.sv \#
+#    ../rtl/vga_driver/draw_sprite.sv \#
+#    ../rtl/vga_driver/sprite_rom.sv \#
+#    ../rtl/vga_driver/vga_pkg.sv \#
+#    ../rtl/vga_driver/vga_timing.sv \#
+#    ../rtl/vga_driver/draw_bg.sv \#
+#    ../rtl/vga_driver/vga_if.sv \#
+#
+#
+#    ../rtl/vga_driver/top_vga.sv \#
+
 set sv_files {
-    ../rtl/common/delay.sv \
-    ../rtl/vga_driver/draw_circle.sv \
-    ../rtl/vga_driver/draw_terrain.sv \
-    ../rtl/vga_driver/terrain_rom.sv \
-    ../rtl/vga_driver/draw_sprite.sv \
-    ../rtl/vga_driver/sprite_rom.sv \
-    ../rtl/vga_driver/vga_pkg.sv \
-    ../rtl/vga_driver/vga_timing.sv \
-    ../rtl/vga_driver/draw_bg.sv \
-    ../rtl/vga_driver/vga_if.sv \
 
-
-    ../rtl/top_vga.sv \
 
     ../rtl/audio_driver/address_counter.sv \
     ../rtl/audio_driver/midi_decoder.sv \
@@ -60,9 +62,10 @@ set sv_files {
 }
 
 # Specify Verilog design files location         -- EDIT
-# set verilog_files {
-#     path/to/file.v
-# }
+set verilog_files {
+    rtl/clk/clk_wiz_0.v \
+    rtl/clk/clk_wiz_0_clk_wiz.v
+}
 
 # Specify VHDL design files location            -- EDIT
 # set vhdl_files {
@@ -83,8 +86,8 @@ set mem_files {
    ../rtl/vga_driver/sprite_bank/worms.dat \
 
    ../rtl/vga_driver/maps/map_test.dat \
-   ../rtl/vga_driver/maps/map1.dat \
-   ../rtl/vga_driver/maps/arrow.dat 
+   ../rtl/vga_driver/maps/map1.dat 
+
 
 
 }

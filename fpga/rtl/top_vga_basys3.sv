@@ -15,12 +15,15 @@
 module top_vga_basys3 (
         input  wire clk,
         input  wire btnC,
+        input  wire sw[1:0], //sw[0] - mute, sw[1] - volume
         output wire Vsync,
         output wire Hsync,
         output wire [3:0] vgaRed,
         output wire [3:0] vgaGreen,
         output wire [3:0] vgaBlue,
-        output wire JA1
+        output wire JA1,
+        
+        output wire JA[3:1] //JA2 - shutdown, JA3 - gain, JA4 - AIN
     );
 
     timeunit 1ns;
@@ -75,14 +78,15 @@ module top_vga_basys3 (
      *  Project functional top module
      */
 
-    top_vga u_top_vga (
+ 
+    top_audio_driver u_top_audio_driver(
         .clk(pclk),
         .rst_n(~btnC),
-        .r(vgaRed),
-        .g(vgaGreen),
-        .b(vgaBlue),
-        .hs(Hsync),
-        .vs(Vsync)
+        .mute(sw[0]),
+        .volume(sw[1]),
+        .wave_out(JA[3]),
+        .gain(JA[2]),
+        .shoutdown(JA[1])
     );
 
 endmodule
