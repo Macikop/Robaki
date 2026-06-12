@@ -1,6 +1,6 @@
 /* Designed by KS
  * 
- * key_decoder: receives raw byte key code, outputs which key was pressed
+ * key_decoder: receives raw byte key code, outputs flag of which key was pressed
 */
 
 module key_decoder (
@@ -29,10 +29,10 @@ module key_decoder (
                 is_break <= '1;
             end else begin
                 case (key_code)
-                    8'h75: up <= !is_break;     //up
-                    8'h72: down <= !is_break;     //down
-                    8'h6b: left <= !is_break;     //left
-                    8'h74: right <= !is_break;     //right
+                    8'h1d: up <= !is_break;     //up
+                    8'h1b: down <= !is_break;     //down
+                    8'h1c: left <= !is_break;     //left
+                    8'h23: right <= !is_break;     //right
                     8'h29: space <= !is_break;     //spacebar
                     8'h0d: tab <= !is_break;     //tab
                     default: ;

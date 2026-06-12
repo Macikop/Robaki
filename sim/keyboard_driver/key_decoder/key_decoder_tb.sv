@@ -71,10 +71,49 @@ module key_decoder_tb;
 
         if (!space) $display("Space signal is LOW");
 
-        $display("Simulating Up Arrow (0x75)");
-        drive_code(8'h75);
+        $display("Simulating W key (Up) (0x1d)");
+        drive_code(8'h1d);
         repeat(10) @(posedge clk);
-        if (up) $display("Up signal is HIGH");
+        if (up) $display("W signal is HIGH");
+
+        $display("Simulating W release (0xF0, 0x1d)");
+        drive_code(8'hf0);
+        drive_code(8'h1d);
+        repeat(10) @(posedge clk);
+        if (!up) $display("W signal is LOW");
+
+        $display("Simulating S key (Down) (0x1b)");
+        drive_code(8'h1b);
+        repeat(10) @(posedge clk);
+        if (down) $display("S signal is HIGH");
+
+        $display("Simulating S release (0xF0, 0x1b)");
+        drive_code(8'hf0);
+        drive_code(8'h1b);
+        repeat(10) @(posedge clk);
+        if (!down) $display("S signal is LOW");
+
+        $display("Simulating D key (Right) (0x23)");
+        drive_code(8'h23);
+        repeat(10) @(posedge clk);
+        if (right) $display("Up signal is HIGH");
+
+        $display("Simulating D release (0xF0, 0x23)");
+        drive_code(8'hf0);
+        drive_code(8'h23);
+        repeat(10) @(posedge clk);
+        if (!right) $display("D signal is LOW");
+
+        $display("Simulating A key (Left) (0x1c)");
+        drive_code(8'h1c);
+        repeat(10) @(posedge clk);
+        if (left) $display("A signal is HIGH");
+
+        $display("Simulating A release (0xF0, 0x1c)");
+        drive_code(8'hf0);
+        drive_code(8'h1c);
+        repeat(10) @(posedge clk);
+        if (!left) $display("A signal is LOW");
 
         repeat(100) @(posedge clk);
         $finish;

@@ -1,7 +1,7 @@
 /* Designed by KS
  * 
  * top_keyboard_driver: receives data through ps2 
- * and outputs which key was pressed (up, down, left, right, space, tab)
+ * and outputs which key was pressed ((W)up, (S)down, (A)left, (D)right, SPACE, TAB)
 */
 
 module top_keyboard_driver (
@@ -17,13 +17,19 @@ module top_keyboard_driver (
     logic [7:0] key_code;
     logic done;
 
-    ps2_interface u_ps2_interface (
+    Ps2Interface u_Ps2Interface (
         .clk,
-        .rst_n,
+        .rst(~rst_n),
         .ps2_clk(ps2_clk),
         .ps2_data(ps2_data),
-        .key_code(key_code),
-        .done(done)
+
+        .rx_data(key_code),
+        .read_data(done),
+
+        .tx_data(),
+        .write_data(),
+        .busy(),
+        .err()
     );
 
     key_decoder u_key_decoder (

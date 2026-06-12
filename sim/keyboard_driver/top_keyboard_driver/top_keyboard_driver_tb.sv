@@ -155,8 +155,10 @@ module top_keyboard_driver_tb;
 
         //run test cases
         test_key(8'h29, "SPACE");
-        test_key(8'h75, "UP");
-        test_key(8'h6B, "LEFT");
+        test_key(8'h1d, "UP");
+        test_key(8'h1b, "DOWN");
+        test_key(8'h23, "RIGHT");
+        test_key(8'h1c, "LEFT");
         test_key(8'h0D, "TAB");
 
         $display("All test completed");

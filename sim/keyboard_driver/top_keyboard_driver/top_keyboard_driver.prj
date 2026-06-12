@@ -5,7 +5,8 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 
-sv work ../../../rtl/keyboard_driver/ps2_interface.sv \
-        ../../../rtl/keyboard_driver/key_decoder.sv \
+sv work ../../../rtl/keyboard_driver/key_decoder.sv \
         ../../../rtl/keyboard_driver/top_keyboard_driver.sv \
         top_keyboard_driver_tb.sv
+
+vhdl work ../../../rtl/keyboard_driver/Ps2Interface.vhd
