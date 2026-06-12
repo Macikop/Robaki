@@ -25,7 +25,7 @@ module explosion #(
     output logic [10:0] draw_explosion_x,
     output logic [10:0] draw_explosion_y,
     output logic [10:0] draw_explosion_r,
-    output logic draw_explosion_en,
+    output logic        draw_explosion_en,
     output logic [11:0] draw_explosion_color,
 
     output logic ram_clear,

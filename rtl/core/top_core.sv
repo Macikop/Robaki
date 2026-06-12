@@ -21,12 +21,36 @@ module top_core #(
     input  logic up,
     input  logic down,
     input  logic left,
-    input  logic right
+    input  logic right,
+
+    input  logic ram_value,
+    output logic [$clog2(TERRAIN_WIDTH * TERRAIN_WIDTH)-1:0] ram_address,
+    output logic ram_clear,
+
+    output logic [10:0] draw_worm_0_x_pos,
+    output logic [10:0] draw_worm_0_y_pos,
+    output logic        draw_worm_0_orientation,
+    output logic [10:0] draw_worm_1_x_pos,
+    output logic [10:0] draw_worm_1_y_pos,
+    output logic        draw_worm_1_orientation,
+
+    output logic [10:0] aim_x_pos,
+    output logic [10:0] aim_y_pos,
+    output logic        aim_en,
+
+    output logic [10:0] draw_bullet_x,
+    output logic [10:0] draw_bullet_y,
+    output logic        draw_bullet_en,
+
+    output logic [10:0] draw_explosion_x,
+    output logic [10:0] draw_expolsion_y,
+    output logic [10:0] draw_explosion_radius,
+    output logic        draw_explosion_en 
+
 );
 
     localparam WRITE_CHANNEL = 0;
     localparam RAM_DELAY = 2;
-
 
     logic sync;
 
@@ -224,13 +248,19 @@ module top_core #(
     ) u_explosion (
         .clk,
         .rst_n,
-        .enable           (explosion_en),
+        .enable               (explosion_en),
         .sync,
-        .expolsion_x      (bullet_x),           // to drawing
-        .explosion_y      (bullet_y),           // to drawing
-        .explosion_done   (explosion_done),
-        .explosion_radius (explosion_radius),   // to drawing
-        .terrain_ram      (ram_clients[1])
+        .explosion_x          (bullet_x),
+        .explosion_y          (bullet_y),
+        .explosion_done       (explosion_done),
+        .explosion_radius     (explosion_radius),
+        .draw_explosion_x     (),
+        .draw_explosion_y     (),
+        .draw_explosion_r     (),
+        .draw_explosion_en    (),
+        .draw_explosion_color (),
+        .terrain_ram          (ram_clients[1]),
+        .ram_clear            (clear)
     );
 
     ram_address_mux #(
@@ -244,25 +274,9 @@ module top_core #(
         .rst_n,
         .clients        (ram_clients),
         .clear          (clear),
-        .ram_value      (1'b0),
-        .ram_address    (),
-        .ram_clear      ()
-    );
-
-    terrain_destruction #(
-        .TERRAIN_WIDTH(TERRAIN_WIDTH),
-        .TERRAIN_HEIGHT(TERRAIN_HEIGHT),
-        .RAM_DELAY(RAM_DELAY)
-    ) u_terrain_destruction (
-        .clk,
-        .rst_n,
-        .start(explosion_done),
-        .pos_x(bullet_x),
-        .pos_y(bullet_y),
-        .radius(explosion_radius),
-        .v_ram(ram_clients[2]),
-        .ram_clear(clear),
-        .done()
+        .ram_value      (ram_value),
+        .ram_address    (ram_address),
+        .ram_clear      (ram_clear)
     );
 
     worm #(
