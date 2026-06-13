@@ -40,7 +40,6 @@ module bullet #(
 
 );
 
-    logic start;
     logic cd_start, cd_done;
     logic cd_hit;
 
@@ -53,7 +52,7 @@ module bullet #(
         .clk,
         .rst_n,
         .din           (enable),
-        .edge_detected (conv_start) // Fixed typo
+        .edge_detected (conv_start)
     );
 
     physics_engine #(
@@ -70,7 +69,7 @@ module bullet #(
         .velocity_y_init (y_component),
         .pos_x_init      (worm_pos_x),
         .pos_y_init      (worm_pos_y),
-        .cd_hit          ({7'b0, cd_hit}),
+        .cd_hit          ({8{cd_hit}}),
         .cd_done         (cd_done),
         .cd_start        (cd_start),
         .done            (start_exposion),

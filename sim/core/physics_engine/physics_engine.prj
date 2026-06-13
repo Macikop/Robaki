@@ -6,6 +6,7 @@
 
 sv work ../../../rtl/core/physics_engine.sv \
         ../../../rtl/core/ram_address_mux.sv \
+        ../../../rtl/core/memory_if.sv \
         ../../../rtl/vga_driver/terrain_ram.sv \
         ../../../rtl/core/collision_detector.sv \
         physics_engine_tb.sv

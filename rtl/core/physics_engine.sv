@@ -67,6 +67,8 @@ module physics_engine # (
     logic is_steep, is_steep_nxt;
     logic done_nxt;
 
+    logic enable_start, enable_start_nxt;
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= IDLE;
@@ -86,6 +88,7 @@ module physics_engine # (
             step_count <= '0;
             is_steep <= '0;
             done <= '0;
+            enable_start <= 1'b0;
         end else begin
             state <= state_nxt;
             x <= x_nxt;
@@ -104,6 +107,7 @@ module physics_engine # (
             step_count <= step_count_nxt;
             is_steep <= is_steep_nxt;
             done <= done_nxt;
+            enable_start <= enable_start_nxt;
         end
     end
 
@@ -123,6 +127,7 @@ module physics_engine # (
         yi_nxt = yi;
         step_count_nxt = step_count;
         is_steep_nxt = is_steep;
+        enable_start_nxt = enable_start;
         
         done_nxt = 1'b0;
         cd_start = 1'b0;
@@ -130,10 +135,16 @@ module physics_engine # (
         abs_dx = '0;
         abs_dy = '0;
 
+        if(state) begin 
+            enable_start_nxt = 1'b1;
+        end else if (sync) begin
+            enable_start_nxt = 1'b1;
+        end
+
         case (state)
 
             IDLE: begin
-                if (start && sync) begin
+                if (enable_start && sync) begin
                     x_nxt = $signed({1'b0, pos_x_init});
                     y_nxt = $signed({1'b0, pos_y_init});
                     x_prev_nxt = $signed({1'b0, pos_x_init});

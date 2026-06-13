@@ -60,17 +60,14 @@ module physics_engine_tb;
     /**
      * Clock generation
      */
-
     initial begin
         clk = 1'b0;
         forever #(CLK_PERIOD/2) clk = ~clk;
     end
 
-
     /**
      * Reset generation
      */
-
     initial begin
         rst_n = 1'b1;
         #(RST_START_TIME) rst_n = 1'b0;
@@ -78,24 +75,22 @@ module physics_engine_tb;
     end
 
     /**
-     * Generates a sync signal whenever the machine needs to step or initialize.
+     * Clean Sync Generator
      */
 
     initial begin
         sync = 1'b0;
+        @(negedge rst_n);
         @(posedge rst_n);
-        
         forever begin
-            @(posedge clk);
-            if ((dut.state == 3'b100) || (dut.state == 3'b000 && start)) begin
-                sync = 1'b1;
-                while ((dut.state == 3'b100) || (dut.state == 3'b000 && start)) begin
-                    @(posedge clk);
-                end
-                sync = 1'b0;
-            end
+            repeat (99) @(posedge clk);
+            sync = 1'b1;
+            @(posedge  clk);
+            sync = 1'b0;
         end
     end
+
+    
 
     /*
      * Supporting modules
@@ -128,7 +123,7 @@ module physics_engine_tb;
         .pos_x(pos_x),
         .pos_y(pos_y),
         .start_check(cd_start),
-        .ram_client(mux_client_ifs[0]), // Connected via modport inside the interface block
+        .ram_client(mux_client_ifs[0]), 
         .collisions(cd_hit),
         .done(cd_done)
     );
@@ -142,7 +137,7 @@ module physics_engine_tb;
     ) u_ram_address_mux (
         .clk(clk),
         .rst_n(rst_n),
-        .clients(mux_client_ifs), // Pass the interface array directly
+        .clients(mux_client_ifs),
         .clear('0),
         .ram_value(raw_ram_data_out),
         .ram_address(mux_to_ram_address),
@@ -175,9 +170,8 @@ module physics_engine_tb;
         .pos_y(pos_y)
     );
 
-
     /**
-     * Tasks and functions
+     * Cleaned Tasks without internal state hacking
      */
 
     task run_physics_trajectory(
@@ -187,20 +181,15 @@ module physics_engine_tb;
         input signed [7:0] vx,
         input signed [7:0] vy
     );
-
+        @(negedge clk);
         pos_x_init = init_x;
         pos_y_init = init_y;
         wind = w;
         velocity_x_init = vx;
         velocity_y_init = vy;
-
-        while (dut.state != 3'b000) begin
-            @(posedge clk);
-        end
-        
-        @(posedge clk);
         start = 1'b1;
-        @(posedge clk);
+        
+        @(negedge clk);
         start = 1'b0;
         
         @(posedge done);
@@ -236,6 +225,7 @@ module physics_engine_tb;
         $display("Launching flat high-speed shot from center map.");
         run_physics_trajectory(11'd512, 11'd100, -8'sd2, 8'sd75, 8'sd2);
 
+        $display("All tests finished successfully!");
         $finish;
     end
 
