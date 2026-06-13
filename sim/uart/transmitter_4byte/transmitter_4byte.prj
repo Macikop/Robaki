@@ -9,5 +9,5 @@
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
 
-sv work ../../../rtl/uart/baud_rate_generator.sv \
-        baud_rate_generator_tb.sv
+sv work ../../../rtl/uart/transmitter_4byte.sv \
+        transmitter_4byte_tb.sv
