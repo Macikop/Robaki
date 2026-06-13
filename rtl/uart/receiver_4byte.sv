@@ -1,3 +1,8 @@
+/*  Designed by KS
+ * Actively collects incoming bytes from UART receiver core and reconstructs them
+ * into a parallel 32-bit data word
+ */
+
 module receiver_4byte(
     input logic clk,
     input logic rst_n,

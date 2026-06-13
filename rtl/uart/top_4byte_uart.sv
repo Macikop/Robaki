@@ -1,3 +1,10 @@
+/* Designed by KS
+ * Top level wrapper integrating an 8-bit core UART module with custom 32-bit transmit 
+ * slicing and receive gathering blocks
+ * 
+ * Enables simple 32-bit parallel read-write data word interfacing 
+ */
+
 module top_4byte_uart(
     input logic clk,
     input logic rst_n,

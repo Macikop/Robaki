@@ -1,3 +1,8 @@
+/* Designed by KS
+ * Slices a parallel 32-bit data word into four sequential
+ * bytes and streams them into standard 8-bit UART transmitter core
+ */
+
 module transmitter_4byte(
         input logic clk,
         input logic rst_n,
