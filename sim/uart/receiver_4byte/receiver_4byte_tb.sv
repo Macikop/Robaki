@@ -32,7 +32,6 @@ module receiver_4byte_tb();
     initial begin
         rst_n = 1'b0;
         rx_empty = 1'b1;
-        rd_uart = 1'b0;
         r_data = 8'h00;
 
         repeat(5) @(posedge clk);
@@ -80,12 +79,10 @@ module receiver_4byte_tb();
             #1;
             rx_empty = 1'b0;
             r_data = byte_to_send;
-            rd_uart = 1'b1;
 
             @(posedge clk);
             #1;
             rx_empty = 1'b1;
-            rd_uart = 1'b0;
             r_data = 8'h00;
         end
     endtask

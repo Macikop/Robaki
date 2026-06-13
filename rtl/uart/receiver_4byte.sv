@@ -2,7 +2,7 @@ module receiver_4byte(
     input logic clk,
     input logic rst_n,
     input logic rx_empty,
-    input logic rd_uart,
+    output logic rd_uart,
     input logic[7:0] r_data,
     output logic full,
     output logic[31:0] data32
@@ -17,6 +17,7 @@ logic [1:0] byte_counter;
 
 assign full = filled;
 assign data32 = data;
+assign rd_uart = (!rx_empty && !filled);
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -24,7 +25,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         filled <= '0;
         byte_counter <= '0;
     end else begin
-        if(!rx_empty && rd_uart) begin
+        if(rd_uart) begin
             data <= {r_data, data32[31:8]};
             byte_counter <= byte_counter + 1;
 

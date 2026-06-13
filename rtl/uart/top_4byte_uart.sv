@@ -1,6 +1,7 @@
 module top_4byte_uart(
     input logic clk,
     input logic rst_n,
+    input logic start,
     input logic[31:0] data_transmit,
     input logic rx,
     output logic done,
@@ -13,6 +14,8 @@ timeprecision 1ps;
 
 wire wr_uart, tx_full, empty, rx_empty, rd_uart, full;
 wire[7:0] w_data, r_data;
+
+assign done = full;
 
 uart #(
     .DVSR(54)
@@ -32,6 +35,7 @@ uart #(
 transmitter_4byte u_transmitter_4byte(
     .clk,
     .rst_n,
+    .start(start),
     .data32(data_transmit),
     .tx_full(tx_full),
     .wr_uart(wr_uart),
