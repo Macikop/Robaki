@@ -1,7 +1,6 @@
 /*
  * Designed by MP
- * 
- * Description:
+ * * Description:
  * Testbench for ram_address_mux module.
  */
 
@@ -14,6 +13,7 @@ module ram_address_mux_tb;
     /**
      * Local parameters
      */
+
     localparam CLK_PERIOD = 10;     // 100 MHz
     localparam RST_START_TIME  = 1.25*CLK_PERIOD;
     localparam RST_ACTIVE_TIME = 2.00*CLK_PERIOD;
@@ -29,6 +29,7 @@ module ram_address_mux_tb;
     /**
      * Local variables and signals
      */
+
     logic clk;
     logic rst_n;
     
@@ -37,13 +38,22 @@ module ram_address_mux_tb;
     logic clear_sig;
     logic tb_clear;
 
-    // Instantiate the interface array matching the DUT requirements
+    // Instantiate the physical interface array
     memory_if client_ifs[0:INPUTS_NUMBER-1]();
+
+    // Declare a virtual interface array to allow dynamic variable indexing inside tasks
+    virtual memory_if v_client_ifs[0:INPUTS_NUMBER-1];
+
+    // Explicitly unrolled to satisfy Vivado's static indexing requirements
+    initial begin
+        v_client_ifs[0] = client_ifs[0];
+        v_client_ifs[1] = client_ifs[1];
+        v_client_ifs[2] = client_ifs[2];
+    end
 
     /**
      * Clock generation
      */
-
     initial begin
         clk = 1'b0;
         forever #(CLK_PERIOD/2) clk = ~clk;
@@ -53,7 +63,6 @@ module ram_address_mux_tb;
     /**
      * Reset generation
      */
-
     initial begin
         rst_n = 1'b1;
         #(RST_START_TIME) rst_n = 1'b0;
@@ -91,7 +100,7 @@ module ram_address_mux_tb;
     ) dut (
         .clk(clk),
         .rst_n(rst_n),
-        .clients(client_ifs), // Pass the interface array directly
+        .clients(client_ifs), // Pass the physical interface array directly
         .clear(tb_clear),
         .ram_value(data_out_core),
         .ram_address(address_core),
@@ -106,8 +115,8 @@ module ram_address_mux_tb;
     task automatic clear_channels();
         tb_clear <= 1'b0;
         for (int i = 0; i < INPUTS_NUMBER; i++) begin
-            client_ifs[i].addresses <= '0;
-            client_ifs[i].request   <= 1'b0;
+            v_client_ifs[i].addresses <= '0;
+            v_client_ifs[i].request   <= 1'b0;
         end
     endtask
 
@@ -119,27 +128,27 @@ module ram_address_mux_tb;
         @(posedge clk);
         $display("[TB_TASK] Running Single Channel Test on Ch %0d (Addr: %0d)...", channel, test_addr);
         
-        client_ifs[channel].addresses <= test_addr;
-        client_ifs[channel].request   <= 1'b1;
+        v_client_ifs[channel].addresses <= test_addr;
+        v_client_ifs[channel].request   <= 1'b1;
         
         @(posedge clk); 
         
         @(negedge clk); 
-        assert(client_ifs[channel].granted === 1'b1) begin
+        assert(v_client_ifs[channel].granted === 1'b1) begin
             $display("PASSED Channel %0d successfully granted RAM access.", channel);
         end else begin
             $error("FAILED Arbitration Channel %0d was denied explicit slot access.", channel);
         end
         
-        client_ifs[channel].request <= 1'b0; 
+        v_client_ifs[channel].request <= 1'b0; 
         
         repeat(RAM_DELAY) @(posedge clk);
 
         @(negedge clk); 
-        assert(client_ifs[channel].value === expected_data) begin
-            $display("PASSED Got: %b", client_ifs[channel].value);
+        assert(v_client_ifs[channel].value === expected_data) begin
+            $display("PASSED Got: %b", v_client_ifs[channel].value);
         end else begin
-            $error("FAILED Channel %0d! Got: %b, Expected: %b", channel, client_ifs[channel].value, expected_data);
+            $error("FAILED Channel %0d! Got: %b, Expected: %b", channel, v_client_ifs[channel].value, expected_data);
         end
         
         clear_channels();
@@ -157,12 +166,12 @@ module ram_address_mux_tb;
 
         @(posedge clk);
         
-        client_ifs[0].addresses <= addr_ch0; 
-        client_ifs[0].request <= 1'b1;
-        client_ifs[1].addresses <= addr_ch1; 
-        client_ifs[1].request <= 1'b1;
-        client_ifs[2].addresses <= addr_ch2; 
-        client_ifs[2].request <= 1'b1;
+        v_client_ifs[0].addresses <= addr_ch0; 
+        v_client_ifs[0].request <= 1'b1;
+        v_client_ifs[1].addresses <= addr_ch1; 
+        v_client_ifs[1].request <= 1'b1;
+        v_client_ifs[2].addresses <= addr_ch2; 
+        v_client_ifs[2].request <= 1'b1;
         
         active_requests[0] = 1'b1;
         active_requests[1] = 1'b1;
@@ -188,21 +197,21 @@ module ram_address_mux_tb;
             @(posedge clk);
             @(negedge clk);
             
-            assert(client_ifs[expected_grant].granted === 1'b1) begin 
-                $display("Cycle %0d Checkpoint | Granted: Ch0=%b, Ch1=%b, Ch2=%b (Expected Ch%0d)", step, client_ifs[0].granted, client_ifs[1].granted, client_ifs[2].granted, expected_grant);
+            assert(v_client_ifs[expected_grant].granted === 1'b1) begin 
+                $display("Cycle %0d Checkpoint | Granted: Ch0=%b, Ch1=%b, Ch2=%b (Expected Ch%0d)", step, v_client_ifs[0].granted, v_client_ifs[1].granted, v_client_ifs[2].granted, expected_grant);
             end else begin
                 $error("FAILED: Round-Robin Violation! Expected Channel %0d to win, but it was not granted.", expected_grant);
             end
 
             for (int i = 0; i < INPUTS_NUMBER; i++) begin
                 if (i != expected_grant) begin
-                    assert(client_ifs[i].granted === 1'b0) else begin
+                    assert(v_client_ifs[i].granted === 1'b0) else begin
                         $error("Channel %0d was granted access simultaneously with Channel %0d.", i, expected_grant);
                     end
                 end
             end
 
-            client_ifs[expected_grant].request <= 1'b0;
+            v_client_ifs[expected_grant].request <= 1'b0;
             active_requests[expected_grant] = 1'b0;
         end
         
@@ -213,9 +222,7 @@ module ram_address_mux_tb;
     /**
      * Main Test Execution Sequence
      */
-
     initial begin
-
         @(negedge rst_n)
         @(posedge rst_n);
         

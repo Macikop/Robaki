@@ -6,7 +6,6 @@
  * Uses Round-Robin, granted is immediate, data arrives after delay.
  */
 
-
 module ram_address_mux #(
     parameter ADDRESS_WIDTH = 20,
     parameter WORD_WIDTH    = 1,
@@ -38,6 +37,28 @@ module ram_address_mux #(
     logic   delay_valid [0:RAM_DELAY-1];
 
     logic any_request_granted;
+
+    logic [ADDRESS_WIDTH-1:0] client_addresses [0:INPUTS_NUMBER-1];
+    logic client_request [0:INPUTS_NUMBER-1];
+
+    genvar g;
+    generate
+        for (g = 0; g < INPUTS_NUMBER; g++) begin : gen_unpack_interfaces
+            assign client_addresses[g] = clients[g].addresses;
+            assign client_request[g]   = clients[g].request;
+            
+
+            always_ff @(posedge clk or negedge rst_n) begin
+                if (!rst_n) begin
+                    clients[g].granted <= 1'b0;
+                    clients[g].value   <= '0;
+                end else begin
+                    clients[g].granted <= granted_nxt[g];
+                    clients[g].value   <= value_nxt[g];
+                end
+            end
+        end
+    endgenerate
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -72,8 +93,8 @@ module ram_address_mux #(
         any_request_granted = 1'b0;
 
         for (int i = 0; i < INPUTS_NUMBER; i++) begin
-            if (clients[i].request && (i > last_access)) begin
-                ram_address_nxt     = clients[i].addresses;
+            if (client_request[i] && (i > last_access)) begin
+                ram_address_nxt     = client_addresses[i];
                 last_access_nxt     = index_t'(i);
                 ram_clear_nxt       = (i == WRITE_CHANNEL) ? clear : 1'b0;
                 any_request_granted = 1'b1;
@@ -83,8 +104,8 @@ module ram_address_mux #(
 
         if (!any_request_granted) begin
             for (int i = 0; i < INPUTS_NUMBER; i++) begin
-                if (clients[i].request && (i <= last_access)) begin
-                    ram_address_nxt     = clients[i].addresses;
+                if (client_request[i] && (i <= last_access)) begin
+                    ram_address_nxt     = client_addresses[i];
                     last_access_nxt     = index_t'(i);
                     ram_clear_nxt       = (i == WRITE_CHANNEL) ? clear : 1'b0;
                     any_request_granted = 1'b1;
@@ -109,10 +130,6 @@ module ram_address_mux #(
             end
         end
     
-        for (int i = 0; i < INPUTS_NUMBER; i++) begin
-            clients[i].granted = granted_nxt[i];
-            clients[i].value   = value_nxt[i];
-        end
     end
 
 endmodule

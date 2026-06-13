@@ -6,6 +6,7 @@
 
 sv work ../../../rtl/core/terrain_destruction.sv \
         ../../../rtl/core/ram_address_mux.sv \
+        ../../../rtl/core/memory_if.sv \
         ../../../rtl/vga_driver/vga_pkg.sv \
         ../../../rtl/vga_driver/vga_if.sv \
         ../../../rtl/vga_driver/vga_timing.sv \

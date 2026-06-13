@@ -60,7 +60,6 @@ module terrain_destruction_tb;
     assign g = vga_out.rgb[7:4];
     assign b = vga_out.rgb[3:0];
 
-    // Instantiate memory_if instance array to cleanly feed the mux
     memory_if client_ifs[0:INPUTS_NUMBER-1]();
 
     wire [ADDR_WIDTH-1:0]  address_core;
@@ -73,7 +72,8 @@ module terrain_destruction_tb;
     logic [7:0]            dut_radius;
     wire                   dut_done;
 
-    // Default static driving assignment for unused channel 0 inside the interface structure
+    wire clear;
+
     assign client_ifs[0].addresses = '0;
     assign client_ifs[0].request   = 1'b0;
     assign client_ifs[0].value     = 1'b0;
@@ -157,7 +157,7 @@ module terrain_destruction_tb;
         .clk(clk),
         .rst_n(rst_n),
         .clients(client_ifs),
-        .clear(1'b0),
+        .clear(clear),
         .ram_value(data_out_core),
         .ram_address(address_core),
         .ram_clear(clear_sig)
@@ -171,6 +171,7 @@ module terrain_destruction_tb;
     ) u_draw_terrain (
         .clk(clk_vga),
         .rst_n(rst_n),
+        .enable(1'b1),
         .color(12'h0_F_0),
         .data_in(terrain_present),
         .address(address_terrain),
@@ -205,7 +206,8 @@ module terrain_destruction_tb;
         .pos_x(dut_pos_x),
         .pos_y(dut_pos_y),
         .radius(dut_radius),
-        .v_ram(client_ifs[1]), // cleanly map out dedicated client channel 1 interface
+        .v_ram(client_ifs[1]),
+        .ram_clear(clear),
         .done(dut_done)
     );
 
