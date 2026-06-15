@@ -1,8 +1,6 @@
 /*
  * Designed by MP
- * 
- * How it works:
- * Gets up and down key and outputs position of aim marker (and aim_angle to bullet).
+ * * Corrected version: Fixed orientation snap erasure during multi-cycle calculations.
  */
 
 module aim #(
@@ -12,6 +10,7 @@ module aim #(
 )(
     input  logic clk,
     input  logic rst_n,
+    input  logic enable,
     input  logic sync,
     
     input  logic up,
@@ -31,114 +30,103 @@ module aim #(
     output logic [7:0] length,
 
     output logic [10:0] x_out,
-    output logic [10:0] y_out,
-    input  logic enable
+    output logic [10:0] y_out
+    
 );
 
     typedef enum logic [1:0] {
         IDLE,
         START_CALC,
-        WAIT_CALC
+        WAIT_CALC,
+        OUTPUT_VALUE
     } state_t;
 
     state_t state, state_nxt;
 
-    logic [10:0] x_out_nxt, y_out_nxt;
-    logic [7:0] aim_angle_nxt; 
-    logic orientation_last;
     logic start_calc_nxt;
+    logic [7:0]aim_angle_nxt;
+    logic [10:0] x_out_nxt;
+    logic [10:0] y_out_nxt;
+
+    logic orientation_d;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            x_out            <= '0;
-            y_out            <= '0;
-            aim_angle        <= 8'd0; 
-            orientation_last <= 1'b0;
-            state            <= IDLE;
-            length           <= '0;
-            start_calc       <= '0;
+            start_calc <= '0;
+            aim_angle <= '0;
+            length <= AIM_DISTACNE;
+            x_out <= '0;
+            y_out <= '0;
+            state <= IDLE;
+            orientation_d <= 1'b0;
         end else begin
-            x_out            <= x_out_nxt;
-            y_out            <= y_out_nxt;
-            aim_angle        <= aim_angle_nxt;
-            orientation_last <= orientation;
-            state            <= state_nxt;
-            length           <= AIM_DISTACNE;
-            start_calc       <= start_calc_nxt;
+            start_calc <= start_calc_nxt;
+            aim_angle <= aim_angle_nxt;
+            length <= AIM_DISTACNE;
+            x_out <= x_out_nxt;
+            y_out <= y_out_nxt;
+            state <= state_nxt;
+
+            if(state == START_CALC) begin 
+                orientation_d <= orientation;
+            end
         end
     end
 
     always_comb begin
-        state_nxt      = state;
-        aim_angle_nxt  = aim_angle;
-        x_out_nxt      = x_out;
-        y_out_nxt      = y_out;
         start_calc_nxt = start_calc;
-
-        if(enable && sync) begin
-            if(orientation && ~orientation_last) begin
-                if (aim_angle > 8'd64 && aim_angle < 8'd192) begin
-                    aim_angle_nxt = 8'd0; 
-                end
-            end else if (~orientation && orientation_last) begin
-                if (aim_angle <= 8'd64 || aim_angle >= 8'd192) begin
-                    aim_angle_nxt = 8'd128; 
-                end
-            end
-            
-            if(up) begin
-                if (orientation) begin
-                    if (aim_angle == 8'd0) begin
-                        aim_angle_nxt = 8'd255;
-                    end else if (aim_angle > 8'd192 || aim_angle <= 8'd64) begin
-                        aim_angle_nxt = aim_angle - 8'd1;   
-                    end
-                end else begin
-                    if (aim_angle < 8'd192) begin
-                        aim_angle_nxt = aim_angle + 8'd1;
-                    end
-                end
-            end else if (down) begin
-                if (orientation) begin
-                    if (aim_angle < 8'd64 || aim_angle >= 8'd192) begin
-                        aim_angle_nxt = aim_angle + 8'd1;
-                    end
-                end else begin
-                    if (aim_angle > 8'd64) begin 
-                        aim_angle_nxt = aim_angle - 8'd1;
-                    end
-                end
-            end
-        end
+        aim_angle_nxt = aim_angle;
+        x_out_nxt = x_out;
+        y_out_nxt = y_out;
+        state_nxt = state;
 
         case (state)
             IDLE: begin
-                if (enable && sync) begin
+                if (sync && enable) begin
+                    if (up && !down) begin
+                        if (orientation) begin 
+                            aim_angle_nxt = (aim_angle < 64) ? (aim_angle + 1) : aim_angle;
+                        end else begin
+                            aim_angle_nxt = (aim_angle < 192) ? (aim_angle - 1) : aim_angle;
+                        end
+                    end else if (down && !up) begin
+                        if (orientation) begin 
+                            aim_angle_nxt = (aim_angle > 192) ? (aim_angle - 1) : aim_angle;
+                        end else begin
+                            aim_angle_nxt = (aim_angle > 64) ? (aim_angle + 1) : aim_angle;
+                        end
+                    end else begin
+                        if (orientation && ~orientation_d) begin
+                            aim_angle_nxt = 8'd0;
+                        end else if (~orientation && orientation_d) begin
+                            aim_angle_nxt = 8'd128;
+                        end
+                    end
                     state_nxt = START_CALC;
                 end
             end
 
             START_CALC: begin
-                if (enable) begin
-                    start_calc_nxt = 1'b1;
-                    state_nxt  = WAIT_CALC;
-                end else begin
-                    state_nxt  = IDLE;
-                end
+                start_calc_nxt = 1'b1;
+                state_nxt = WAIT_CALC;
             end
 
             WAIT_CALC: begin
-                if (!enable) begin
-                    state_nxt = IDLE;
-                end else if (calc_done) begin
-                    x_out_nxt = x_pos + $unsigned({{3{x_aim[7]}}, x_aim}) - X_OFFSET;
-                    y_out_nxt = y_pos + $unsigned({{3{y_aim[7]}}, y_aim}) - Y_OFFSET;
-                    state_nxt = IDLE;
-                end
+                start_calc_nxt = 1'b0;
+                state_nxt = calc_done ? OUTPUT_VALUE : WAIT_CALC;
             end
 
-            default: state_nxt = IDLE;
+            OUTPUT_VALUE : begin
+                x_out_nxt = x_pos + x_aim - X_OFFSET;
+                y_out_nxt = y_pos + y_aim - Y_OFFSET;
+                state_nxt = IDLE;
+            end
+            
+            default: begin
+                state_nxt = IDLE;
+            end
+            
         endcase
-    end
+    end        
 
 endmodule
