@@ -1,8 +1,12 @@
+/* Designed by KS
+ * Encodes player parameters into 32-bit packets ready to be sent
+ */
+
 module game_uart_encoder(
     input logic clk,
     input logic rst_n,
     input logic vsync,
-    input logic [7:0] current_state,
+    input logic [3:0] current_state,
     input logic current_player,
 
     input logic [10:0] worm_1_xpos,
@@ -18,29 +22,30 @@ module game_uart_encoder(
 
     input logic [6:0] worm_1_health,
 
-    output logic [31:0] data32_out
+    output logic [31:0] data32_out,
+
+    output logic start
     );
+
+    timeunit 1ns;
+    timeprecision 1ps;
 
     logic [3:0] state_id;
     logic [2:0] extra;
     logic [23:0] payload;
 
-    logic prev_vsync;
-    logic cur_vsync;
-
     assign state_id = {1'b0, current_state};
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            cur_vsync <= '0;
-            prev_vsync <= '0;
             data32_out <= '0;
-        end else begin
-            cur_vsync <= vsync;
-            prev_vsync <= cur_vsync;
-            
-            if((cur_vsync == 1) && (prev_vsync == 0)) begin
+            start <= '0;
+        end else begin        
+            if(vsync && !start) begin
                 data32_out <= {current_state, current_player, extra, payload};
+                start <= 1'b1;
+            end else begin
+                start <= '0;
             end
         end
     end
