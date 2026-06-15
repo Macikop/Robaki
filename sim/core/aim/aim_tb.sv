@@ -1,8 +1,8 @@
 /*
  * Designed by MP
- * * Description:
- * Task-isolated testbench utilizing immediate assertions embedded 
- * directly within the task routines for streamlined debugging.
+ * 
+ * Description:
+ * Testbench for aim module
  */
 
 module aim_tb;

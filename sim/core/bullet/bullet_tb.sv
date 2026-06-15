@@ -1,7 +1,8 @@
 /*
  * Designed by MP
- * * Description:
- * Testbench for bullet module with integrated Polar to Cartesian hardware and active physics sync generation.
+ * 
+ * Description:
+ * Testbench for bullet module.
  */
 
 module bullet_tb;
