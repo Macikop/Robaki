@@ -2,10 +2,10 @@
  * Designed by MP
  * 
  * Description:
- * Testbench for collision_detector module.
+ * Testbench for walking_collision module.
  */
 
-module collision_detector_tb;
+module walking_collision_tb;
 
     timeunit 1ns;
     timeprecision 1ps;
@@ -34,7 +34,7 @@ module collision_detector_tb;
     logic [10:0] pos_y;
     logic start_check;
 
-    logic [7:0] collisions;
+    logic [20:0] collisions;
     logic done;
 
     // RAM Backend hardware wires
@@ -119,21 +119,19 @@ module collision_detector_tb;
      * DUT placement
      */
 
-    collision_detector #(
-        .WIDTH(WIDTH),
-        .HEIGHT(HEIGHT),
-        .RAM_DELAY(RAM_DELAY),
+    walking_collision #(
         .TERRAIN_WIDTH(TERRAIN_WIDTH),
-        .TERRAIN_HEIGHT(TERRAIN_HEIGHT)
+        .TERRAIN_HEIGHT(TERRAIN_HEIGHT),
+        .RAM_DELAY(RAM_DELAY)
     ) dut (
-        .clk(clk),
-        .rst_n(rst_n),
+        .clk (clk),
+        .rst_n (rst_n),
+        .pos_x (pos_x),
+        .pos_y (pos_y),
+        .start (start_check),
         .ram_client(mux_ports[1].out),
-        .pos_x(pos_x),
-        .pos_y(pos_y),
-        .start_check(start_check),
-        .collisions(collisions),
-        .done(done)
+        .collisions (collisions),
+        .done (done)
     );
 
 

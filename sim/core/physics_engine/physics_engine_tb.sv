@@ -149,7 +149,7 @@ module physics_engine_tb;
      */
 
     physics_engine #(
-        .GRAVITY(50),
+        .GRAVITY(100),
         .MAP_WIDTH(MAP_WIDTH),
         .MAP_HEIGHT(MAP_HEIGHT)
     ) dut (

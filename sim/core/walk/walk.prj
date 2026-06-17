@@ -4,8 +4,9 @@
 # For syntax detail see AMD Xilinx UG 900:
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
-sv work ../../../rtl/core/collision_detector.sv \
+sv work ../../../rtl/core/walk.sv \
         ../../../rtl/core/ram_address_mux.sv \
-        ../../../rtl/vga_driver/terrain_ram.sv \
         ../../../rtl/core/memory_if.sv \
-        collision_detector_tb.sv
+        ../../../rtl/vga_driver/terrain_ram.sv \
+        ../../../rtl/core/walking_collision.sv \
+        walk_tb.sv

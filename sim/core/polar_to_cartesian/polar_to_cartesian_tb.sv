@@ -174,7 +174,7 @@ module polar_to_cartesian_tb;
         @(negedge rst_n);
         @(posedge rst_n);
 
-        for (int i = 0; i < 256; i = i + 25) begin
+        for (int i = 0; i < 256; i = i + 1) begin
             test_polar_conversion(i, 100);
         end
         
