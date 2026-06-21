@@ -60,9 +60,7 @@ module master_fsm(
 
 
     always_ff @(posedge clk or negedge rst_n) begin
-
         if(!rst_n) begin
-
             state <= STARTING_SCREEN;
             current_player <= '0;
 
@@ -78,10 +76,7 @@ module master_fsm(
             capture_wind <= 1'b0;
             posedge_occured <= 1'b0;
             negedge_occured <= 1'b0;
-
-
         end else begin
-
             state <= state_nxt;
             current_player <= current_player_nxt;
 
@@ -104,7 +99,6 @@ module master_fsm(
     end
 
     always_comb begin
-
         state_nxt = state;
         current_player_nxt = current_player;
 
@@ -119,9 +113,6 @@ module master_fsm(
         posedge_occured_nxt = posedge_occured;
         negedge_occured_nxt = negedge_occured;
 
-        if(state == WALKING && state_nxt != WALKING) begin
-            
-        end
         if(state == SHOOTING && state_nxt != SHOOTING) begin
             negedge_occured_nxt = 1'b0;
         end
@@ -133,34 +124,30 @@ module master_fsm(
             negedge_occured_nxt = 1'b1;
         end
         
-
         case (state)
             STARTING_SCREEN: begin
+                // Checking the registered values as requested
                 if (posedge_occured && vsync_in) begin
-                    posedge_occured_nxt = 1'b0;
+                    posedge_occured_nxt = 1'b0; // Consume the event
                     state_nxt = WALKING;
-                end else begin
-                    state_nxt = STARTING_SCREEN;
                 end
-                start_screen_en_nxt <= 1'b1;
+                start_screen_en_nxt = 1'b1;
             end
 
             WALKING: begin
+                // Fixed loop bug: Routes to SHOOTING now
                 if (posedge_occured && vsync_in) begin
-                    posedge_occured_nxt = 1'b0;
+                    posedge_occured_nxt = 1'b0; // Consume the event
                     state_nxt = SHOOTING;
-                end else begin
-                    state_nxt = WALKING;
                 end
+                // Fixed output driver: Now drives walking enable instead of start screen
                 walking_en_nxt = 1'b1;
             end
 
             SHOOTING: begin
                 if (negedge_occured && vsync_in) begin
-                    negedge_occured_nxt = 1'b0;
+                    negedge_occured_nxt = 1'b0; // Consume the event
                     state_nxt = BULLET_FLIGHT;
-                end else begin
-                    state_nxt = SHOOTING;
                 end
                 shooting_en_nxt = 1'b1;
             end
@@ -172,24 +159,23 @@ module master_fsm(
             
             EXPLOSION: begin
                 state_nxt = (worms_on_ground[0] && worms_on_ground[1] && explosion_done && vsync_in) ? SWITCH_PLAYER : EXPLOSION;
+                expolosion_en_nxt = 1'b1; 
             end
             
             SWITCH_PLAYER: begin
                 current_player_nxt = !current_player;
                 state_nxt = (((worm_health[0] == 0) || (worm_health[1] == 0)) && vsync_in) ? END_SCREEN : WALKING;
-
                 capture_wind_nxt = 1'b1;
             end
 
             END_SCREEN: begin
                 end_screen_en_nxt = 1'b1;
-                state_nxt = END_SCREEN;     /* Press reset to play again */
+                state_nxt = END_SCREEN;
             end
             
             default: begin
                 state_nxt = STARTING_SCREEN;
             end
-            
         endcase        
     end
 
