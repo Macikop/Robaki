@@ -10,7 +10,10 @@ module worm #(
     parameter WORM_HEIGHT = 32,
     parameter TERRAIN_WIDTH = 1024,
     parameter TERRAIN_HEIGHT = 768,
-    parameter GRAVITY = 10
+    parameter GRAVITY = 10,
+    parameter RAM_DELAY = 2,
+    parameter logic [10:0] INIT_X = 11'd100,
+    parameter logic [10:0] INIT_Y = 11'd100 
 )(
     input  logic clk,
     input  logic rst_n,
@@ -23,6 +26,7 @@ module worm #(
     input  logic [10:0] explosion_y,
     input  logic [7:0]  explosion_radius,
 
+
     input  logic walking_en,            /* Asserted ONLY during WALKING state */
     input  logic explosion_en,          /* Asserted during EXPLOSION (and physics) state */
 
@@ -32,7 +36,8 @@ module worm #(
 
     input  logic [7:0] wind,
 
-    memory_if.out terrain_ram,          /* Interface for terrain ram */
+    memory_if.out physics_ram,          /* Interface for terrain ram */
+    memory_if.out walk_ram,
 
     output logic explosion_done,
 
@@ -50,6 +55,12 @@ module worm #(
     logic cd_start, cd_done, cd_start_walk;
     logic exp_done;
     logic physics_done; 
+    logic cd_done_walk;
+
+    logic explosion_consequences_start;
+    logic walk_done;
+
+    logic [20:0] walk_collisions;
 
     logic signed [7:0] velocity_x;
     logic signed [7:0] velocity_y;
@@ -63,27 +74,27 @@ module worm #(
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_pos_x   <= 11'd100;
-            r_pos_y   <= 11'd100;
+            r_pos_x   <= INIT_X;
+            r_pos_y   <= INIT_Y;
             direction <= 1'b1;
             r_worm_hp <= 7'd100;
         end else begin
-            if (walking_en) begin
+            if (walking_en && walk_done) begin 
                 r_pos_x <= pos_x_walking;
                 r_pos_y <= pos_y_walking;
-            end else if (explosion_en) begin
+            end else if (explosion_en && physics_done) begin
                 r_pos_x <= pos_x_physics;
                 r_pos_y <= pos_y_physics;
-            end 
+            end
+
             if (active_turn && walking_en) begin
                 if (left) begin
                     direction <= 1'b0;
-                end
-
-                if (right) begin 
+                end else if (right) begin
                     direction <= 1'b1;
                 end
             end
+
             if (exp_done) begin
                 if (exp_damage >= r_worm_hp) begin
                     r_worm_hp <= 7'd0;
@@ -94,12 +105,21 @@ module worm #(
         end
     end
 
-    assign pos_x          = r_pos_x;
-    assign pos_y          = r_pos_y;
-    assign worm_hp        = r_worm_hp;
+    assign pos_x = r_pos_x;
+    assign pos_y = r_pos_y;
+    assign worm_hp = r_worm_hp;
     assign explosion_done = physics_done; 
     
-    assign worm_hit       = (explosion_en && !physics_done); 
+    assign worm_hit = (explosion_en && !physics_done); 
+
+    edge_detector #(
+        .POSITIVE (1'b1)
+    ) u_edge_detector (
+        .clk,
+        .rst_n,
+        .din           (explosion_en),
+        .edge_detected (explosion_consequences_start)
+    );
 
     physics_engine #(
         .GRAVITY(GRAVITY),
@@ -109,7 +129,7 @@ module worm #(
         .clk,
         .rst_n,
         .sync,
-        .start           (explosion_en), 
+        .start           (exp_done), 
         .wind            (wind),
         .velocity_x_init (velocity_x),
         .velocity_y_init (velocity_y),
@@ -126,16 +146,16 @@ module worm #(
     collision_detector #(
         .WIDTH          (WORM_WIDTH),
         .HEIGHT         (WORM_HEIGHT),
-        .RAM_DELAY      (2),
+        .RAM_DELAY      (RAM_DELAY),
         .TERRAIN_WIDTH  (TERRAIN_WIDTH),
         .TERRAIN_HEIGHT (TERRAIN_HEIGHT)
     ) u_collision_detector (
         .clk         (clk),
         .rst_n       (rst_n),
-        .pos_x       (walking_en ? cd_pos_x : pos_x_physics),
-        .pos_y       (walking_en ? cd_pos_y : pos_y_physics),
-        .start_check (walking_en ? cd_start_walk : cd_start),
-        .ram_client  (terrain_ram),
+        .pos_x       (pos_x_physics),
+        .pos_y       (pos_y_physics),
+        .start_check (cd_start),
+        .ram_client  (physics_ram),
         .collisions  (cd_collisions),
         .done        (cd_done)
     );
@@ -147,8 +167,8 @@ module worm #(
         .worm_pos_y      (r_pos_y),
         .explosion_pos_x (explosion_x),
         .explosion_pos_y (explosion_y),
-        .explosion_r     ({3'b0 ,explosion_radius}),
-        .start           (explosion_en),
+        .explosion_r     ({3'b0, explosion_radius}),
+        .start           (explosion_consequences_start),
         .velocity_x      (velocity_x),
         .velocity_y      (velocity_y),
         .damage          (exp_damage),
@@ -156,7 +176,7 @@ module worm #(
     );
 
     walk #(
-        .SPEED          (8'd4),
+        .SPEED          (11'd10),
         .GRAVITY        (GRAVITY),
         .TERRAIN_WIDTH  (TERRAIN_WIDTH),
         .TERRAIN_HEIGHT (TERRAIN_HEIGHT)
@@ -170,12 +190,28 @@ module worm #(
         .pos_x_init      (r_pos_x), 
         .pos_y_init      (r_pos_y), 
         .start_check     (cd_start_walk),
-        .collisions      (cd_collisions),
-        .detector_done   (cd_done),
+        .collisions      (walk_collisions),
+        .detector_done   (cd_done_walk),
         .detector_pos_x  (cd_pos_x),
         .detector_pos_y  (cd_pos_y),
         .pos_x           (pos_x_walking),
-        .pos_y           (pos_y_walking)
+        .pos_y           (pos_y_walking),
+        .done            (walk_done)
+    );
+
+    walking_collision #(
+        .RAM_DELAY      (RAM_DELAY),
+        .TERRAIN_WIDTH  (TERRAIN_WIDTH),
+        .TERRAIN_HEIGHT (TERRAIN_HEIGHT)
+    ) u_walking_collision (
+        .clk,
+        .rst_n,
+        .pos_x      (cd_pos_x),
+        .pos_y      (cd_pos_y),
+        .start      (cd_start_walk),
+        .ram_client (walk_ram),
+        .collisions (walk_collisions),
+        .done       (cd_done_walk)
     );
 
 endmodule

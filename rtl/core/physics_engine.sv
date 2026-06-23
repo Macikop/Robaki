@@ -135,10 +135,10 @@ module physics_engine # (
         abs_dx = '0;
         abs_dy = '0;
 
-        if(state) begin 
+        if(start) begin 
             enable_start_nxt = 1'b1;
         end else if (sync) begin
-            enable_start_nxt = 1'b1;
+            enable_start_nxt = 1'b0;
         end
 
         case (state)
