@@ -109,8 +109,16 @@ module worm #(
     assign pos_y = r_pos_y;
     assign worm_hp = r_worm_hp;
     assign explosion_done = physics_done; 
-    
-    assign worm_hit = (explosion_en && !physics_done); 
+
+    sr_flip_flop #(
+        .PRIORITY ("RESET")
+    ) u_sr_flip_flop (
+        .clk,
+        .rst_n,
+        .s     (physics_done),
+        .r     (!explosion_en),
+        .q     (worm_hit)
+    );
 
     edge_detector #(
         .POSITIVE (1'b1)

@@ -14,4 +14,5 @@ sv work ../../../rtl/core/worm.sv \
         ../../../rtl/core/walking_collision.sv \
         ../../../rtl/vga_driver/terrain_ram.sv \
         ../../../rtl/shared_modules/edge_detector.sv \
+        ../../../rtl/shared_modules/sr_flip_flop.sv \
         worm_tb.sv
