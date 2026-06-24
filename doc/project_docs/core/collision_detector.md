@@ -20,11 +20,11 @@
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **WIDTH** | `int/logic` | `32` |
-| **HEIGHT** | `int/logic` | `32` |
-| **RAM_DELAY** | `int/logic` | `2` |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
+| **WIDTH** | `int` | `32` |
+| **HEIGHT** | `int` | `32` |
+| **RAM_DELAY** | `int` | `2` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -34,6 +34,6 @@
 | input | `logic [10:0]` | **pos_x** |
 | input | `logic [10:0]` | **pos_y** |
 | input | `logic` | **start_check** |
-| interface | `interface` | **ram_client** |
+| interface | `memory_if.out` | **ram_client** |
 | output | `logic [7:0]` | **collisions** |
 | output | `logic` | **done** |

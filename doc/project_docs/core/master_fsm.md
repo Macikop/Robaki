@@ -16,8 +16,8 @@ Decides the game flow
 | input | `logic` | **rst_n** |
 | input | `logic` | **space_bar** |
 | input | `logic` | **vsync_in** |
-| input | `logic [6:0] worm_health` | **** |
-| input | `logic worms_on_ground` | **** |
+| input | `logic [6:0] [0:1]` | **worm_health** |
+| input | `logic [0:1]` | **worms_on_ground** |
 | input | `logic` | **bullet_impact** |
 | input | `logic` | **explosion_done** |
 | output | `logic` | **sync_out** |

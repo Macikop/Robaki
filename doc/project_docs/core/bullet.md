@@ -12,9 +12,9 @@ Decides how bullet should move
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **GRAVITY** | `int/logic` | `10` |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
+| **GRAVITY** | `int` | `10` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -35,7 +35,7 @@ Decides how bullet should move
 | output | `logic [7:0]` | **conv_phi** |
 | output | `logic [7:0]` | **conv_length** |
 | output | `logic` | **start_exposion** |
-| interface | `interface` | **ram_client** |
+| interface | `memory_if.out` | **ram_client** |
 | output | `logic` | **enable_draw** |
 | output | `logic [10:0]` | **pos_x** |
 | output | `logic [10:0]` | **pos_y** |

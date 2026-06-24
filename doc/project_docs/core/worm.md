@@ -12,11 +12,14 @@ It allows to move worm, and applies damage when hit.
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **WORM_WIDTH** | `int/logic` | `32` |
-| **WORM_HEIGHT** | `int/logic` | `32` |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
-| **GRAVITY** | `int/logic` | `10` |
+| **WORM_WIDTH** | `int` | `32` |
+| **WORM_HEIGHT** | `int` | `32` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
+| **GRAVITY** | `int` | `10` |
+| **RAM_DELAY** | `int` | `2` |
+| **INIT_X** | `logic [10:0]` | `11'd100` |
+| **INIT_Y** | `logic [10:0]` | `11'd100` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -33,7 +36,8 @@ It allows to move worm, and applies damage when hit.
 | input | `logic` | **left** |
 | input | `logic` | **right** |
 | input | `logic [7:0]` | **wind** |
-| interface | `interface` | **terrain_ram** |
+| interface | `memory_if.out` | **physics_ram** |
+| interface | `memory_if.out` | **walk_ram** |
 | output | `logic` | **explosion_done** |
 | output | `logic [10:0]` | **pos_x** |
 | output | `logic [10:0]` | **pos_y** |

@@ -12,8 +12,8 @@ Draws sprite, modifies it according to flags
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **WIDTH** | `int/logic` | `32` |
-| **HEIGHT** | `int/logic` | `32` |
+| **WIDTH** | `int` | `32` |
+| **HEIGHT** | `int` | `32` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -26,5 +26,5 @@ Draws sprite, modifies it according to flags
 | input | `logic [2:0]` | **modifier** |
 | input | `logic [12:0]` | **rgb_pixel** |
 | output | `logic [$clog2(WIDTH*HEIGHT)-1:0]` | **pixel_address** |
-| interface | `interface` | **vga_in** |
-| interface | `interface` | **vga_out** |
+| interface | `vga_if.in` | **vga_in** |
+| interface | `vga_if.out` | **vga_out** |

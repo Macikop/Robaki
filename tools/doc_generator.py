@@ -193,9 +193,14 @@ class SVDocGenerator:
                     decl, val = param.split('=', 1)
                     decl = decl.strip()
                     val = val.strip()
+                    
                     tokens = decl.split()
+                    if not tokens:
+                        continue
+                        
                     param_name = tokens[-1]
-                    param_type = " ".join(tokens[:-1]) if len(tokens) > 1 else "int/logic"
+                    # If there's only 1 token, it's just the name -> default type to 'int'
+                    param_type = " ".join(tokens[:-1]) if len(tokens) > 1 else "int"
                     parameters.append({"name": param_name, "type": param_type, "value": val})
 
         # Parse Ports Table
@@ -206,35 +211,45 @@ class SVDocGenerator:
             for raw_port in port_entries:
                 if not raw_port: continue
                 
-                direction = "inherited/interface"
+                # 1. Clean up and isolate explicit direction
                 dir_match = re.match(r'^(input|output|inout|ref)\b\s*', raw_port)
                 if dir_match:
                     direction = dir_match.group(1)
-                    raw_port = raw_port[dir_match.end():].strip()
-                elif '.' in raw_port:
-                    direction = "interface"
-
-                tokens = raw_port.split()
-                if not tokens: continue
-                
-                port_name_raw = tokens[-1]
-                clean_port_name = re.sub(r'\[.*\]', '', port_name_raw).replace(';', '').strip()
-                
-                data_type = raw_port[:raw_port.rfind(port_name_raw)].strip()
-                
-                if direction in ["interface", "inherited/interface"]:
-                    if '.' in raw_port:
-                        data_type = "interface"
-                    elif not data_type:
-                        data_type = "logic"
+                    remainder = raw_port[dir_match.end():].strip()
                 else:
-                    if not data_type or data_type.startswith('['):
+                    direction = "inherited"
+                    remainder = raw_port
+
+                # 2. Extract the port name and any trailing unpacked arrays [0:1]
+                name_array_match = re.search(r'\b([A-Za-z0-9_]+)\s*(\[\s*\d+\s*:\s*\d+\s*\])?\s*$', remainder)
+                if not name_array_match:
+                    continue
+                
+                clean_port_name = name_array_match.group(1)
+                unpacked_array = name_array_match.group(2) or ""
+                
+                # 3. Everything before the port name is the data type
+                data_type = remainder[:name_array_match.start()].strip()
+                
+                # 4. Handle default type fallback (logic for vectors, int if empty)
+                if direction != "inherited":
+                    if not data_type:
+                        data_type = "int"
+                    elif data_type.startswith('['):
                         data_type = f"logic {data_type}".strip()
+
+                # 5. Re-attach unpacked array to the data type description where it belongs
+                if unpacked_array:
+                    data_type = f"{data_type} {unpacked_array}".strip()
+
+                # 6. Check if this is an interface instance
+                if '.' in data_type or (direction == "inherited" and data_type and not data_type.startswith(('logic', 'reg', 'wire', 'int', 'bit'))):
+                    direction = "interface"
 
                 ports.append({"dir": direction, "type": data_type, "name": clean_port_name})
 
         return parameters, ports
-    
+
     def document_module(self, src, md_path, file_name, rel_depth):
         clean_code = self.clean_file_contents(src)
         

@@ -9,8 +9,8 @@
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **WIDTH** | `int/logic` | `8` |
-| **CLK_DEL** | `int/logic` | `1` |
+| **WIDTH** | `int` | `8` |
+| **CLK_DEL** | `int` | `1` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

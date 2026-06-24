@@ -12,8 +12,8 @@ It is ROM where music sits
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **FILE_SIZE** | `int/logic` | `16` |
-| **FILE_PATH** | `int/logic` | `"../../rtl/audio_driver/music_files/nokia_ringtone.hex"` |
+| **FILE_SIZE** | `int` | `16` |
+| **FILE_PATH** | `int` | `"../../rtl/audio_driver/music_files/nokia_ringtone.hex"` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

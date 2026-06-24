@@ -3,9 +3,7 @@
 
 ## Overview
 **Author:** MP  
-**Description:** 
-Gets up and down key and outputs position of aim marker (and aim_angle to bullet).
-
+**Description:** No active functional description found.
 
 ---
 
@@ -21,6 +19,7 @@ Gets up and down key and outputs position of aim marker (and aim_angle to bullet
 | :--- | :--- | :--- |
 | input | `logic` | **clk** |
 | input | `logic` | **rst_n** |
+| input | `logic` | **enable** |
 | input | `logic` | **sync** |
 | input | `logic` | **up** |
 | input | `logic` | **down** |
@@ -35,4 +34,3 @@ Gets up and down key and outputs position of aim marker (and aim_angle to bullet
 | output | `logic [7:0]` | **length** |
 | output | `logic [10:0]` | **x_out** |
 | output | `logic [10:0]` | **y_out** |
-| input | `logic` | **enable** |

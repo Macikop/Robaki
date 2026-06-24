@@ -38,6 +38,7 @@ Generated tracking tree of available functional system hardware modules.
 * 🛠️ Logic Module: [terrain_destruction](core/terrain_destruction.md)
 * 🛠️ Logic Module: [top_core](core/top_core.md)
 * 🛠️ Logic Module: [walk](core/walk.md)
+* 🛠️ Logic Module: [walking_collision](core/walking_collision.md)
 * 🛠️ Logic Module: [worm](core/worm.md)
 
 ### 📂 Area Workspace: `rtl/shared_modules`

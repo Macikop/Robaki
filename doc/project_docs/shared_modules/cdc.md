@@ -12,8 +12,8 @@ Clock Crossing Domain - multibit, multistage
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **STAGES** | `int/logic` | `2` |
-| **WIDTH** | `int/logic` | `8` |
+| **STAGES** | `int` | `2` |
+| **WIDTH** | `int` | `8` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

@@ -13,8 +13,8 @@
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
 | **RADIUS** | `logic [7:0]` | `50` |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -33,4 +33,4 @@
 | output | `logic` | **draw_explosion_en** |
 | output | `logic [11:0]` | **draw_explosion_color** |
 | output | `logic` | **ram_clear** |
-| interface | `interface` | **terrain_ram** |
+| interface | `memory_if.out` | **terrain_ram** |

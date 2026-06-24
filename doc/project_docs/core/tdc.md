@@ -13,7 +13,7 @@ Measurement with accuracy to sync. Sets done on falling edge of pulse.
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **MAX_TIME** | `int/logic` | `255` |
+| **MAX_TIME** | `int` | `255` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

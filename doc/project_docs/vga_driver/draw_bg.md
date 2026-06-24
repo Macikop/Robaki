@@ -25,4 +25,4 @@ Draw background.
 | input | `logic [10:0]` | **hcount_in** |
 | input | `logic` | **hsync_in** |
 | input | `logic` | **hblnk_in** |
-| interface | `interface` | **vga_out** |
+| interface | `vga_if.out` | **vga_out** |

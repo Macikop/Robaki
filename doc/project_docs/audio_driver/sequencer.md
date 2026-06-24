@@ -12,7 +12,7 @@ Outputs sequence of notes according to it's lenght
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **FILE_SIZE** | `int/logic` | `14` |
+| **FILE_SIZE** | `int` | `14` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

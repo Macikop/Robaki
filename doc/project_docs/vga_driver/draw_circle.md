@@ -16,5 +16,5 @@
 | input | `logic [10:0]` | **y_pos** |
 | input | `logic [10:0]` | **radius** |
 | input | `logic [11:0]` | **color** |
-| interface | `interface` | **vga_in** |
-| interface | `interface` | **vga_out** |
+| interface | `vga_if.in` | **vga_in** |
+| interface | `vga_if.out` | **vga_out** |

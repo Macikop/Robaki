@@ -15,9 +15,9 @@ If a collision occurs, it rewinds to the last valid step position.
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **GRAVITY** | `int/logic` | `10` |
-| **MAP_WIDTH** | `int/logic` | `1024` |
-| **MAP_HEIGHT** | `int/logic` | `768` |
+| **GRAVITY** | `int` | `10` |
+| **MAP_WIDTH** | `int` | `1024` |
+| **MAP_HEIGHT** | `int` | `768` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

@@ -9,10 +9,10 @@
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
-| **SPRITE_WIDTH** | `int/logic` | `32` |
-| **SPRITE_HEIGHT** | `int/logic` | `32` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
+| **SPRITE_WIDTH** | `int` | `32` |
+| **SPRITE_HEIGHT** | `int` | `32` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |

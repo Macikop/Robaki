@@ -12,7 +12,7 @@ Generates pseudorandom numbers using a pipelined 32-bit XORSHIFT.
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **OUTPUT_WIDTH** | `int/logic` | `8` |
+| **OUTPUT_WIDTH** | `int` | `8` |
 | **SEED** | `[31:0]` | `32'hACE1` |
 | **SPREAD** | `[31:0]` | `32'h5555_5555` |
 

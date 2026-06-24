@@ -9,11 +9,11 @@
 ## Parameter Configurations
 | Parameter Name | Data Type | Default Assignment / Value |
 | :--- | :--- | :--- |
-| **TERRAIN_WIDTH** | `int/logic` | `1024` |
-| **TERRAIN_HEIGHT** | `int/logic` | `768` |
-| **WORM_WIDTH** | `int/logic` | `32` |
-| **WORM_HEIGHT** | `int/logic` | `32` |
-| **GRAVITY** | `int/logic` | `10` |
+| **TERRAIN_WIDTH** | `int` | `1024` |
+| **TERRAIN_HEIGHT** | `int` | `768` |
+| **WORM_WIDTH** | `int` | `32` |
+| **WORM_HEIGHT** | `int` | `32` |
+| **GRAVITY** | `int` | `10` |
 
 ## Port Interface
 | Direction | Data Type | Port Name |
@@ -29,6 +29,7 @@
 | input | `logic` | **ram_value** |
 | output | `logic [$clog2(TERRAIN_WIDTH * TERRAIN_WIDTH)-1:0]` | **ram_address** |
 | output | `logic` | **ram_clear** |
+| output | `logic` | **draw_worms** |
 | output | `logic [10:0]` | **draw_worm_0_x_pos** |
 | output | `logic [10:0]` | **draw_worm_0_y_pos** |
 | output | `logic` | **draw_worm_0_orientation** |
