@@ -65,16 +65,16 @@ module pwm_generator_tb;
         @(posedge rst_n);
         sync = 0;
         counter = 0;
-    end
-    
 
-    always @(posedge clk) begin
-        if (counter == 255) begin
-            sync <= 1'b1;
-            counter <= '0;
-        end else begin
-            sync <= 1'b0;
-            counter <= counter + 1;
+        forever begin
+            @(posedge clk);
+            if (counter == 255) begin
+                sync <= 1'b1;
+                counter <= '0;
+            end else begin
+                sync <= 1'b0;
+                counter <= counter + 1;
+            end
         end
     end
 
@@ -100,7 +100,7 @@ module pwm_generator_tb;
         for (int pulse_width = 0; pulse_width < 256; pulse_width++) begin
 
             @(posedge sync)
-            width <= pulse_width;
+            width <= pulse_width[7:0];
 
             high_cycles = 0;
 
