@@ -90,7 +90,7 @@ module worm_tb;
     terrain_ram #(
         .WIDTH             (TERRAIN_WIDTH),
         .HEIGHT            (TERRAIN_HEIGHT),
-        .TERRAIN_FILE_PATH ()
+        .TERRAIN_FILE_PATH ("../../rtl/vga_driver/maps/map1.dat")
     ) u_terrain_ram (
         .clk_vga       (1'b0),
         .clk_core      (clk),

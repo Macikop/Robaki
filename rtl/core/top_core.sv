@@ -16,7 +16,6 @@ module top_core #(
     input  logic rst_n,
     input  logic vsync,
 
-    // Keyboard interface used by the gameplay FSM / aim / worm blocks.
     input  logic space,
     input  logic up,
     input  logic down,
@@ -26,6 +25,8 @@ module top_core #(
     input  logic ram_value,
     output logic [$clog2(TERRAIN_WIDTH * TERRAIN_WIDTH)-1:0] ram_address,
     output logic ram_clear,
+
+    output logic        draw_worms,
 
     output logic [10:0] draw_worm_0_x_pos,
     output logic [10:0] draw_worm_0_y_pos,
@@ -43,9 +44,10 @@ module top_core #(
     output logic        draw_bullet_en,
 
     output logic [10:0] draw_explosion_x,
-    output logic [10:0] draw_expolsion_y,
+    output logic [10:0] draw_explosion_y,
     output logic [10:0] draw_explosion_radius,
-    output logic        draw_explosion_en 
+    output logic        draw_explosion_en,
+    output logic [11:0] draw_explosion_color
 
 );
 
@@ -73,6 +75,8 @@ module top_core #(
     logic [7:0] shot_power;
     logic [7:0] aim_angle;
     logic [7:0] aim_length;
+    logic calc_done;
+    logic start_calc;
 
     logic [10:0] bullet_x, bullet_y;
     logic current_player;
@@ -99,11 +103,20 @@ module top_core #(
     logic [7:0] x_component_bullet, y_component_bullet;
     logic [7:0] x_aim, y_aim;
 
-    memory_if ram_clients[0:4]();
+    memory_if ram_clients[0:6]();
 
     assign current_worm_x_pos = current_player ? worm_0_x_pos : worm_1_x_pos;
     assign current_worm_y_pos = current_player ? worm_0_y_pos : worm_1_y_pos;
     assign current_worm_direction = current_player ? worm_0_direction : worm_1_direction;
+
+    assign draw_worms              = walking_en || shooting_en || bullet_en || explosion_en;
+    assign draw_worm_0_x_pos       = worm_0_x_pos;
+    assign draw_worm_0_y_pos       = worm_0_y_pos;
+    assign draw_worm_0_orientation = worm_0_direction;
+    
+    assign draw_worm_1_x_pos       = worm_1_x_pos;
+    assign draw_worm_1_y_pos       = worm_1_y_pos;
+    assign draw_worm_1_orientation = worm_1_direction;
 
     sr_flip_flop #(
         .PRIORITY ("RESET")
@@ -114,7 +127,6 @@ module top_core #(
         .r     (!explosion_en),
         .q     (explosion_end)
     );
-
 
     master_fsm u_master_fsm (
         .clk,
@@ -156,7 +168,7 @@ module top_core #(
         .sync,
         .enable (shooting_en),
         .pulse  (space),
-        .value  (shot_power),               // to draw maybe
+        .value  (shot_power), 
         .done   ()
     );
 
@@ -168,6 +180,7 @@ module top_core #(
         .clk,
         .rst_n,
         .sync,
+        .enable      (walking_en || shooting_en),
         .up          (up),
         .down        (down),
         .start_calc  (start_calc),
@@ -179,11 +192,12 @@ module top_core #(
         .orientation (current_worm_direction),
         .aim_angle   (aim_angle),
         .length      (aim_length),
-        .x_out       (),                        //to drawing
-        .y_out       (),                        //to drawing
-        .enable      (walking_en)               //to drawing
+        .x_out       (aim_x_pos),
+        .y_out       (aim_y_pos)
     );
     
+    assign aim_en = walking_en || shooting_en;
+
     bullet #(
         .GRAVITY        (GRAVITY),
         .TERRAIN_WIDTH  (TERRAIN_WIDTH),
@@ -205,18 +219,21 @@ module top_core #(
         .conv_phi       (conv_phi),
         .conv_length    (conv_length),
         .start_exposion (impact),
-        .enable_draw    (),             // to drawing
-        .pos_x          (bullet_x),     // to drawing
-        .pos_y          (bullet_y),     // to drawing
+        .enable_draw    (draw_bullet_en),
+        .pos_x          (bullet_x),
+        .pos_y          (bullet_y),
         .ram_client     (ram_clients[0])
     );
+
+    assign draw_bullet_x = bullet_x;
+    assign draw_bullet_y = bullet_y;
 
     polar_to_cartesian u_polar_to_cartesian (
         .clk,
         .rst_n,
         .start       (bullet_en ? conv_start : start_calc),
-        .phi         (bullet_en ? conv_phi : 1),
-        .length      (bullet_en ? conv_length : 1),
+        .phi         (bullet_en ? conv_phi : aim_angle),
+        .length      (bullet_en ? conv_length : aim_length),
         .lut_value   (sine_val),
         .lut_address (sine_addr),
         .x_component (x_component),
@@ -236,7 +253,6 @@ module top_core #(
     sine_lut u_sine_lut(
         .clk,
         .rst_n,
-
         .addr(sine_addr),
         .value(sine_val)
     );
@@ -254,11 +270,11 @@ module top_core #(
         .explosion_y          (bullet_y),
         .explosion_done       (explosion_done),
         .explosion_radius     (explosion_radius),
-        .draw_explosion_x     (),
-        .draw_explosion_y     (),
-        .draw_explosion_r     (),
-        .draw_explosion_en    (),
-        .draw_explosion_color (),
+        .draw_explosion_x     (draw_explosion_x),
+        .draw_explosion_y     (draw_explosion_y),
+        .draw_explosion_r     (draw_explosion_radius),
+        .draw_explosion_en    (draw_explosion_en),
+        .draw_explosion_color (draw_explosion_color),
         .terrain_ram          (ram_clients[1]),
         .ram_clear            (clear)
     );
@@ -266,7 +282,7 @@ module top_core #(
     ram_address_mux #(
         .ADDRESS_WIDTH($clog2(TERRAIN_HEIGHT * TERRAIN_WIDTH)),
         .WORD_WIDTH(1),
-        .INPUTS_NUMBER(5),
+        .INPUTS_NUMBER(7),
         .WRITE_CHANNEL(WRITE_CHANNEL),
         .RAM_DELAY(RAM_DELAY)
     ) u_ram_address_mux (
@@ -286,7 +302,6 @@ module top_core #(
         .TERRAIN_HEIGHT (TERRAIN_HEIGHT),
         .GRAVITY        (GRAVITY)
     ) u_worm_0 (
-
         .clk,
         .rst_n,
         .active_turn      (current_player),
@@ -299,13 +314,13 @@ module top_core #(
         .left             (left),
         .right            (right),
         .wind             (wind),
-        .terrain_ram      (ram_clients[3]),
+        .walk_ram         (ram_clients[3]),
+        .physics_ram      (ram_clients[4]),
         .explosion_done   (explosion_done_worm[0]),
-
-        .pos_x            (worm_0_x_pos),               // to drawing
-        .pos_y            (worm_0_y_pos),               // to drawing
-        .direction        (worm_0_direction),           // to drawing
-        .worm_hp          (worm_health[0]),             // to drawing maybe
+        .pos_x            (worm_0_x_pos),
+        .pos_y            (worm_0_y_pos),
+        .direction        (worm_0_direction),
+        .worm_hp          (worm_health[0]),
         .worm_hit         (worm_ground_hit[0])
     );
 
@@ -316,7 +331,6 @@ module top_core #(
         .TERRAIN_HEIGHT (TERRAIN_HEIGHT),
         .GRAVITY        (GRAVITY)
     ) u_worm_1 (
-
         .clk,
         .rst_n,
         .active_turn      (!current_player),
@@ -329,13 +343,13 @@ module top_core #(
         .left             (left),
         .right            (right),
         .wind             (wind),
-        .terrain_ram      (ram_clients[4]),
+        .walk_ram         (ram_clients[5]),
+        .physics_ram      (ram_clients[6]),
         .explosion_done   (explosion_done_worm[1]),
-
-        .pos_x            (worm_1_x_pos),           // to drawing
-        .pos_y            (worm_1_y_pos),           // to drawing
-        .direction        (worm_1_direction),       // to drawing
-        .worm_hp          (worm_health[1]),         // to drawing maybe
+        .pos_x            (worm_1_x_pos),
+        .pos_y            (worm_1_y_pos),
+        .direction        (worm_1_direction),
+        .worm_hp          (worm_health[1]),
         .worm_hit         (worm_ground_hit[1])
     );
 
