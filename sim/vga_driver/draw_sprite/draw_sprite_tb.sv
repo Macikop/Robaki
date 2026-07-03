@@ -136,9 +136,10 @@ module draw_sprite_tb;
     ) dut (
         .clk(clk),
         .rst_n(rst_n),
+        .enable(1'b1),
 
-        .x_pos(12'd100),
-        .y_pos(12'd100),
+        .x_pos(11'd100),
+        .y_pos(11'd100),
 
         .vga_in(vga_bg),
 

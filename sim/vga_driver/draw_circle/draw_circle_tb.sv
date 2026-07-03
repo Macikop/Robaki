@@ -5,22 +5,18 @@ module draw_circle_tb;
 
     import vga_pkg::*;
 
-
     /**
-     *  Local parameters
+     * Local parameters
      */
-
-    localparam CLK_PERIOD = 15.385;     // 65 MHz
+    localparam CLK_PERIOD      = 15.385;     // 65 MHz
     localparam RST_START_TIME  = 1.25*CLK_PERIOD;
     localparam RST_ACTIVE_TIME = 2.00*CLK_PERIOD;
 
-    localparam MODULE_DELAY = 2;
-
+    localparam MODULE_DELAY    = 2;
 
     /**
      * Local variables and signals
      */
-
     logic clk, rst_n;
 
     logic [10:0] vcount;
@@ -39,36 +35,41 @@ module draw_circle_tb;
     assign vs = vga_out.vsync;
     assign hs = vga_out.hsync;
 
-    assign r = vga_out.rgb[11:8];
-    assign g = vga_out.rgb[7:4];
-    assign b = vga_out.rgb[3:0];
+    assign r  = vga_out.rgb[11:8];
+    assign g  = vga_out.rgb[7:4];
+    assign b  = vga_out.rgb[3:0];
 
+    // Circle properties for testing
+    logic [10:0] circle_x;
+    logic [10:0] circle_y;
+    logic [10:0] circle_radius;
+    logic [11:0] circle_color;
+
+    assign circle_x      = 11'd200;      // X coordinate of center
+    assign circle_y      = 11'd200;      // Y coordinate of center
+    assign circle_radius = 11'd50;       // Radius of the circle
+    assign circle_color  = 12'hF_0_0;    // Red color (RGB 4:4:4)
 
     /**
      * Clock generation
      */
-
     initial begin
         clk = 1'b0;
         forever #(CLK_PERIOD/2) clk = ~clk;
     end
 
-
     /**
      * Reset generation
      */
-
     initial begin
         rst_n = 1'b1;
         #(RST_START_TIME) rst_n = 1'b0;
         #(RST_ACTIVE_TIME) rst_n = 1'b1;
     end
 
-
     /**
      * DUT placement
      */
-
     vga_timing u_vga_timing (
         .clk(clk),
         .rst_n(rst_n),
@@ -95,38 +96,20 @@ module draw_circle_tb;
         .vga_out(vga_bg)
     );
 
-    sprite_rom #(
-        .SPRITE_PATH("../../rtl/vga_driver/sprite_bank/arrow.dat"),
-        .WIDTH(SPRITE_WIDTH),
-        .HEIGHT(SPRITE_HEIGHT)
-    ) u_sprite_rom (
-        .clk,
-        .rst_n
+    // REPLACED: u_sprite_rom and u_draw_sprite with draw_circle DUT
+    draw_circle u_draw_circle (
+        .clk(clk),
+        .rst_n(rst_n),
+        .enable(1'b1),
 
-        .address(address_sprite),
-        .rgb(rgb_sprite)
+        .x_pos(circle_x),
+        .y_pos(circle_y),
+        .radius(circle_radius),
+        .color(circle_color),
 
-    );
-
-    draw_sprite #(
-        .WIDTH(SPRITE_WIDTH),
-        .HEIGHT(SPRITE_HEIGHT)
-    ) u_draw_sprite (
-        .clk,
-        .rst_n,
-        
-        .xpos(12'd100),
-        .ypos(12'd100),
         .vga_in(vga_bg),
-
-        .modifier(3'b000),
-
-        .rgb_pixel(rgb_sprite),
-        .pixel_addres(address_sprite),
-
         .vga_out(vga_out)
     );
-
 
     tiff_writer #(
         .XDIM(16'd1344),
@@ -146,14 +129,10 @@ module draw_circle_tb;
 
     /* hcount : max value */
     assert property (
-        /* run assertion at each positive clock edge: */
         @(posedge clk)
-        /* except during reset (optional): */
         disable iff (!rst_n || $realtime < RST_START_TIME)
-        /* check whether this condition is true: */
         vga_out.hcount < HOR_TOTAL_TIME
     ) else begin
-        /* if condition is not true, display error message */
         $error("hcount: max value exceeded");
     end
 
@@ -263,11 +242,9 @@ module draw_circle_tb;
         $error("vsync: clear failed");
     end
 
-
     /**
      * Main test
      */
-
     initial begin
         @(negedge rst_n);
         @(posedge rst_n);

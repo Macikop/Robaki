@@ -8,7 +8,7 @@
  */
 
 module draw_bg #(
-    parameter [11:0] COLOR = 12'h0_a_0
+    parameter [11:0] COLOR = 12'h0_a_a
 )(
     input  logic clk,
     input  logic rst_n,

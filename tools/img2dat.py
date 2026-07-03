@@ -47,15 +47,9 @@ pad_h = next_pow2(orig_h)
 output_file_name = re.sub(r'.[a-zA-Z0-9]*$', '.dat', image_file)
 output_file = open(output_file_name, 'w')
 
-output_file.write("// padded image rom\n")
-output_file.write("// original WIDTH = {}\n".format(orig_w))
-output_file.write("// original HEIGHT = {}\n".format(orig_h))
-output_file.write("// PAD WIDTH = {}\n".format(pad_w))
-output_file.write("// PAD HEIGHT = {}\n".format(pad_h))
-output_file.write("// BIT [12] = transparency\n")
-output_file.write("// BIT [11:8] = red\n")
-output_file.write("// BIT [7:4] = green\n")
-output_file.write("// BIT [3:0] = blue\n")
+output_file.write("// pimage rom content of: {}\n".format(sys.argv[1]))
+output_file.write("// WIDTH = {}\n".format(orig_w))
+output_file.write("// HEIGHT = {}\n".format(orig_h))
 
 # generate padded canvas (transparent default)
 for h in range(pad_h):

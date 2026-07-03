@@ -79,30 +79,28 @@ module delay_tb;
 
     task automatic check_delay(input int cycles);
 
-    
+        for (int i = 0; i < cycles + CLK_DEL + 5; i++) begin
 
-    for (int i = 0; i < cycles + CLK_DEL + 5; i++) begin
+            reference = {};
+            din = $urandom;
 
-        reference = {};
-        din = $urandom;
+            @(posedge clk);
 
-        @(posedge clk);
+            reference.push_front(din);
 
-        reference.push_front(din);
-
-        if (reference.size() > CLK_DEL) begin
-            assert (dout == reference[CLK_DEL])
-            else begin
-                $error("ASSERTION FAILED @%0t: dout=%0h expected=%0h",
-                $time, dout, reference[CLK_DEL]);
-                $fatal;
+            if (reference.size() > CLK_DEL) begin
+                assert (dout == reference[CLK_DEL])
+                else begin
+                    $error("ASSERTION FAILED @%0t: dout=%0h expected=%0h",
+                    $time, dout, reference[CLK_DEL]);
+                    $fatal;
+                end
             end
         end
-    end
 
-    $display("Delay check passed for %0d cycles", cycles);
+        $display("Delay check passed for %0d cycles", cycles);
 
-endtask
+    endtask
 
 
     /**
@@ -115,6 +113,10 @@ endtask
      */
 
     initial begin
+
+        @(negedge rst_n);
+        @(posedge rst_n);
+        
         check_delay(100);
 
         $finish;

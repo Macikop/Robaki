@@ -1,0 +1,7 @@
+# Default Wildcard Patterns for SystemVerilog
+*_if.sv
+*_pkg.sv
+*_lut.sv
+*_rom.sv
+
+audio_driver/address_counter.sv

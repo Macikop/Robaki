@@ -12,12 +12,14 @@ module draw_terrain #(
     parameter X_OFFSET = 0,
     parameter Y_OFFSET = 0
 )(
-    input logic clk,
-    input logic rst_n,
+    input  logic clk,
+    input  logic rst_n,
 
-    input logic [11:0] color,
+    input  logic enable,
 
-    input logic data_in,
+    input  logic [11:0] color,
+
+    input  logic data_in,
     output logic [$clog2(TERRAIN_WIDTH * TERRAIN_HEIGHT)-1:0] address,      //address = {addry[YBITS-1:0], addrx[X_BITS-1:0]}
 
     vga_if.in vga_in,
@@ -41,7 +43,7 @@ module draw_terrain #(
     logic        hblnk_d, vblnk_d;
     logic [11:0] rgb_d;
 
-    logic [11:0] dx, dy;
+    logic [10:0] dx, dy;
     logic [$clog2(TERRAIN_WIDTH*TERRAIN_HEIGHT)-1:0] address_nxt;
 
     delay #(

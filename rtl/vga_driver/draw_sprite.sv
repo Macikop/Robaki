@@ -12,8 +12,10 @@ module draw_sprite #(
     input  logic clk,    
     input  logic rst_n,
 
-    input  logic [11:0] x_pos,
-    input  logic [11:0] y_pos,
+    input  logic enable,
+
+    input  logic [10:0] x_pos,
+    input  logic [10:0] y_pos,
 
     input  logic [2:0] modifier,    /* [0] - transpose, [1] - flips X, [2] flips Y*/
 
@@ -50,7 +52,7 @@ module draw_sprite #(
      * Modifications signals
      */
 
-    logic [11:0] dx, dy;
+    logic [10:0] dx, dy;
 
     logic [11:0] active_width, active_height;
 

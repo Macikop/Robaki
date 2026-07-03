@@ -142,6 +142,7 @@ module draw_terrain_tb;
     ) u_draw_terrain (
         .clk,
         .rst_n,
+        .enable(1'b1),
 
         .color(12'h0_F_0),
 

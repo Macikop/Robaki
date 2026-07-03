@@ -6,14 +6,14 @@
  */
 
 module address_counter(
-    input clk,
-    input rst_n,
+    input  logic clk,
+    input  logic rst_n,
 
-    input  [31:0] phase_increment,
-    input  sync_in,
+    input  logic[31:0] phase_increment,
+    input  logic sync_in,
 
-    output [7:0]  sine_addr,
-    output sync_out
+    output logic [7:0]  sine_addr,
+    output logic sync_out
 );
 
     logic [31:0] phase;
