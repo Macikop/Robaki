@@ -4,18 +4,9 @@
 # For syntax detail see AMD Xilinx UG 900:
 # https://docs.xilinx.com/r/en-US/ug900-vivado-logic-simulation/Project-File-.prj-Syntax
 
-sv work ../../../rtl/core/top_core.sv \
-        ../../../rtl/core/simple_collision_detector.sv\
-        ../../../rtl/core/explosion_effect.sv \
-        ../../../rtl/core/terrain_destruction.sv \
-        ../../../rtl/core/explosion.sv \
-        ../../../rtl/core/aim.sv \
-        ../../../rtl/core/polar_to_cartesian.sv \
-        ../../../rtl/audio_driver/sine_lut.sv \
-        ../../../rtl/core/bullet.sv \
-        ../../../rtl/core/tdc.sv \
-        ../../../rtl/core/rng.sv \
-        ../../../rtl/core/master_fsm.sv \
+sv work ../../../rtl/core/top_game.sv \
+        ../../../rtl/core/top_core.sv\
+        
         ../../../rtl/core/worm.sv \
         ../../../rtl/core/memory_if.sv \
         ../../../rtl/core/ram_address_mux.sv \
@@ -27,4 +18,15 @@ sv work ../../../rtl/core/top_core.sv \
         ../../../rtl/vga_driver/terrain_ram.sv \
         ../../../rtl/shared_modules/edge_detector.sv \
         ../../../rtl/shared_modules/sr_flip_flop.sv \
-        top_core_tb.sv
+        ../../../rtl/shared_modules/delay.sv \
+        ../../../rtl/vga_driver/draw_circle.sv \
+        ../../../rtl/vga_driver/draw_terrain.sv \
+        ../../../rtl/vga_driver/terrain_ram.sv \
+        ../../../rtl/vga_driver/draw_sprite.sv \
+        ../../../rtl/vga_driver/sprite_rom.sv \
+        ../../../rtl/vga_driver/vga_pkg.sv \
+        ../../../rtl/vga_driver/vga_timing.sv \
+        ../../../rtl/vga_driver/draw_bg.sv \
+        ../../../rtl/vga_driver/top_vga.sv \
+        ../../../rtl/vga_driver/vga_if.sv \
+        top_game_tb.sv

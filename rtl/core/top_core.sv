@@ -47,7 +47,10 @@ module top_core #(
     output logic [10:0] draw_explosion_y,
     output logic [10:0] draw_explosion_radius,
     output logic        draw_explosion_en,
-    output logic [11:0] draw_explosion_color
+    output logic [11:0] draw_explosion_color,
+
+    output logic        draw_logo,
+    output logic        draw_end
 
 );
 
@@ -104,6 +107,9 @@ module top_core #(
     logic [7:0] x_aim, y_aim;
 
     memory_if ram_clients[0:6]();
+
+    assign draw_logo = start_screen_en;
+    assign draw_end = end_screen_en;
 
     assign current_worm_x_pos = current_player ? worm_0_x_pos : worm_1_x_pos;
     assign current_worm_y_pos = current_player ? worm_0_y_pos : worm_1_y_pos;

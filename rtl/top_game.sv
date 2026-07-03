@@ -71,11 +71,11 @@ module top_game (
     logic [10:0] draw_bullet_y_core;
     logic draw_bullet_en_core;
     logic [10:0] draw_explosion_x_core;
-    logic [10:0] draw_expolsion_y_core;
+    logic [10:0] draw_explosion_y_core;
     logic [10:0] draw_explosion_radius_core;
     logic draw_explosion_en_core;
 
-
+    logic draw_worms;
     logic [10:0] draw_worm_0_x_pos;
     logic [10:0] draw_worm_0_y_pos;
     logic draw_worm_0_orientation;
@@ -92,6 +92,8 @@ module top_game (
     logic [10:0] draw_expolsion_y;
     logic [10:0] draw_explosion_radius;
     logic draw_explosion_en;
+    logic [11:0] draw_explosion_color;
+    logic start_screen_en, end_screen_en;
 
     
     top_core #(
@@ -112,6 +114,7 @@ module top_game (
         .ram_value               (ram_value_core),
         .ram_address             (ram_address_core),
         .ram_clear               (ram_clear_core),
+        .draw_worms              (draw_worms),
         .draw_worm_0_x_pos       (draw_worm_0_x_pos_core),
         .draw_worm_0_y_pos       (draw_worm_0_y_pos_core),
         .draw_worm_0_orientation (draw_worm_0_orientation_core),
@@ -125,9 +128,12 @@ module top_game (
         .draw_bullet_y           (draw_bullet_y_core),
         .draw_bullet_en          (draw_bullet_en_core),
         .draw_explosion_x        (draw_explosion_x_core),
-        .draw_expolsion_y        (draw_expolsion_y_core),
+        .draw_explosion_y        (draw_explosion_y_core),
         .draw_explosion_radius   (draw_explosion_radius_core),
-        .draw_explosion_en       (draw_explosion_en_core)
+        .draw_explosion_en       (draw_explosion_en_core),
+        .draw_explosion_color    (draw_explosion_color),
+        .draw_logo               (start_screen_en),
+        .draw_end                (end_screen_en)
     );
 
     cdc #(
@@ -137,7 +143,7 @@ module top_game (
         .clk_a     (clk_core),
         .clk_b     (clk_media),
         .rst_n     (rst_n),
-        .data_in   ({draw_worm_0_x_pos_core, draw_worm_0_y_pos_core, draw_worm_0_orientation_core, draw_worm_1_x_pos_core, draw_worm_1_x_pos_core, draw_worm_1_y_pos_core, draw_worm_1_orientation_core, aim_x_pos_core, aim_y_pos_core, aim_en_core, draw_bullet_x_core, draw_bullet_y_core, draw_bullet_en_core, draw_explosion_x_core, draw_expolsion_y_core, draw_explosion_radius_core, draw_explosion_en_core}),
+        .data_in   ({draw_worm_0_x_pos_core, draw_worm_0_y_pos_core, draw_worm_0_orientation_core, draw_worm_1_x_pos_core, draw_worm_1_x_pos_core, draw_worm_1_y_pos_core, draw_worm_1_orientation_core, aim_x_pos_core, aim_y_pos_core, aim_en_core, draw_bullet_x_core, draw_bullet_y_core, draw_bullet_en_core, draw_explosion_x_core, draw_explosion_y_core, draw_explosion_radius_core, draw_explosion_en_core}),
         .send_data (sync),
         .data_out  ({draw_worm_0_x_pos, draw_worm_0_y_pos, draw_worm_0_orientation, draw_worm_1_x_pos, draw_worm_1_x_pos, draw_worm_1_y_pos, draw_worm_1_orientation, aim_x_pos, aim_y_pos, aim_en, draw_bullet_x, draw_bullet_y, draw_bullet_en, draw_explosion_x, draw_expolsion_y, draw_explosion_radius, draw_explosion_en})
     );
@@ -177,7 +183,7 @@ module top_game (
     ) u_top_vga (
         .clk                     (clk_media),
         .rst_n                   (rst_n),
-        .start_screen_en         (),
+        .start_screen_en         (start_screen_en),
         .draw_worms              (draw_worms),
         .end_screen_en           (end_screen_en),
         .draw_worm_0_x_pos       (draw_worm_0_x_pos),

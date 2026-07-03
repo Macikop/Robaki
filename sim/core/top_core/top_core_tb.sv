@@ -125,7 +125,9 @@ module top_core_tb;
         .draw_explosion_y        (),
         .draw_explosion_radius   (),
         .draw_explosion_en       (),
-        .draw_explosion_color    ()
+        .draw_explosion_color    (),
+        .draw_logo               (),
+        .draw_end                ()   
     );
 
 
@@ -147,6 +149,8 @@ module top_core_tb;
 
         @(negedge rst_n);
         @(posedge rst_n);
+
+        repeat (10000) @(posedge vsync);
 
         $finish;
     end
