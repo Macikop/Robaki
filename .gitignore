@@ -40,3 +40,5 @@ xrun.log
 results/
 
 .vscode
+
+dfx_runtime.txt
