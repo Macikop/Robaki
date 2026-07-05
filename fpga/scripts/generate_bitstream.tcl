@@ -38,6 +38,12 @@ proc generate_bitstream {} {
     # Run implemenatation up to bitstream generation
     launch_runs impl_1 -to_step write_bitstream -jobs 8
     wait_on_run impl_1
+
+    # Open the implemented design so timing reports use routed data.
+    open_run impl_1
+
+    # Generate post-implementation timing reports.
+    source scripts/timing_report.tcl
 }
 
 

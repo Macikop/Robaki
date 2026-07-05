@@ -12,7 +12,7 @@
  * Top level synthesizable module including the project top and all the FPGA-referred modules.
  */
 
-module top_vga_basys3 (
+module top_robaki (
         input  wire clk,
         input  wire btnC,
         input  wire sw[1:0], //sw[0] - mute, sw[1] - volume
@@ -23,10 +23,7 @@ module top_vga_basys3 (
         output wire [3:0] vgaRed,
         output wire [3:0] vgaGreen,
         output wire [3:0] vgaBlue,
-        output wire JA1,
-        output wire JA[3:1], //JA2 - shutdown, JA3 - gain, JA4 - AIN
-        output wire an[3:0],
-        output wire seg[6:0]
+        output wire JA[3:0]  //JA[0] - AIN, JA[1] - GAIN, JA[2] - NC, JA[3] - SHUT_N
     );
 
     timeunit 1ns;
@@ -42,11 +39,6 @@ module top_vga_basys3 (
     wire clk_core;
     wire pclk_mirror;
 
-    //keyboard
-    wire up, down, left, right, space, tab;
-    assign seg[5:0] = {up, down, left, right, space, tab};
-    assign an[0] = '0;
-
     (* KEEP = "TRUE" *)
     (* ASYNC_REG = "TRUE" *)
     logic [7:0] safe_start = 0;
@@ -58,7 +50,9 @@ module top_vga_basys3 (
      * Signals assignments
      */
 
-    assign JA1 = pclk_mirror;
+    assign pclk_mirror = pclk;
+    assign clk_ss = clk_core;
+    assign JA[2] = 1'b0;
 
 
     /**
@@ -76,7 +70,9 @@ module top_vga_basys3 (
     // not functionally required for this design to work.
 
     clk_wiz_0 u_clk_wiz_0 (
+        .clk_core_ce(1'b1),
         .clk_core(clk_core),
+        .clk_vga_audio_ce(1'b1),
         .clk_vga_audio(pclk),
         .locked(locked),
         .clk(clk)
@@ -87,28 +83,25 @@ module top_vga_basys3 (
      *  Project functional top module
      */
 
- 
-    top_audio_driver u_top_audio_driver(
-        .clk(pclk),
-        .rst_n(~btnC),
-        .mute(sw[0]),
-        .volume(sw[1]),
-        .wave_out(JA[3]),
-        .gain(JA[2]),
-        .shoutdown(JA[1])
-    );
-
-    top_keyboard_driver u_top_keyboard_driver(
-        .clk(clk_core),
-        .rst_n(~btnC),
-        .ps2_clk(PS2Clk),
-        .ps2_data(PS2Data),
-        .up(up),
-        .down(down),
-        .left(left),
-        .right(right),
-        .space(space),
-        .tab(tab)
+    top_game #(
+        .TERRAIN_PATH("../../rtl/vga_driver/maps/map1.dat"),
+        .MUSIC_PATH("../../rtl/audio_driver/music_files/nokia_ringtone.hex")
+    ) u_top_game (
+        .clk_core  (clk_core),
+        .clk_media (pclk),
+        .rst_n     (~btnC),
+        .ps2_data  (PS2Data),
+        .ps2_clk   (PS2Clk),
+        .mute_in   (sw[0]),
+        .volume_in (sw[1]),
+        .audio     (JA[0]),
+        .shutdown  (JA[3]),
+        .gain      (JA[1]),
+        .r         (vgaRed),
+        .g         (vgaGreen),
+        .b         (vgaBlue),
+        .vs        (Vsync),
+        .hs        (Hsync)
     );
 
 endmodule

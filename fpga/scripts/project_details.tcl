@@ -13,10 +13,10 @@
 #                   Project details                   #
 #-----------------------------------------------------#
 # Project name                                  -- EDIT
-set project_name vga_project
+set project_name robaki
 
 # Top module name                               -- EDIT
-set top_module top_vga_basys3
+set top_module top_robaki
 
 # FPGA device
 set target xc7a35tcpg236-1
@@ -26,27 +26,11 @@ set target xc7a35tcpg236-1
 #-----------------------------------------------------#
 # Specify .xdc files location                   -- EDIT
 set xdc_files {
-    constraints/top_vga_basys3.xdc
+    constraints/top_robaki.xdc
 }
 
 # Specify SystemVerilog design files location   -- EDIT
-#    ../rtl/shared_modules/delay.sv \#
-#    ../rtl/vga_driver/draw_circle.sv \#
-#    ../rtl/vga_driver/draw_terrain.sv \#
-#    ../rtl/vga_driver/terrain_ram.sv \#
-#    ../rtl/vga_driver/draw_sprite.sv \#
-#    ../rtl/vga_driver/sprite_rom.sv \#
-#    ../rtl/vga_driver/vga_pkg.sv \#
-#    ../rtl/vga_driver/vga_timing.sv \#
-#    ../rtl/vga_driver/draw_bg.sv \#
-#    ../rtl/vga_driver/vga_if.sv \#
-#
-#
-#    ../rtl/vga_driver/top_vga.sv \#
-
 set sv_files {
-
-
     ../rtl/audio_driver/address_counter.sv \
     ../rtl/audio_driver/midi_decoder.sv \
     ../rtl/audio_driver/music_rom.sv \
@@ -58,10 +42,48 @@ set sv_files {
     ../rtl/audio_driver/sync_generator.sv \
     ../rtl/audio_driver/top_audio_driver.sv \
 
+    ../rtl/core/aim.sv \
+    ../rtl/core/bullet.sv \
+    ../rtl/core/collision_detector.sv \
+    ../rtl/core/explosion_consequences.sv \
+    ../rtl/core/explosion_effect.sv \
+    ../rtl/core/explosion.sv \
+    ../rtl/core/master_fsm.sv \
+    ../rtl/core/memory_if.sv \
+    ../rtl/core/physics_engine.sv \
+    ../rtl/core/polar_to_cartesian.sv \
+    ../rtl/core/ram_address_mux.sv \
+    ../rtl/core/rng.sv \
+    ../rtl/core/simple_collision_detector.sv \
+    ../rtl/core/tdc.sv \
+    ../rtl/core/terrain_destruction.sv \
+    ../rtl/core/top_core.sv \
+    ../rtl/core/walk.sv \
+    ../rtl/core/walking_collision.sv \
+    ../rtl/core/worm.sv \
+
     ../rtl/keyboard_driver/key_decoder.sv \
     ../rtl/keyboard_driver/top_keyboard_driver.sv \
 
-    rtl/top_vga_basys3.sv
+    ../rtl/shared_modules/cdc.sv \
+    ../rtl/shared_modules/delay.sv \
+    ../rtl/shared_modules/edge_detector.sv \
+    ../rtl/shared_modules/sr_flip_flop.sv \
+
+    ../rtl/vga_driver/draw_bg.sv \
+    ../rtl/vga_driver/draw_circle.sv \
+    ../rtl/vga_driver/draw_sprite.sv \
+    ../rtl/vga_driver/draw_terrain.sv \
+    ../rtl/vga_driver/sprite_rom.sv \
+    ../rtl/vga_driver/terrain_ram.sv \
+    ../rtl/vga_driver/top_vga.sv \
+    ../rtl/vga_driver/vga_if.sv \
+    ../rtl/vga_driver/vga_pkg.sv \
+    ../rtl/vga_driver/vga_timing.sv \
+
+    ../rtl/top_game.sv \
+
+    rtl/top_robaki.sv
 }
 
 # Specify Verilog design files location         -- EDIT
@@ -72,25 +94,22 @@ set verilog_files {
 
 # Specify VHDL design files location            -- EDIT
 set vhdl_files {
-   ../rtl/keyboard_driver/Ps2Interface.vhd
+    ../rtl/keyboard_driver/Ps2Interface.vhd
 }
 
 # Specify files for a memory initialization     -- EDIT
 set mem_files {
-   ../rtl/audio_driver/luts/phase.dat \
-   ../rtl/audio_driver/luts/sine.dat \
-   ../rtl/audio_driver/music_files/nokia_ringtone.hex \
-   ../rtl/audio_driver/music_files/nokia_ringtone.midi \
-   ../rtl/audio_driver/music_files/test_music.hex \
-   
-   ../rtl/vga_driver/sprite_bank/arrow.dat \
-   ../rtl/vga_driver/sprite_bank/weapons_archive.dat \
-   ../rtl/vga_driver/sprite_bank/weapons.dat \
-   ../rtl/vga_driver/sprite_bank/worms.dat \
+    ../rtl/audio_driver/luts/phase.dat \
+    ../rtl/audio_driver/luts/sine.dat \
 
-   ../rtl/vga_driver/maps/map_test.dat \
-   ../rtl/vga_driver/maps/map1.dat 
+    ../rtl/audio_driver/music_files/nokia_ringtone.hex \
+    ../rtl/audio_driver/music_files/the_a_team.hex \
 
+    ../rtl/vga_driver/sprite_bank/agh_logo.dat \
+    ../rtl/vga_driver/sprite_bank/aim.dat \
+    ../rtl/vga_driver/sprite_bank/arrow.dat \
+    ../rtl/vga_driver/sprite_bank/logo.dat \
+    ../rtl/vga_driver/sprite_bank/worm.dat \
 
-
+    ../rtl/vga_driver/maps/map1.dat 
 }
