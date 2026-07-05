@@ -5,39 +5,38 @@
  * Top project module
  */
 
-module top_game (
+module top_game #(
+    parameter TERRAIN_PATH = "../../rtl/vga_driver/maps/map1.dat",
+    parameter MUSIC_PATH = "../../rtl/audio_driver/music_files/nokia_ringtone.hex"
+)(
     input  logic clk_core,
-    input  logic clk_media,
-    /* may be usefull
-     * input logic clk_uart,
-     * input logic clk_keyboard,
-     */ 
+    input  logic clk_media, 
 
     input  logic rst_n,
 
-    /* not yet ready 
-     * 
-     * input logic uart_rx
-     * output logic uart_tx
-     * 
-     * input logic ps2_data,
-     * input logic ps2_clk,
-     */
+    // not yet ready 
+    
+    // input logic uart_rx
+    // output logic uart_tx
+    
+    input logic ps2_data,
+    input logic ps2_clk,
+    
 
     /* temporary switch interface */
-    input  logic up,
-    input  logic down,
-    input  logic right,
-    input  logic left,
-    input  logic space,
+    // input  logic up,
+    // input  logic down,
+    // input  logic right,
+    // input  logic left,
+    // input  logic space,
 
     /* audio interface */
-    // input  logic mute_in,
-    // input  logic volume_in,
+    input  logic mute_in,
+    input  logic volume_in,
     
-    // output logic audio,
-    // output logic shoutdone,
-    // output logic gain,
+    output logic audio,
+    output logic shutdown,
+    output logic gain,
 
     /* vga interface */
     output logic [3:0] r,
@@ -46,6 +45,10 @@ module top_game (
     output logic vs,
     output logic hs
 );
+
+    timeunit 1ns;
+    timeprecision 1ps;
+
     localparam TERRAIN_WIDTH = 1024;
     localparam TERRAIN_HEIGHT = 768;
     
@@ -54,7 +57,7 @@ module top_game (
     
     localparam GRAVITY = 10;
 
-    logic sync;
+    logic sync, sync_in;
     logic [$clog2(TERRAIN_HEIGHT * TERRAIN_WIDTH)-1:0] ram_address_core, ram_address_vga;
     logic ram_value_core, ram_clear_core, ram_value_vga;
 
@@ -157,13 +160,22 @@ module top_game (
         .rst_n     (rst_n),
         .data_in   (vs),
         .send_data (vs),
-        .data_out  (sync)
+        .data_out  (sync_in)
+    );
+
+    edge_detector #(
+        .POSITIVE (1'b1)
+    ) u_edge_detector (
+        .clk           (clk_core),
+        .rst_n         (rst_n),
+        .din           (sync_in),
+        .edge_detected (sync)
     );
 
     terrain_ram #(
         .WIDTH             (TERRAIN_WIDTH),
         .HEIGHT            (TERRAIN_HEIGHT),
-        .TERRAIN_FILE_PATH ()
+        .TERRAIN_FILE_PATH (TERRAIN_PATH)
     ) u_terrain_ram (
         .clk_vga       (clk_media),
         .clk_core      (clk_core),
@@ -212,18 +224,31 @@ module top_game (
         .b                       (b)
     );
 
-    // top_audio_driver #(
-    //     .FILE_SIZE (14),
-    //     .FILE_PATH ("../../rtl/audio_driver/music_files/nokia_ringtone.hex")
-    // ) u_top_audio_driver (
-    //     .clk       (clk_media),
-    //     .rst_n     (rst_n),
-    //     .mute      (mute_in),
-    //     .volume    (volume_in),
-    //     .wave_out  (audio),
-    //     .gain      (gain),
-    //     .shoutdown (shoutdown)
-    // );
+    top_audio_driver #(
+        .FILE_SIZE (14),
+        .FILE_PATH (MUSIC_PATH)
+    ) u_top_audio_driver (
+        .clk       (clk_media),
+        .rst_n     (rst_n),
+        .mute      (mute_in),
+        .volume    (volume_in),
+        .wave_out  (audio),
+        .gain      (gain),
+        .shutdown (shutdown)
+    );
+
+    top_keyboard_driver u_top_keyboard_driver(
+        .clk        (clk_core),
+        .rst_n      (rst_n),
+        .ps2_clk    (ps2_clk),
+        .ps2_data   (ps2_data),
+        .up         (up),
+        .down       (down),
+        .left       (left),
+        .right      (right),
+        .space      (space),
+        .tab        (tab)
+    );
 
 
 

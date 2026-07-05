@@ -19,7 +19,7 @@ module top_audio_driver #(
 
     output logic wave_out,
     output logic gain,
-    output logic shoutdown
+    output logic shutdown
 );
 
     timeunit 1ns;
@@ -43,7 +43,7 @@ module top_audio_driver #(
      * Signals assignments
      */
 
-    assign shoutdown = ~mute;
+    assign shutdown = ~mute;
     assign gain = ~volume;
 
     /**

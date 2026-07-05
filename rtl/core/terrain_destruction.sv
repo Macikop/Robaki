@@ -40,7 +40,7 @@ module terrain_destruction #(
     logic signed [11:0] p, p_nxt;
 
     logic [1:0] segment, segment_nxt;
-    logic signed [11:0] fill_start, fill_start_nxt;
+    // logic signed [11:0] fill_start, fill_start_nxt;
     logic signed [11:0] fill_end, fill_end_nxt;
     logic signed [11:0] fill_cur, fill_cur_nxt;
     logic signed [11:0] current_row, current_row_nxt;
@@ -65,7 +65,7 @@ module terrain_destruction #(
             y_i             <= '0;
             p               <= '0;
             segment         <= '0;
-            fill_start      <= '0;
+            // fill_start      <= '0;
             fill_end        <= '0;
             fill_cur        <= '0;
             current_row     <= '0;
@@ -84,7 +84,7 @@ module terrain_destruction #(
             y_i             <= y_i_nxt;
             p               <= p_nxt;
             segment         <= segment_nxt;
-            fill_start      <= fill_start_nxt;
+            // fill_start      <= fill_start_nxt;
             fill_end        <= fill_end_nxt;
             fill_cur        <= fill_cur_nxt;
             current_row     <= current_row_nxt;
@@ -116,7 +116,7 @@ module terrain_destruction #(
         p_nxt           = p;
         
         segment_nxt     = segment;
-        fill_start_nxt  = fill_start;
+        // fill_start_nxt  = fill_start;
         fill_end_nxt    = fill_end;
         fill_cur_nxt    = fill_cur;
         current_row_nxt = current_row;
@@ -143,7 +143,7 @@ module terrain_destruction #(
                     state_nxt       = FILLING;
                     segment_nxt     = 2'b00;
                     current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, y_i});
-                    fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
+                    // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                     fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
                     fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                     
@@ -172,19 +172,19 @@ module terrain_destruction #(
                             if (segment == 2'b00) begin
                                 segment_nxt     = 2'b01;
                                 current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, y_i});
-                                fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
+                                // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
                                 fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                             end else if (segment == 2'b01) begin
                                 segment_nxt     = 2'b10;
                                 current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, x_i});
-                                fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
+                                // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                                 fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             end else if (segment == 2'b10) begin
                                 segment_nxt     = 2'b11;
                                 current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, x_i});
-                                fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
+                                // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                                 fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                                 fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             end else if (segment == 2'b11) begin
@@ -210,19 +210,19 @@ module terrain_destruction #(
                         if (segment == 2'b00) begin
                             segment_nxt     = 2'b01;
                             current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, y_i});
-                            fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
+                            // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, x_i});
                             fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, x_i});
                         end else if (segment == 2'b01) begin
                             segment_nxt     = 2'b10;
                             current_row_nxt = $signed({1'b0, pos_y}) + $signed({1'b0, x_i});
-                            fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
+                            // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                             fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                         end else if (segment == 2'b10) begin
                             segment_nxt     = 2'b11;
                             current_row_nxt = $signed({1'b0, pos_y}) - $signed({1'b0, x_i});
-                            fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
+                            // fill_start_nxt  = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                             fill_end_nxt    = $signed({1'b0, pos_x}) + $signed({1'b0, y_i});
                             fill_cur_nxt    = $signed({1'b0, pos_x}) - $signed({1'b0, y_i});
                         end else if (segment == 2'b11) begin

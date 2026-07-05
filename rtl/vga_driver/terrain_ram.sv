@@ -27,7 +27,8 @@ module terrain_ram #(
 
     localparam int SIZE = WIDTH * HEIGHT;
 
-    logic rom [0:SIZE-1];
+    (* ram_style = "block" *) 
+    logic [0:0] rom [0:SIZE-1];
 
 
     /*

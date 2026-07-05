@@ -153,7 +153,7 @@ module draw_sprite #(
             pixel_address_nxt = '0;
         end
 
-        if ((hcount_d2 >= x_pos) && (hcount_d2 < x_pos + active_width) && (vcount_d2 >= y_pos) && (vcount_d2 < y_pos + active_height))begin
+        if (enable && ((hcount_d2 >= x_pos) && (hcount_d2 < x_pos + active_width) && (vcount_d2 >= y_pos) && (vcount_d2 < y_pos + active_height))) begin
             rgb_nxt = (rgb_pixel[12] == 1'b1) ? rgb_d2 : rgb_pixel[11:0];
         end else begin
             rgb_nxt = rgb_d2;

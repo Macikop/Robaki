@@ -56,6 +56,7 @@ module top_core #(
 
     localparam WRITE_CHANNEL = 0;
     localparam RAM_DELAY = 2;
+    localparam RAM_CHANNELS = 6;
 
     logic sync;
 
@@ -106,7 +107,7 @@ module top_core #(
     logic [7:0] x_component_bullet, y_component_bullet;
     logic [7:0] x_aim, y_aim;
 
-    memory_if ram_clients[0:6]();
+    memory_if ram_clients[0:RAM_CHANNELS-1]();
 
     assign draw_logo = start_screen_en;
     assign draw_end = end_screen_en;
@@ -288,7 +289,7 @@ module top_core #(
     ram_address_mux #(
         .ADDRESS_WIDTH($clog2(TERRAIN_HEIGHT * TERRAIN_WIDTH)),
         .WORD_WIDTH(1),
-        .INPUTS_NUMBER(7),
+        .INPUTS_NUMBER(RAM_CHANNELS),
         .WRITE_CHANNEL(WRITE_CHANNEL),
         .RAM_DELAY(RAM_DELAY)
     ) u_ram_address_mux (
@@ -320,8 +321,8 @@ module top_core #(
         .left             (left),
         .right            (right),
         .wind             (wind),
-        .walk_ram         (ram_clients[3]),
-        .physics_ram      (ram_clients[4]),
+        .walk_ram         (ram_clients[2]),
+        .physics_ram      (ram_clients[3]),
         .explosion_done   (explosion_done_worm[0]),
         .pos_x            (worm_0_x_pos),
         .pos_y            (worm_0_y_pos),
@@ -349,8 +350,8 @@ module top_core #(
         .left             (left),
         .right            (right),
         .wind             (wind),
-        .walk_ram         (ram_clients[5]),
-        .physics_ram      (ram_clients[6]),
+        .walk_ram         (ram_clients[4]),
+        .physics_ram      (ram_clients[5]),
         .explosion_done   (explosion_done_worm[1]),
         .pos_x            (worm_1_x_pos),
         .pos_y            (worm_1_y_pos),

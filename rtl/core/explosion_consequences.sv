@@ -26,9 +26,12 @@ module explosion_consequences(
     output logic done
 );
 
-    typedef enum logic {
+    typedef enum logic [2:0] {
         IDLE, 
-        CALC
+        DIV,
+        MIN_MAX,
+        APPROX,
+        DONE
     } state_t;
     
     state_t state, state_nxt;
@@ -37,6 +40,7 @@ module explosion_consequences(
     logic signed [7:0] velocity_y_nxt;
 
     logic signed [7:0] dx, dy, max_d, min_d, approx_r;
+    logic signed [7:0] dx_nxt, dy_nxt, max_d_nxt, min_d_nxt, approx_r_nxt;
 
     logic done_nxt;
     logic [5:0] damage_nxt;
@@ -48,16 +52,40 @@ module explosion_consequences(
             velocity_y <= '0;
             damage <= '0;    
             done <= '0;
+
+            dx <= '0;
+            dy <= '0;
+            max_d <= '0;
+            min_d <= '0;
+            approx_r <= '0;
+
         end else begin
             state <= state_nxt;
             velocity_x <= velocity_x_nxt;
             velocity_y <= velocity_y_nxt;
             damage <= damage_nxt;    
             done <= done_nxt;
+
+            dx <= dx_nxt;
+            dy <= dy_nxt;
+            max_d <= max_d_nxt;
+            min_d <= min_d_nxt;
+            approx_r <= approx_r_nxt;
         end 
     end
 
     always_comb begin
+        velocity_x_nxt = velocity_x;
+        velocity_y_nxt = velocity_y;
+
+        dx_nxt = dx;
+        dy_nxt = dy;
+        max_d_nxt = max_d;
+        min_d_nxt = min_d;
+        approx_r_nxt = approx_r;
+
+        damage_nxt = '0;
+        done_nxt = 1'b0;
 
         case (state)
 
@@ -68,21 +96,27 @@ module explosion_consequences(
 
                 done_nxt = 1'b0;
 
-                state_nxt = start ? CALC : IDLE;
+                state_nxt = start ? DIV : IDLE;
             end
 
-            CALC: begin
-                velocity_x_nxt = velocity_x;
-                velocity_y_nxt = velocity_y;
+            DIV: begin
+                dx_nxt = (worm_pos_x > explosion_pos_x) ? (worm_pos_x - explosion_pos_x) : (explosion_pos_x - worm_pos_x);
+                dy_nxt = (worm_pos_y > explosion_pos_y) ? (worm_pos_y - explosion_pos_y) : (explosion_pos_y - worm_pos_y);
+                state_nxt = MIN_MAX;
+            end
 
-                dx = (worm_pos_x > explosion_pos_x) ? (worm_pos_x - explosion_pos_x) : (explosion_pos_x - worm_pos_x);
-                dy = (worm_pos_y > explosion_pos_y) ? (worm_pos_y - explosion_pos_y) : (explosion_pos_y - worm_pos_y);
+            MIN_MAX: begin
+                max_d_nxt = (dx > dy) ? dx : dy;
+                min_d_nxt = (dx > dy) ? dy : dx;
+                state_nxt = APPROX;
+            end
 
-                max_d = (dx > dy) ? dx : dy;
-                min_d = (dx > dy) ? dy : dx;
-                
-                approx_r = max_d + (min_d >> 2) + (min_d >> 3);
-
+            APPROX: begin
+                approx_r_nxt = max_d + (min_d >> 2) + (min_d >> 3);
+                state_nxt = DONE;
+            end
+            
+            DONE: begin
                 if (approx_r < explosion_r) begin
                     damage_nxt = explosion_r - approx_r;
                     velocity_x_nxt = explosion_r - dx;

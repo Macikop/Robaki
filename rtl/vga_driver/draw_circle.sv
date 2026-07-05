@@ -54,6 +54,7 @@ module draw_circle (
 
 
     always_comb begin
+        approx_r = '0;
 
         if(enable) begin
             dx = (vga_in.hcount > x_pos) ? (vga_in.hcount - x_pos) : (x_pos - vga_in.hcount);

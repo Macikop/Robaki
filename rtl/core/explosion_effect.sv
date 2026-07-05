@@ -77,8 +77,10 @@ module explosion_effect (
         pos_x_nxt = explosion_x;
         pos_y_nxt = explosion_y;
         radius_nxt = {3'b0, expolsion_radius};
+        color_nxt = color;
 
         enable_draw_nxt = 1'b0;
+        done_nxt = 1'b0;
         
         if(!explosion_enable) begin
             explosion_disabled_nxt = 1'b0;
@@ -87,7 +89,6 @@ module explosion_effect (
         
         case (state)
             IDLE: begin
-                done_nxt = 1'b0;
                 state_nxt = (explosion_enable && sync && !explosion_disabled) ? YELLOW : IDLE;
             end
 

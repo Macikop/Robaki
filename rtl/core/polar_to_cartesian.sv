@@ -17,7 +17,9 @@ module polar_to_cartesian (
     input  logic [7:0] lut_value,
     output logic [7:0] lut_address,
 
+    (* keep = "true" *)
     output logic signed [7:0] x_component,
+    (* keep = "true" *)
     output logic signed [7:0] y_component,
 
     output logic done
@@ -102,15 +104,15 @@ module polar_to_cartesian (
 
             WAITING: begin
                 cos_nxt = $signed({1'b0,lut_value}) - 9'sd127;
-                mult_y = $signed({1'b0,length}) * sin;
-                y_component_nxt = mult_y >>> 7;
                 state_nxt = FINISH;
             end
             
 
             FINISH: begin
                 mult_x = $signed({1'b0,length}) * cos;
+                mult_y = $signed({1'b0,length}) * sin;
                 x_component_nxt = mult_x >>> 7;
+                y_component_nxt = mult_y >>> 7;
 
                 done_nxt = 1'b1;
                 state_nxt = IDLE;

@@ -111,7 +111,7 @@ module top_vga #(
      */
 
     vga_timing u_vga_timing (
-        .clk(clk_vga),
+        .clk,
         .rst_n,
         .vcount (vcount_tim),
         .vsync  (vsync_tim),
@@ -124,7 +124,7 @@ module top_vga #(
     draw_bg #(
         .COLOR(12'h0_a_a)
     ) u_draw_bg (
-        .clk(clk_vga),
+        .clk,
         .rst_n,
 
         .vcount_in  (vcount_tim),
@@ -144,7 +144,7 @@ module top_vga #(
         .X_OFFSET(0),
         .Y_OFFSET(0)
     ) u_draw_terrain (
-        .clk(clk_vga),
+        .clk,
         .rst_n,
         .enable(1'b1),
 
@@ -305,7 +305,7 @@ module top_vga #(
     end
 
     draw_circle u_draw_circle(
-        .clk(clk_vga),
+        .clk,
         .rst_n,
         .enable(draw_explosion_en || draw_bullet_en),
         

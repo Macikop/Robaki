@@ -37,6 +37,10 @@ module ram_address_mux #(
     logic   delay_valid [0:RAM_DELAY-1];
 
     logic any_request_granted;
+    logic select_found;
+    index_t select_index;
+    logic [ADDRESS_WIDTH-1:0] select_address;
+    logic select_clear;
 
     logic [ADDRESS_WIDTH-1:0] client_addresses [0:INPUTS_NUMBER-1];
     logic client_request [0:INPUTS_NUMBER-1];
@@ -91,31 +95,40 @@ module ram_address_mux #(
         ram_clear_nxt       = 1'b0; 
         last_access_nxt     = last_access;
         any_request_granted = 1'b0;
+        select_found        = 1'b0;
+        select_index        = last_access;
+        select_address      = ram_address;
+        select_clear        = 1'b0;
 
         for (int i = 0; i < INPUTS_NUMBER; i++) begin
-            if (client_request[i] && (i > last_access)) begin
-                ram_address_nxt     = client_addresses[i];
-                last_access_nxt     = index_t'(i);
-                ram_clear_nxt       = (i == WRITE_CHANNEL) ? clear : 1'b0;
-                any_request_granted = 1'b1;
-                break;
+            if (!select_found && client_request[i] && (i > last_access)) begin
+                select_found   = 1'b1;
+                select_index   = index_t'(i);
+                select_address = client_addresses[i];
+                select_clear   = (i == WRITE_CHANNEL) ? clear : 1'b0;
             end
         end
 
-        if (!any_request_granted) begin
+        if (!select_found) begin
             for (int i = 0; i < INPUTS_NUMBER; i++) begin
-                if (client_request[i] && (i <= last_access)) begin
-                    ram_address_nxt     = client_addresses[i];
-                    last_access_nxt     = index_t'(i);
-                    ram_clear_nxt       = (i == WRITE_CHANNEL) ? clear : 1'b0;
-                    any_request_granted = 1'b1;
-                    break;
+                if (!select_found && client_request[i] && (i <= last_access)) begin
+                    select_found   = 1'b1;
+                    select_index   = index_t'(i);
+                    select_address = client_addresses[i];
+                    select_clear   = (i == WRITE_CHANNEL) ? clear : 1'b0;
                 end
             end
         end
 
+        if (select_found) begin
+            ram_address_nxt     = select_address;
+            last_access_nxt     = select_index;
+            ram_clear_nxt       = select_clear;
+            any_request_granted = 1'b1;
+        end
+
         for (int i = 0; i < INPUTS_NUMBER; i++) begin
-            if (any_request_granted && (index_t'(i) == last_access_nxt)) begin
+            if (select_found && (index_t'(i) == select_index)) begin
                 granted_nxt[i] = 1'b1;
             end else begin
                 granted_nxt[i] = 1'b0;

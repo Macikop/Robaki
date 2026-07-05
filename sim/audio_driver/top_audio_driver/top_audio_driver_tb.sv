@@ -69,7 +69,7 @@ module top_audio_driver_tb;
 
         .wave_out(wave_out),
         .gain(),
-        .shoutdown()
+        .shutdown()
     );
     /**
      * Tasks and functions

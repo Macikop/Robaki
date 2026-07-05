@@ -101,7 +101,7 @@ module draw_terrain #(
             address_nxt = '0;
         end
             
-        if ((hcount_d >= X_OFFSET) && (hcount_d < X_OFFSET + TERRAIN_WIDTH) && (vcount_d >= Y_OFFSET) && (vcount_d < Y_OFFSET + TERRAIN_HEIGHT))begin
+        if (enable && ((hcount_d >= X_OFFSET) && (hcount_d < X_OFFSET + TERRAIN_WIDTH) && (vcount_d >= Y_OFFSET) && (vcount_d < Y_OFFSET + TERRAIN_HEIGHT))) begin
             rgb_nxt = data_in ? color : rgb_d;
         end else begin
             rgb_nxt = rgb_d;

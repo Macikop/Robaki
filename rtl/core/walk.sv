@@ -105,11 +105,11 @@ module walk #(
         start_check_nxt = 1'b0;
         is_falling_nxt = is_falling;
         direction_nxt = direction;
+        done_nxt = 1'b0;
 
         case (state)
 
             IDLE : begin
-                done_nxt = 1'b0;
                 if (enable && sync) begin
                     state_nxt = INIT;
                 end
