@@ -29,9 +29,6 @@ from pathlib import Path
 SYNC_FREQ = 65_000_000 / 256  # Hz
 
 # NOTE MAPPING (adjust to match your note_pkg.sv)
-# RTTTL usually spans octaves 4 through 7. 
-# We map them to your system's available 1, 2, 3 structures.
-# (e.g. mapping RTTTL octave 5 to your octave 1, 6 to 2, 7 to 3)
 NOTE_CODES = {
     "-": 0,
 
@@ -50,7 +47,6 @@ def parse_rtttl_header(settings_str):
     Parses the configuration section of RTTTL (e.g., 'd=4,o=5,b=180')
     Returns default_duration, default_octave, bpm
     """
-    # Defaults if missing
     d_dur = 4
     d_oct = 5
     bpm = 120
@@ -70,57 +66,65 @@ def parse_rtttl_header(settings_str):
 
 def parse_rtttl_token(token, def_dur, def_oct):
     """
-    Parse a standard RTTTL note token like: '16e6', '8f#6', '4b', 'p'
+    Parse a standard RTTTL note token like: '16e6', '8f#6', '4b', 'p', '4d#.'
     """
     token = token.strip().lower()
     if not token:
         return None
 
-    # Regex breaks up: 
-    # 1. Option duration (\d*) 
+    # Updated Regex:
+    # 1. Optional duration (\d*)
     # 2. Note letters and sharps ([a-g-p]#?)
-    # 3. Optional octave scale (\d*)
-    match = re.match(r"(\d*)([a-g-p]#?)(\d*)$", token)
+    # 3. Optional dot (\.?)
+    # 4. Optional octave scale (\d*)
+    # 5. Optional trailing dot (\.?) (RTTTL allows dots before or after octave)
+    match = re.match(r"(\d*)([a-g-p]#?)(\.?)(\d*)(\.?)$", token)
     if not match:
         raise ValueError(f"Invalid RTTTL note format: {token}")
 
     duration_str = match.group(1)
     note_str = match.group(2)
-    octave_str = match.group(3)
+    has_dot = bool(match.group(3) or match.group(5))
+    octave_str = match.group(4)
 
     # Determine duration
     duration = int(duration_str) if duration_str else def_dur
 
     # Determine Rest or Note
     if note_str in ['p', '-']:
-        return duration, "-"
+        return duration, "-", has_dot
     
-    # Standardizing sharp placement for your NOTE_CODES dictionary (e.g. 'f#' -> '#f')
+    # Standardizing sharp placement (e.g. 'f#' -> '#f')
     if '#' in note_str:
         note_str = '#' + note_str.replace('#', '')
 
     # Determine Octave
     rtttl_octave = int(octave_str) if octave_str else def_oct
     
-    # Map RTTTL standard octaves down to match your FPGA key mappings (c1, c2, c3)
-    # RTTTL default standard octave is typically 5 or 6. 
-    # Let's map RTTTL Octave 5 -> 1, Octave 6 -> 2, Octave 7 -> 3.
+    # Map RTTTL standard octaves down to match FPGA key mappings (c1, c2, c3)
     fpga_octave = rtttl_octave - 4
     if fpga_octave < 1: fpga_octave = 1
     if fpga_octave > 3: fpga_octave = 3
 
-    # Exception check for c6 edge case in your dictionary
     key = f"{note_str}{fpga_octave}"
-    if key == "c4":  # if it overflows boundaries slightly 
-        key = "c3"
+    
+    # Check fallback for c6 edgecase
+    if key == "c4" and "c6" in NOTE_CODES:
+        key = "c6"
+    elif key not in NOTE_CODES:
+        # Fallback to scale bounds if note spills outside fixed dictionary range
+        if fpga_octave > 3: key = f"{note_str}3"
+        if fpga_octave < 1: key = f"{note_str}1"
 
-    return duration, key
+    return duration, key, has_dot
 
 
-def duration_to_cycles(duration, bpm):
-    """Convert note duration to sync cycles based on BPM."""
+def duration_to_cycles(duration, bpm, has_dot):
+    """Convert note duration to sync cycles based on BPM, factoring in dotted modifiers."""
     quarter_time = 60.0 / bpm
     note_time = quarter_time * (4 / duration)
+    if has_dot:
+        note_time *= 1.5
     cycles = int(round(note_time * SYNC_FREQ))
     return cycles
 
@@ -132,10 +136,8 @@ def encode_word(cycles, note_code):
 
 def convert_file(input_path, output_path):
     with open(input_path, "r") as f:
-        # Read entire content and combine lines in case RTTTL string is split across lines
         content = "".join([line.strip() for line in f if line.strip()])
 
-    # Split the 3 core RTTTL sections
     sections = content.split(':')
     if len(sections) < 3:
         raise ValueError("Invalid RTTTL file! Must contain parts separated by ':' (Name:Settings:Notes)")
@@ -144,10 +146,8 @@ def convert_file(input_path, output_path):
     settings_str = sections[1].strip()
     notes_str = sections[2].strip()
 
-    # Parse headers
     def_dur, def_oct, bpm = parse_rtttl_header(settings_str)
 
-    # RTTTL notes are strictly comma-separated
     tokens = notes_str.split(',')
     output_words = []
 
@@ -156,13 +156,13 @@ def convert_file(input_path, output_path):
         if res is None:
             continue
         
-        duration, note_key = res
+        duration, note_key, has_dot = res
 
         if note_key not in NOTE_CODES:
             raise ValueError(f"Parsed note '{note_key}' (from token '{token}') is missing in NOTE_CODES map.")
 
         note_code = NOTE_CODES[note_key]
-        cycles = duration_to_cycles(duration, bpm)
+        cycles = duration_to_cycles(duration, bpm, has_dot)
         word = encode_word(cycles, note_code)
 
         output_words.append(word)
@@ -175,10 +175,6 @@ def convert_file(input_path, output_path):
     print(f"Converted {len(output_words)} notes from '{name}'.")
     print(f"Output written to: {output_path}")
 
-
-# ------------------------------------------------------------
-# MAIN
-# ------------------------------------------------------------
 
 def main():
     if len(sys.argv) != 2:
