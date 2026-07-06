@@ -15,6 +15,8 @@ sv work ../../../rtl/uart/receiver_4byte.sv \
         ../../../rtl/uart/uart_packet_slicer.sv \
         ../../../rtl/uart/game_uart_encoder.sv \
         ../../../rtl/uart/game_uart_decoder.sv \
+        ../../../rtl/uart/uart_packet_slicer.sv \
+        ../../../rtl/uart/top_game_uart.sv \
         top_game_uart_tb.sv 
 
 verilog work  ../../../rtl/uart/uart.v \

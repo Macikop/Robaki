@@ -36,7 +36,9 @@ module top_game_uart(
     output logic [7:0] explosion_radius_rx,
     output logic [6:0] worm_1_health_rx,
 
-    output logic tx
+    output logic tx,
+    output logic done_tx,
+    output logic empty
     );
 
     timeunit 1ns;
@@ -47,6 +49,8 @@ module top_game_uart(
     wire start;
     wire done;
 
+    assign done_tx = done;
+
     top_4byte_uart u_top_4byte_uart(
         .clk,
         .rst_n,
@@ -55,7 +59,8 @@ module top_game_uart(
         .rx,
         .done(done),
         .data_received(rx_packet),
-        .tx
+        .tx,
+        .empty
     );
 
     game_uart_encoder u_game_uart_encoder(
@@ -81,7 +86,7 @@ module top_game_uart(
     wire [2:0] extra_slicer;
     wire [23:0] payload_slicer;
 
-    uart_packer_slicer u_uart_packet_slicer(
+    uart_packet_slicer u_uart_packet_slicer(
         .clk,
         .rst_n,
         .done(done),

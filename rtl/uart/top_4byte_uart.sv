@@ -13,13 +13,14 @@ module top_4byte_uart(
     input logic rx,
     output logic done,
     output logic[31:0] data_received,
-    output logic tx
+    output logic tx,
+    output logic empty
 );
 
 timeunit 1ns;
 timeprecision 1ps;
 
-wire wr_uart, tx_full, empty, rx_empty, rd_uart, full;
+wire wr_uart, tx_full, rx_empty, rd_uart, full;
 wire[7:0] w_data, r_data;
 
 assign done = full;
