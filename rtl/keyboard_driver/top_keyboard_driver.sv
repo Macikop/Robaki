@@ -8,8 +8,8 @@ module top_keyboard_driver (
     input logic clk,
     input logic rst_n,
 
-    input logic ps2_clk,
-    input logic ps2_data,
+    inout logic ps2_clk,
+    inout logic ps2_data,
 
     output logic up, down, left, right, space, tab
     );

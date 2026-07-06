@@ -1,13 +1,5 @@
-/**
- * San Jose State University
- * EE178 Lab #4
- * Author: prof. Eric Crabilla
- *
- * Modified by:
- * 2025  AGH University of Science and Technology
- * MTM UEC2
- * Piotr Kaczmarczyk
- *
+/*
+ * Designed by MP
  * Description:
  * Top level synthesizable module including the project top and all the FPGA-referred modules.
  */
@@ -18,6 +10,7 @@ module top_robaki (
         input  wire sw[1:0], //sw[0] - mute, sw[1] - volume
         inout  wire PS2Clk,
         inout  wire PS2Data,
+        output wire [4:0] led,
         output wire Vsync,
         output wire Hsync,
         output wire [3:0] vgaRed,
@@ -101,7 +94,12 @@ module top_robaki (
         .g         (vgaGreen),
         .b         (vgaBlue),
         .vs        (Vsync),
-        .hs        (Hsync)
+        .hs        (Hsync),
+        .debug_up(led[0]),
+        .debug_down(led[1]),
+        .debug_right(led[2]),
+        .debug_left(led[3]),
+        .debug_space(led[4])
     );
 
 endmodule

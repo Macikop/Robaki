@@ -21,7 +21,6 @@ module top_game #(
     
     input logic ps2_data,
     input logic ps2_clk,
-    
 
     /* temporary switch interface */
     // input  logic up,
@@ -30,6 +29,14 @@ module top_game #(
     // input  logic left,
     // input  logic space,
 
+    /* keyboard debug outputs */
+
+    output logic debug_up,
+    output logic debug_down,
+    output logic debug_right,
+    output logic debug_left,
+    output logic debug_space,
+    
     /* audio interface */
     input  logic mute_in,
     input  logic volume_in,
@@ -97,6 +104,19 @@ module top_game #(
     logic draw_explosion_en;
     logic [11:0] draw_explosion_color;
     logic start_screen_en, end_screen_en;
+
+    logic up;
+    logic down;
+    logic right;
+    logic left;
+    logic space;
+    logic tab;
+
+    assign debug_down = down;
+    assign debug_up = up;
+    assign debug_left = left;
+    assign debug_right = right;
+    assign debug_space = space;
 
     
     top_core #(
