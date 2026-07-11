@@ -45,7 +45,7 @@ module master_fsm(
     state_t state, state_nxt;
 
     logic current_player_nxt;
-    logic space_bar_last;
+    logic space_bar_last, space_bar_last_last;
 
     logic start_screen_en_nxt;
     logic walking_en_nxt;
@@ -66,6 +66,7 @@ module master_fsm(
 
             sync_out <= '0;
             space_bar_last <= 1'b0;
+            space_bar_last_last <= 1'b0; //HERE
 
             start_screen_en <= 1'b0;
             walking_en <= 1'b0;
@@ -83,6 +84,7 @@ module master_fsm(
             sync_out <= vsync_in;
 
             space_bar_last <= space_bar;
+            space_bar_last_last <= space_bar_last; //HERE
 
             start_screen_en <= start_screen_en_nxt;
             walking_en <= walking_en_nxt;
@@ -117,7 +119,7 @@ module master_fsm(
             negedge_occured_nxt = 1'b0;
         end
 
-        if(space_bar && !space_bar_last && ((state == STARTING_SCREEN) || (state == WALKING))) begin
+        if(space_bar && !space_bar_last && ((state == STARTING_SCREEN) || (state == WALKING))) begin // HERE
             posedge_occured_nxt = 1'b1;
         end
         if(!space_bar && space_bar_last && (state == SHOOTING)) begin

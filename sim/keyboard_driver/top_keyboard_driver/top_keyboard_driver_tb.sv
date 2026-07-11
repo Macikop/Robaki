@@ -30,6 +30,11 @@ module top_keyboard_driver_tb;
     logic ps2_clk;
     logic ps2_data;
 
+    wire ps2_clk_wire;
+    wire ps2_data_wire;
+    assign ps2_clk_wire = ps2_clk;
+    assign ps2_data_wire = ps2_data;
+
     //DUT outputs
     wire up, down, left, right, space, tab;
 
@@ -56,10 +61,10 @@ module top_keyboard_driver_tb;
      * Signal initialization
      */
 
-    initial begin
-        ps2_clk = 1'b1;
-        ps2_data = 1'b1;
-    end
+    //initial begin
+    //    ps2_clk = 1'b1;
+    //    ps2_data = 1'b1;
+    //end
 
      /**
      * Dut Placement
@@ -68,8 +73,8 @@ module top_keyboard_driver_tb;
     top_keyboard_driver dut (
         .clk        (clk),
         .rst_n      (rst_n),
-        .ps2_clk    (ps2_clk),
-        .ps2_data   (ps2_data),
+        .ps2_clk    (ps2_clk_wire),
+        .ps2_data   (ps2_data_wire),
         .up         (up),
         .down       (down),
         .left       (left),

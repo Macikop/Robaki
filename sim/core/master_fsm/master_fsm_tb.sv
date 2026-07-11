@@ -26,6 +26,15 @@ module master_fsm_tb;
     logic rst_n;
     
     logic space_bar;
+
+    logic space_bar_last;
+    logic space_bar_last_last;
+    logic posedge_occured;
+
+    assign space_bar_last = dut.space_bar_last;
+    assign space_bar_last_last = dut.space_bar_last_last;
+    assign posedge_occured = dut.posedge_occured;
+
     logic vsync_in;
     logic [6:0] worm_health [0:1];
     logic worms_on_ground [0:1];
@@ -183,6 +192,7 @@ module master_fsm_tb;
 
     initial begin
         initialize_signals();
+        $monitor("%b, %b, %b", dut.space_bar_last, dut.space_bar_last_last, dut.posedge_occured);
 
         @(negedge rst_n);
         @(posedge rst_n);
