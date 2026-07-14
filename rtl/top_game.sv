@@ -13,11 +13,9 @@ module top_game #(
     input  logic clk_media, 
 
     input  logic rst_n,
-
-    // not yet ready 
     
-    // input logic uart_rx
-    // output logic uart_tx
+    input logic uart_rx,
+    output logic uart_tx,
     
     input logic ps2_data,
     input logic ps2_clk,
@@ -27,7 +25,7 @@ module top_game #(
     // input  logic down,
     // input  logic right,
     // input  logic left,
-    // input  logic space,
+    //input  logic space,
 
     /* keyboard debug outputs */
 
@@ -128,7 +126,7 @@ module top_game #(
     ) u_top_core (
         .clk                     (clk_core),
         .rst_n                   (rst_n),
-        .vsync                   (sync),
+        .vsync                   (sync_in),
         .space                   (space),
         .up                      (up),
         .down                    (down),
@@ -260,6 +258,7 @@ module top_game #(
     top_keyboard_driver u_top_keyboard_driver(
         .clk        (clk_core),
         .rst_n      (rst_n),
+        .sync       (sync_in),
         .ps2_clk    (ps2_clk),
         .ps2_data   (ps2_data),
         .up         (up),
@@ -270,6 +269,40 @@ module top_game #(
         .tab        (tab)
     );
 
+/*    top_game_uart u_top_game_uart(
+        .clk        (clk_core),
+        .rst_n      (rst_n),
+        .vsync      (sync),
+
+        .current_state_tx(),
+        .current_player_tx(),
+        .worm_1_xpos_tx(),
+        .worm_1_ypos_tx(),
+        .aim_angle_tx(),
+        .shot_power_tx(),
+        .bullet_x_tx(),
+        .bullet_y_tx(),
+        .explosion_radius_tx(),
+        .worm_1_health_tx(),
+
+        .rx(uart_rx),
+
+        .current_state_rx(),
+        .current_player_rx(),
+        .worm_1_xpos_rx(),
+        .worm_1_ypos_rx(),
+        .aim_angle_rx(),
+        .shot_power_rx(),
+        .bullet_x_rx(),
+        .bullet_y_rx(),
+        .explosion_radius_rx(),
+        .worm_1_health_rx(),
+
+        .tx(uart_tx),
+        .done_tx(),
+        .empty()
+    );
+*/
 
 
 endmodule

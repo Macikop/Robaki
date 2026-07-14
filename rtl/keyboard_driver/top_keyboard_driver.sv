@@ -7,6 +7,8 @@
 module top_keyboard_driver (
     input logic clk,
     input logic rst_n,
+    
+    input logic sync,
 
     inout logic ps2_clk,
     inout logic ps2_data,
@@ -16,6 +18,8 @@ module top_keyboard_driver (
 
     logic [7:0] key_code;
     logic done;
+
+    logic dec_up, dec_down, dec_left, dec_right, dec_space, dec_tab;
 
     Ps2Interface u_Ps2Interface (
         .clk,
@@ -37,12 +41,30 @@ module top_keyboard_driver (
         .rst_n,
         .key_code(key_code),
         .done(done),
-        .up,
-        .down,
-        .left,
-        .right,
-        .space,
-        .tab
+        .up(dec_up),
+        .down(dec_down),
+        .left(dec_left),
+        .right(dec_right),
+        .space(dec_space),
+        .tab(dec_tab)
     );
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            up    <= 1'b0;
+            down  <= 1'b0;
+            left  <= 1'b0;
+            right <= 1'b0;
+            space <= 1'b0;
+            tab   <= 1'b0;
+        end else if (sync) begin
+            up    <= dec_up;
+            down  <= dec_down;
+            left  <= dec_left;
+            right <= dec_right;
+            space <= dec_space;
+            tab   <= dec_tab;
+        end
+    end
 
 endmodule

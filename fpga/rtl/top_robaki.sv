@@ -16,7 +16,7 @@ module top_robaki (
         output wire [3:0] vgaRed,
         output wire [3:0] vgaGreen,
         output wire [3:0] vgaBlue,
-        output wire JA[3:0]  //JA[0] - AIN, JA[1] - GAIN, JA[2] - NC, JA[3] - SHUT_N
+        output wire JA[5:0]  //JA[0] - AIN, JA[1] - GAIN, JA[2] - NC, JA[3] - SHUT_N, JA[4]- rx, JA[5] - tx
     );
 
     timeunit 1ns;
@@ -83,6 +83,8 @@ module top_robaki (
         .clk_core  (clk_core),
         .clk_media (pclk),
         .rst_n     (~btnC),
+        .uart_rx   (JA[4]),
+        .uart_tx   (JA[5]),
         .ps2_data  (PS2Data),
         .ps2_clk   (PS2Clk),
         .mute_in   (sw[0]),
