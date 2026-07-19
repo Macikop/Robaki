@@ -27,6 +27,11 @@ module top_game_tb;
 
     logic clk_core, clk_vga;
     logic rst_n;
+
+    logic [3:0] r, g, b;
+    logic vs, hs;
+
+    logic up, down, left, right, space;
     
 
     /**
@@ -68,16 +73,20 @@ module top_game_tb;
         .clk_core  (clk_core),
         .clk_media (clk_vga),
         .rst_n     (rst_n),
-        .up        (),
-        .down      (),
-        .right     (),
-        .left      (),
-        .space     (),
-        .r         (),
-        .g         (),
-        .b         (),
-        .vs        (),
-        .hs        ()
+        .up        (up),
+        .down      (down),
+        .right     (right),
+        .left      (left),
+        .space     (space),
+        .r         (r),
+        .g         (g),
+        .b         (b),
+        .vs        (vs),
+        .hs        (hs),
+        .mute_in   (1'b1),
+        .volume_in (1'b1),
+        .audio     (),
+        .shutdown  ()
     );
 
 
@@ -97,10 +106,41 @@ module top_game_tb;
 
     initial begin
 
+        up = '0;
+        down = '0;
+        left = '0;
+        right = '0;
+        space = '0;
+
         @(negedge rst_n);
         @(posedge rst_n);
 
-        repeat (1000000) @(posedge clk_core);
+        @(posedge vs);
+        space = 1'b1;
+        @(posedge vs);
+        @(posedge vs);
+        space = 1'b0;
+
+        right = 1'b1;
+        @(posedge vs);
+        @(posedge vs);
+        right = 1'b0;
+
+        @(posedge vs);
+        
+        @(posedge vs);
+        space = 1'b1;
+        @(posedge vs);
+        @(posedge vs);
+        space = 1'b0;
+        
+        @(posedge vs);
+        
+        @(posedge vs);
+        space = 1'b1;
+        @(posedge vs);
+        @(posedge vs);
+        space = 1'b0;
 
         $finish;
     end

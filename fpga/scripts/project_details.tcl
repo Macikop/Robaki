@@ -65,6 +65,7 @@ set sv_files {
     ../rtl/keyboard_driver/key_decoder.sv \
     ../rtl/keyboard_driver/top_keyboard_driver.sv \
 
+    ../rtl/shared_modules/synchroniser.sv \
     ../rtl/shared_modules/cdc.sv \
     ../rtl/shared_modules/delay.sv \
     ../rtl/shared_modules/edge_detector.sv \

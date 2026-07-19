@@ -25,7 +25,7 @@ module top_game #(
     // input  logic down,
     // input  logic right,
     // input  logic left,
-    //input  logic space,
+    // input  logic space,
 
     /* keyboard debug outputs */
 
@@ -159,27 +159,36 @@ module top_game #(
 
     cdc #(
         .STAGES (2),
-        .WIDTH  (137)
+        .WIDTH  (126)
     ) u_cdc (
         .clk_a     (clk_core),
         .clk_b     (clk_media),
         .rst_n     (rst_n),
-        .data_in   ({draw_worm_0_x_pos_core, draw_worm_0_y_pos_core, draw_worm_0_orientation_core, draw_worm_1_x_pos_core, draw_worm_1_x_pos_core, draw_worm_1_y_pos_core, draw_worm_1_orientation_core, aim_x_pos_core, aim_y_pos_core, aim_en_core, draw_bullet_x_core, draw_bullet_y_core, draw_bullet_en_core, draw_explosion_x_core, draw_explosion_y_core, draw_explosion_radius_core, draw_explosion_en_core}),
+        .data_in   ({draw_worm_0_x_pos_core, draw_worm_0_y_pos_core, draw_worm_0_orientation_core, draw_worm_1_x_pos_core, draw_worm_1_y_pos_core, draw_worm_1_orientation_core, aim_x_pos_core, aim_y_pos_core, aim_en_core, draw_bullet_x_core, draw_bullet_y_core, draw_bullet_en_core, draw_explosion_x_core, draw_explosion_y_core, draw_explosion_radius_core, draw_explosion_en_core}),
         .send_data (sync),
-        .data_out  ({draw_worm_0_x_pos, draw_worm_0_y_pos, draw_worm_0_orientation, draw_worm_1_x_pos, draw_worm_1_x_pos, draw_worm_1_y_pos, draw_worm_1_orientation, aim_x_pos, aim_y_pos, aim_en, draw_bullet_x, draw_bullet_y, draw_bullet_en, draw_explosion_x, draw_expolsion_y, draw_explosion_radius, draw_explosion_en})
+        .data_out  ({draw_worm_0_x_pos, draw_worm_0_y_pos, draw_worm_0_orientation, draw_worm_1_x_pos, draw_worm_1_y_pos, draw_worm_1_orientation, aim_x_pos, aim_y_pos, aim_en, draw_bullet_x, draw_bullet_y, draw_bullet_en, draw_explosion_x, draw_expolsion_y, draw_explosion_radius, draw_explosion_en})
     );
 
-    cdc #(
-        .STAGES (2),
-        .WIDTH  (1)
-    ) u_cdc_vsync (
-        .clk_a     (clk_media),
-        .clk_b     (clk_core),
-        .rst_n     (rst_n),
-        .data_in   (vs),
-        .send_data (vs),
-        .data_out  (sync_in)
+    synchroniser #(
+        .STAGES (2)
+    ) u_synchroniser (
+        .clk      (clk_core),
+        .rst_n    (rst_n),
+        .data_in  (vs),
+        .data_out (sync_in)
     );
+
+    // cdc #(
+    //     .STAGES (2),
+    //     .WIDTH  (1)
+    // ) u_cdc_vsync (
+    //     .clk_a     (clk_media),
+    //     .clk_b     (clk_core),
+    //     .rst_n     (rst_n),
+    //     .data_in   (vs),
+    //     .send_data (vs),
+    //     .data_out  (sync_in)
+    // );
 
     edge_detector #(
         .POSITIVE (1'b1)
@@ -252,7 +261,7 @@ module top_game #(
         .volume    (volume_in),
         .wave_out  (audio),
         .gain      (gain),
-        .shutdown (shutdown)
+        .shutdown  (shutdown)
     );
 
     top_keyboard_driver u_top_keyboard_driver(

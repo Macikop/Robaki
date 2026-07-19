@@ -50,7 +50,7 @@ module cdc #(
         end  
     end
 
-    assign toggle_sync_b = sync_ff [STAGES-1] ;
+    assign toggle_sync_b = sync_ff [STAGES-1];
 
     /* domain B */
     always_ff @(posedge clk_b or negedge rst_n) begin
