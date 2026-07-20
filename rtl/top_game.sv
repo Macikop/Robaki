@@ -126,7 +126,7 @@ module top_game #(
     ) u_top_core (
         .clk                     (clk_core),
         .rst_n                   (rst_n),
-        .vsync                   (sync_in),
+        .vsync                   (sync),
         .space                   (space),
         .up                      (up),
         .down                    (down),

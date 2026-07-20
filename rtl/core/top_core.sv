@@ -107,6 +107,10 @@ module top_core #(
     logic [7:0] x_component_bullet, y_component_bullet;
     logic [7:0] x_aim, y_aim;
 
+    logic [2:0] explosion_part_end;
+
+    logic impact_sr;
+
     memory_if ram_clients[0:RAM_CHANNELS-1]();
 
     assign draw_logo = start_screen_en;
@@ -127,13 +131,45 @@ module top_core #(
 
     sr_flip_flop #(
         .PRIORITY ("RESET")
-    ) u_sr_flip_flop (
+    ) u_sr_flip_flop_0 (
         .clk,
         .rst_n,
-        .s     (explosion_done_worm[0] && explosion_done_worm[1] && explosion_done),
+        .s     (explosion_done_worm[0]),
         .r     (!explosion_en),
-        .q     (explosion_end)
+        .q     (explosion_part_end[0])
     );
+
+    sr_flip_flop #(
+        .PRIORITY ("RESET")
+    ) u_sr_flip_flop_1 (
+        .clk,
+        .rst_n,
+        .s     (explosion_done_worm[1]),
+        .r     (!explosion_en),
+        .q     (explosion_part_end[1])
+    );
+
+    sr_flip_flop #(
+        .PRIORITY ("RESET")
+    ) u_sr_flip_flop_2 (
+        .clk,
+        .rst_n,
+        .s     (explosion_done),
+        .r     (!explosion_en),
+        .q     (explosion_part_end[2])
+    );
+
+    sr_flip_flop #(
+        .PRIORITY ("RESET")
+    ) u_sr_flip_flop_impact (
+        .clk,
+        .rst_n,
+        .s     (impact),
+        .r     (!bullet_en),
+        .q     (impact_sr)
+    );
+
+    assign explosion_end = &explosion_part_end;
 
     master_fsm u_master_fsm (
         .clk,
@@ -143,7 +179,7 @@ module top_core #(
         .worm_health     (worm_health),
         .worms_on_ground (worm_ground_hit),
 
-        .bullet_impact   (impact),
+        .bullet_impact   (impact_sr),
         .explosion_done  (explosion_end),
         .sync_out        (sync),
         .start_screen_en (start_screen_en),

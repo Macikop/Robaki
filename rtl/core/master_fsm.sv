@@ -128,27 +128,24 @@ module master_fsm(
         
         case (state)
             STARTING_SCREEN: begin
-                // Checking the registered values as requested
                 if (posedge_occured && vsync_in) begin
-                    posedge_occured_nxt = 1'b0; // Consume the event
+                    posedge_occured_nxt = 1'b0;
                     state_nxt = WALKING;
                 end
                 start_screen_en_nxt = 1'b1;
             end
 
             WALKING: begin
-                // Fixed loop bug: Routes to SHOOTING now
                 if (posedge_occured && vsync_in) begin
-                    posedge_occured_nxt = 1'b0; // Consume the event
+                    posedge_occured_nxt = 1'b0;
                     state_nxt = SHOOTING;
                 end
-                // Fixed output driver: Now drives walking enable instead of start screen
                 walking_en_nxt = 1'b1;
             end
 
             SHOOTING: begin
                 if (negedge_occured && vsync_in) begin
-                    negedge_occured_nxt = 1'b0; // Consume the event
+                    negedge_occured_nxt = 1'b0;
                     state_nxt = BULLET_FLIGHT;
                 end
                 shooting_en_nxt = 1'b1;

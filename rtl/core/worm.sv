@@ -89,9 +89,9 @@ module worm #(
 
             if (active_turn && walking_en) begin
                 if (left) begin
-                    direction <= 1'b0;
-                end else if (right) begin
                     direction <= 1'b1;
+                end else if (right) begin
+                    direction <= 1'b0;
                 end
             end
 
@@ -184,7 +184,7 @@ module worm #(
     );
 
     walk #(
-        .SPEED          (11'd10),
+        .SPEED          (11'd1),
         .GRAVITY        (GRAVITY),
         .TERRAIN_WIDTH  (TERRAIN_WIDTH),
         .TERRAIN_HEIGHT (TERRAIN_HEIGHT)

@@ -23,7 +23,7 @@ module walk #(
     input  logic [10:0] pos_x_init,
     input  logic [10:0] pos_y_init,
 
-    input  logic [20:0]  collisions,
+    input  logic [20:0] collisions,
     input  logic        detector_done,
     output logic        start_check,
     output logic [10:0] detector_pos_x,

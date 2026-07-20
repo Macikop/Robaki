@@ -31,9 +31,6 @@ module top_game_tb;
     logic [3:0] r, g, b;
     logic vs, hs;
 
-    logic up, down, left, right, space;
-    
-
     /**
      * Clock generation
      */
@@ -69,24 +66,52 @@ module top_game_tb;
      * Dut placement
      */
     
-    top_game dut (
-        .clk_core  (clk_core),
-        .clk_media (clk_vga),
-        .rst_n     (rst_n),
-        .up        (up),
-        .down      (down),
-        .right     (right),
-        .left      (left),
-        .space     (space),
-        .r         (r),
-        .g         (g),
-        .b         (b),
-        .vs        (vs),
-        .hs        (hs),
-        .mute_in   (1'b1),
-        .volume_in (1'b1),
-        .audio     (),
-        .shutdown  ()
+    // top_game dut (
+    //     .clk_core  (clk_core),
+    //     .clk_media (clk_vga),
+    //     .rst_n     (rst_n),
+    //     .up        (up),
+    //     .down      (down),
+    //     .right     (right),
+    //     .left      (left),
+    //     .space     (space),
+    //     .r         (r),
+    //     .g         (g),
+    //     .b         (b),
+    //     .vs        (vs),
+    //     .hs        (hs),
+    //     .mute_in   (1'b1),
+    //     .volume_in (1'b1),
+    //     .audio     (),
+    //     .shutdown  ()
+    // );
+
+    top_game #(
+        .TERRAIN_PATH ("../../rtl/vga_driver/maps/map1.dat"),
+        .MUSIC_PATH   ("../../rtl/audio_driver/music_files/nokia_ringtone.hex")
+    ) dut (
+        .clk_core    (clk_core),
+        .clk_media   (clk_vga),
+        .rst_n       (rst_n),
+        .uart_rx     (1'b0),
+        .uart_tx     (),
+        .ps2_data    (1'b0),
+        .ps2_clk     (1'b0),
+        .debug_up    (),
+        .debug_down  (),
+        .debug_right (),
+        .debug_left  (),
+        .debug_space (),
+        .mute_in     (1'b0),
+        .volume_in   (1'b0),
+        .audio       (),
+        .shutdown    (),
+        .gain        (),
+        .r           (r),
+        .g           (g),
+        .b           (b),
+        .vs          (vs),
+        .hs          (hs)
     );
 
 
@@ -106,41 +131,49 @@ module top_game_tb;
 
     initial begin
 
-        up = '0;
-        down = '0;
-        left = '0;
-        right = '0;
-        space = '0;
+        force dut.up = 1'b0;
+        force dut.down = 1'b0;
+        force dut.left = 1'b0;
+        force dut.right = 1'b0;
+        force dut.space = 1'b0;
 
         @(negedge rst_n);
         @(posedge rst_n);
 
+        force dut.space = 1'b1;
         @(posedge vs);
-        space = 1'b1;
-        @(posedge vs);
-        @(posedge vs);
-        space = 1'b0;
+        force dut.space = 1'b0;
 
-        right = 1'b1;
+        force dut.right = 1'b1;
         @(posedge vs);
-        @(posedge vs);
-        right = 1'b0;
+        force dut.space = 1'b0;
 
         @(posedge vs);
         
         @(posedge vs);
-        space = 1'b1;
+        force dut.space = 1'b1;
         @(posedge vs);
-        @(posedge vs);
-        space = 1'b0;
+        force dut.space = 1'b0;
         
         @(posedge vs);
-        
-        @(posedge vs);
-        space = 1'b1;
         @(posedge vs);
         @(posedge vs);
-        space = 1'b0;
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+        @(posedge vs);
+
+        @(posedge vs);
+        force dut.space = 1'b1;
+        @(posedge vs);
+        force dut.space = 1'b0;
+
 
         $finish;
     end
