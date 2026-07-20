@@ -1,15 +1,16 @@
 ## Fixes needed to be done
 
-- Slow down the worm
-- Slow down the bullet
-- Game freezes after shooting (probably bullet flight broken and explosion do not meet end condition)
-- Aiming angle isn't working
-- Slow down aim speed
+- Slow down / show the bullet
+- Aim mark rotation done incorectly and snaps to unthinkable positions
+- Aim mark gets stuck after player switch
 - Bullets do not show
-- No explosions registered
+- Explosion doesn't destroy the terrain
+- Player 1 fires backwards
 
 ## Features needed
 
+- Add endgame conditions
+- Make so it worms touches bottom of the screen it dies
 - Worms healt display
 - Shot power display
 - Multiplayer

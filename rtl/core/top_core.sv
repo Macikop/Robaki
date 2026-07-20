@@ -54,7 +54,7 @@ module top_core #(
 
 );
 
-    localparam WRITE_CHANNEL = 0;
+    localparam WRITE_CHANNEL = 1;
     localparam RAM_DELAY = 2;
     localparam RAM_CHANNELS = 6;
 
