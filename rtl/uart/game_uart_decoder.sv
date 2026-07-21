@@ -25,8 +25,10 @@ module game_uart_decoder(
     output logic [7:0] explosion_radius,
     output logic [6:0] worm_1_health,
 
-    output logic [3:0] current_state
+    output logic [3:0] current_state,
 
+    //enables
+    enable_if.out enable_out
     );
 
     timeunit 1ns;
@@ -40,6 +42,13 @@ module game_uart_decoder(
     logic [10:0] bullet_y_nxt;
     logic [7:0] explosion_radius_nxt;
     logic [6:0] worm_1_health_nxt;
+
+    assign enable_out.start_screen_en = (current_state == 4'd0);
+    assign enable_out.end_screen_en = (current_state == 4'd6);
+    assign enable_out.draw_worms = ((current_state != 4'd0) && (current_state != 4'd6));
+    assign enable_out.aim_en = ((current_state == 4'd1) || (current_state == 4'd2));
+    assign enable_out.draw_bullet_en = (current_state == 4'd3);
+    assign enable_out.draw_explosion_en = (current_state == 4'd4);
 
 
     always_ff @(posedge clk or negedge rst_n) begin

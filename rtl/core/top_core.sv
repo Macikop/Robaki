@@ -50,7 +50,9 @@ module top_core #(
     output logic [11:0] draw_explosion_color,
 
     output logic        draw_logo,
-    output logic        draw_end
+    output logic        draw_end,
+
+    output logic[2:0]   state
 
 );
 
@@ -189,7 +191,9 @@ module top_core #(
         .explosion_en    (explosion_en),
         .end_screen_en   (end_screen_en),
         .capture_wind    (capture_wind),
-        .current_player  (current_player)
+        .current_player  (current_player),
+
+        .current_state   (state)
     );
 
     rng #(

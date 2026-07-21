@@ -29,7 +29,9 @@ module master_fsm(
 
     output logic capture_wind,
 
-    output logic current_player
+    output logic current_player,
+
+    output logic[2:0] current_state
 );
 
     typedef enum logic [2:0] {
@@ -43,6 +45,8 @@ module master_fsm(
     } state_t;
 
     state_t state, state_nxt;
+
+    assign current_state = state;
 
     logic current_player_nxt;
     logic space_bar_last, space_bar_last_last;

@@ -38,11 +38,20 @@ module top_game_uart(
 
     output logic tx,
     output logic done_tx,
-    output logic empty
+    output logic empty,
+
+    output logic start_screen_en,
+    output logic end_screen_en,
+    output logic draw_worms,
+    output logic aim_en,
+    output logic draw_bullet_en,
+    output logic draw_explosion_en
     );
 
     timeunit 1ns;
     timeprecision 1ps;
+
+    logic[5:0] enables;
 
     wire [31:0] tx_packet;
     wire [31:0] rx_packet;
@@ -51,7 +60,15 @@ module top_game_uart(
 
     assign done_tx = done;
 
-    top_4byte_uart u_top_4byte_uart(
+    //enables
+    assign start_screen_en = enables[0];
+    assign end_screen_en = enables[1];
+    assign draw_worms = enables[2];
+    assign aim_en = enables[3];
+    assign draw_bullet_en = enables[4];
+    assign draw_explosion_en = enables[5];
+
+top_4byte_uart u_top_4byte_uart(
         .clk,
         .rst_n,
         .start(start),
@@ -112,7 +129,8 @@ module top_game_uart(
         .bullet_y(bullet_y_rx),
         .explosion_radius(explosion_radius_rx),
         .worm_1_health(worm_1_health_rx),
-        .current_state(current_state_rx)
+        .current_state(current_state_rx),
+        .enable_out(enables)
     );
 
 endmodule

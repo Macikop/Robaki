@@ -110,6 +110,8 @@ module top_game #(
     logic space;
     logic tab;
 
+    logic[2:0] state;
+
     assign debug_down = down;
     assign debug_up = up;
     assign debug_left = left;
@@ -154,7 +156,8 @@ module top_game #(
         .draw_explosion_en       (draw_explosion_en_core),
         .draw_explosion_color    (draw_explosion_color),
         .draw_logo               (start_screen_en),
-        .draw_end                (end_screen_en)
+        .draw_end                (end_screen_en),
+        .state                   (state)
     );
 
     cdc #(
@@ -283,7 +286,7 @@ module top_game #(
         .rst_n      (rst_n),
         .vsync      (sync),
 
-        .current_state_tx(),
+        .current_state_tx({1'b0, state}),
         .current_player_tx(),
         .worm_1_xpos_tx(),
         .worm_1_ypos_tx(),
@@ -311,7 +314,7 @@ module top_game #(
         .done_tx(),
         .empty()
     );
-*/
 
+*/
 
 endmodule

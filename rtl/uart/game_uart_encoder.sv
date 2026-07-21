@@ -34,7 +34,7 @@ module game_uart_encoder(
     logic [2:0] extra;
     logic [23:0] payload;
 
-    assign state_id = {1'b0, current_state};
+    assign state_id = current_state;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
